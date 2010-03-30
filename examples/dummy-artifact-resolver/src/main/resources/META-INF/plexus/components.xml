@@ -1,0 +1,9 @@
+<component-set>
+  <components>
+    <component>
+      <role>OVERRIDE-org.apache.maven.artifact.resolver.ArtifactResolver</role>
+      <role-hint>dummy</role-hint>
+      <implementation>org.apache.maven.experimental.artifact.resolver.DummyArtifactResolver</implementation>
+    </component>
+  </components>
+</component-set>
