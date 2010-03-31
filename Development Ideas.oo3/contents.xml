@@ -63,9 +63,9 @@
       <print-info-key name="OOScaleDocumentToFitPageWidth" type="boolean">true</print-info-key>
     </print-info>
   </settings>
-  <editor is-spellchecking-enabled="yes">
+  <editor content-size="{605, 800}" is-spellchecking-enabled="yes">
     <drawer palette-height="167"/>
-    <selected-rows ids="muUsyin5tzw"/>
+    <selected-rows ids="dA_MGD2ppNQ"/>
     <selected-columns ids="jFqHUGd_Dg1"/>
     <selected-characters range="{0, 0}"/>
   </editor>
@@ -84,7 +84,7 @@
         </text>
       </title>
     </column>
-    <column id="jFqHUGd_Dg1" type="text" width="507" minimum-width="13" maximum-width="1000000" text-export-width="72" is-outline-column="yes">
+    <column id="jFqHUGd_Dg1" type="text" width="569" minimum-width="13" maximum-width="1000000" text-export-width="72" is-outline-column="yes">
       <title>
         <text>
           <p>
@@ -156,14 +156,86 @@
                 </text>
               </values>
             </item>
-            <item id="muUsyin5tzw">
+          </children>
+        </item>
+      </children>
+    </item>
+    <item id="muUsyin5tzw" expanded="yes">
+      <values>
+        <text>
+          <p>
+            <run>
+              <lit>Artifact verification</lit>
+            </run>
+          </p>
+        </text>
+      </values>
+      <children>
+        <item id="nD-v9isonPg" expanded="yes">
+          <values>
+            <text>
+              <p>
+                <run>
+                  <lit>Download and verify GPG signatures before allowing artifact resolution to complete</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+          <children>
+            <item id="eVuiRnlFBkQ">
               <values>
-                <null/>
+                <text>
+                  <p>
+                    <run>
+                      <lit>BONUS POINTS: download the signatures from a configurable, EXTERNAL address!</lit>
+                    </run>
+                  </p>
+                </text>
               </values>
             </item>
           </children>
         </item>
       </children>
+    </item>
+    <item id="gWYx725OiBN" expanded="yes">
+      <values>
+        <text>
+          <p>
+            <run>
+              <lit>Client-side security</lit>
+            </run>
+          </p>
+        </text>
+      </values>
+      <children>
+        <item id="jptyL47QJI7">
+          <values>
+            <text>
+              <p>
+                <run>
+                  <lit>Install PKI certificate in user&apos;s keystore before starting</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+        </item>
+        <item id="eR3JVQNZksF">
+          <values>
+            <text>
+              <p>
+                <run>
+                  <lit>Download self-signed certificates as-needed on artifact resolution</lit>
+                </run>
+              </p>
+            </text>
+          </values>
+        </item>
+      </children>
+    </item>
+    <item id="dA_MGD2ppNQ">
+      <values>
+        <null/>
+      </values>
     </item>
   </root>
 </outline>
