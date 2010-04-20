@@ -38,13 +38,14 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 // NOTE: This code attempts to be excessively paranoid, since if it fails we have a MAJOR problem!
+@SuppressWarnings( "unchecked" )
 public class OverrideManager
 {
     private static final String OVERRIDES_PROPERTIES_PATH = "META-INF/maven/component-overrides.properties";
 
     private static final Properties overrides = new Properties();
 
-    private static final Logger logger = Logger.getLogger( OverridableJavaComponentFactory.class.getName() );
+    private static final Logger logger = Logger.getLogger( OverridableGuiceJavaComponentFactory.class.getName() );
 
     private static final Map<String, ComponentDescriptor> resolvedDescriptors =
         new HashMap<String, ComponentDescriptor>();
@@ -250,7 +251,6 @@ public class OverrideManager
         return requestedComponentDescriptor;
     }
 
-    @SuppressWarnings( "unchecked" )
     private static void cloneComponentDescriptorData( final ComponentDescriptor from, final ComponentDescriptor to,
                                                       final String prefix )
     {

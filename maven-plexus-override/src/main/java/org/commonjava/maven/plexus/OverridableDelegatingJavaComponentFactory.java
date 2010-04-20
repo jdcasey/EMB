@@ -34,7 +34,7 @@ import org.codehaus.plexus.component.repository.ComponentDescriptor;
  * @author <a href="mailto:mmaczka@interia.pl">Michal Maczka</a>
  * @version $Id$
  */
-public class OverridableJavaComponentFactory
+public class OverridableDelegatingJavaComponentFactory
     extends JavaComponentFactory
 {
 
