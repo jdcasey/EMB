@@ -15,6 +15,7 @@ package org.commonjava.xaven.conf;
  * the License.
  */
 
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 
 import java.io.File;
@@ -32,7 +33,7 @@ public class XavenConfiguration
 
     private File configurationDirectory;
 
-    private CliRequest request;
+    private MavenExecutionRequest mavenExecutionRequest;
 
     private InputStream stdin = System.in;
 
@@ -48,9 +49,9 @@ public class XavenConfiguration
     {
     }
 
-    public XavenConfiguration withCliRequest( final CliRequest request )
+    public XavenConfiguration withMavenExecutionRequest( final MavenExecutionRequest request )
     {
-        this.request = request;
+        mavenExecutionRequest = request;
         return this;
     }
 
@@ -87,9 +88,9 @@ public class XavenConfiguration
         return stderr;
     }
 
-    public CliRequest getCliRequest()
+    public MavenExecutionRequest getMavenExecutionRequest()
     {
-        return request;
+        return mavenExecutionRequest;
     }
 
     public boolean isInteractive()

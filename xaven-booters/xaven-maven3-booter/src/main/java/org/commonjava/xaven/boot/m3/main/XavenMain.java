@@ -58,7 +58,6 @@ import org.commonjava.xaven.boot.m3.log.BatchTransferListener;
 import org.commonjava.xaven.boot.m3.log.EventLogger;
 import org.commonjava.xaven.boot.m3.log.InteractiveTransferListener;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
-import org.commonjava.xaven.conf.CliRequest;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -169,10 +168,10 @@ public class XavenMain
             initialize( cliRequest );
             // Need to process cli options first to get possible logging options
             cli( cliRequest );
-            xavenConfiguration( cliRequest );
             logging( cliRequest );
             commands( cliRequest );
             properties( cliRequest );
+            xavenConfiguration( cliRequest );
             container( cliRequest );
             settings( cliRequest );
             populateRequest( cliRequest );
@@ -292,7 +291,7 @@ public class XavenMain
                 while ( loggers.hasMoreElements() )
                 {
                     final Logger logger = loggers.nextElement();
-                    if ( cliRequest.xavenConfig.isDebugEnabled() )
+                    if ( cliRequest.debug )
                     {
                         logger.setLevel( Level.DEBUG );
                     }
@@ -1053,7 +1052,8 @@ public class XavenMain
     protected void xavenConfiguration( final CliRequest cliRequest )
     {
         final XavenConfiguration config =
-            new XavenConfiguration().withCliRequest( cliRequest ).withConfigurationDirectory( CONFIGURATION_DIRECTORY );
+            new XavenConfiguration().withMavenExecutionRequest( cliRequest.request )
+                                    .withConfigurationDirectory( CONFIGURATION_DIRECTORY );
 
         if ( cliRequest.debug )
         {

@@ -1,9 +1,10 @@
-package org.commonjava.xaven.conf;
+package org.commonjava.xaven.boot.m3.main;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.codehaus.plexus.classworlds.ClassWorld;
+import org.commonjava.xaven.conf.XavenConfiguration;
 
 import java.io.PrintStream;
 import java.util.Properties;
