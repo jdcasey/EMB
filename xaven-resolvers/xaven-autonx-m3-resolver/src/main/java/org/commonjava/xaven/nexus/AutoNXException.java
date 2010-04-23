@@ -1,4 +1,4 @@
-package org.commonjava.xaven.conf.ext;
+package org.commonjava.xaven.nexus;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -17,7 +17,7 @@ package org.commonjava.xaven.conf.ext;
 
 import java.text.MessageFormat;
 
-public class ExtensionConfigurationException
+public class AutoNXException
     extends Exception
 {
 
@@ -27,25 +27,25 @@ public class ExtensionConfigurationException
 
     private String formattedMessage;
 
-    public ExtensionConfigurationException( final String message, final Throwable cause )
+    public AutoNXException( final String message, final Throwable cause )
     {
         super( message, cause );
         params = null;
     }
 
-    public ExtensionConfigurationException( final String message )
+    public AutoNXException( final String message )
     {
         super( message );
         params = null;
     }
 
-    public ExtensionConfigurationException( final String message, final Throwable cause, final Object... params )
+    public AutoNXException( final String message, final Throwable cause, final Object... params )
     {
         super( message, cause );
         this.params = params;
     }
 
-    public ExtensionConfigurationException( final String message, final Object... params )
+    public AutoNXException( final String message, final Object... params )
     {
         super( message );
         this.params = params;

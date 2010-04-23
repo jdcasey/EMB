@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <localRepository>/Users/jdcasey/.m2/repository</localRepository>
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+  </servers>
+</settings>

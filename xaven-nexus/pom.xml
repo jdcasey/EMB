@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
   
   <modules>
-    <module>autonx</module>
-    <module>nexus-xaven-autoconf-plugin</module>
+    <module>nexus-autonx-plugin</module>
   </modules>
 </project>

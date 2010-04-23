@@ -18,6 +18,8 @@ package org.commonjava.xaven.conf;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,6 +31,76 @@ public class XavenConfiguration
     private Map<String, ? extends ExtensionConfiguration> configs;
 
     private File configurationDirectory;
+
+    private CliRequest request;
+
+    private InputStream stdin = System.in;
+
+    private PrintStream stdout = System.out;
+
+    private PrintStream stderr = System.err;
+
+    private boolean debug;
+
+    private boolean interactive;
+
+    public XavenConfiguration()
+    {
+    }
+
+    public XavenConfiguration withCliRequest( final CliRequest request )
+    {
+        this.request = request;
+        return this;
+    }
+
+    public XavenConfiguration withStandardIn( final InputStream stdin )
+    {
+        this.stdin = stdin;
+        return this;
+    }
+
+    public InputStream getStandardIn()
+    {
+        return stdin;
+    }
+
+    public XavenConfiguration withStandardOut( final PrintStream stdout )
+    {
+        this.stdout = stdout;
+        return this;
+    }
+
+    public PrintStream getStandardOut()
+    {
+        return stdout;
+    }
+
+    public XavenConfiguration withStandardErr( final PrintStream stderr )
+    {
+        this.stderr = stderr;
+        return this;
+    }
+
+    public PrintStream getStandardErr()
+    {
+        return stderr;
+    }
+
+    public CliRequest getCliRequest()
+    {
+        return request;
+    }
+
+    public boolean isInteractive()
+    {
+        return interactive;
+    }
+
+    public boolean isDebugEnabled()
+    {
+        return debug;
+    }
 
     public XavenConfiguration withConfigurationDirectory( final File configurationDirectory )
     {
@@ -66,6 +138,30 @@ public class XavenConfiguration
     public XavenConfiguration withComponentSelections( final Properties componentSelections )
     {
         this.componentSelections = componentSelections;
+        return this;
+    }
+
+    public XavenConfiguration withoutDebug()
+    {
+        debug = false;
+        return this;
+    }
+
+    public XavenConfiguration withDebug()
+    {
+        debug = true;
+        return this;
+    }
+
+    public XavenConfiguration interactive()
+    {
+        interactive = true;
+        return this;
+    }
+
+    public XavenConfiguration nonInteractive()
+    {
+        interactive = false;
         return this;
     }
 

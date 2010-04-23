@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
+import org.commonjava.xaven.conf.XavenConfiguration;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -44,7 +45,9 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role#hint", "other-hint" );
 
-        final SelectorComponentRepository repo = new SelectorComponentRepository( selectors );
+        final SelectorComponentRepository repo =
+            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
 
@@ -70,13 +73,43 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role", "other-hint" );
 
-        final SelectorComponentRepository repo = new SelectorComponentRepository( selectors );
+        final SelectorComponentRepository repo =
+            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
 
         final ComponentDescriptor<String> result = repo.getComponentDescriptor( String.class, "role", null );
         assertNotNull( result );
         assertEquals( "other-hint", result.getRoleHint() );
+    }
+
+    @Test
+    public void componentSubstitutionWhenTargetRoleHintIsBlankPlaceholder()
+        throws CycleDetectedInComponentGraphException
+    {
+        final ComponentDescriptor<String> cd1 = new ComponentDescriptor<String>();
+        cd1.setRole( "role" );
+        cd1.setRoleHint( "hint" );
+        cd1.setImplementationClass( String.class );
+
+        final ComponentDescriptor<String> cd2 = new ComponentDescriptor<String>();
+        cd2.setRole( "role" );
+        cd2.setRoleHint( "other-hint" );
+        cd2.setImplementationClass( String.class );
+
+        final Properties selectors = new Properties();
+        selectors.setProperty( "role", "other-hint" );
+
+        final SelectorComponentRepository repo =
+            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+
+        repo.addComponentDescriptor( cd1 );
+        repo.addComponentDescriptor( cd2 );
+
+        final ComponentDescriptor<String> result = repo.getComponentDescriptor( String.class, "role", "#" );
+        assertNotNull( result );
+        assertEquals( "hint", result.getRoleHint() );
     }
 
     @Test
@@ -96,7 +129,9 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role#hint", "other-hint" );
 
-        final SelectorComponentRepository repo = new SelectorComponentRepository( selectors );
+        final SelectorComponentRepository repo =
+            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
 

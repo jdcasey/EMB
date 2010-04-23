@@ -21,6 +21,7 @@
         <groupId>org.commonjava.xaven</groupId>
         <artifactId>xaven-api</artifactId>
         <version>${project.version}</version>
+        <scope>provided</scope>
       </dependency>
     
       <!-- NOTE: These MUST be provided by xaven infrastructure! -->
@@ -28,6 +29,7 @@
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.12</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.google.inject</groupId>

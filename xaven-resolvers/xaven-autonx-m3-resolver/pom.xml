@@ -42,5 +42,44 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+   	  <groupId>org.apache.httpcomponents</groupId>
+   	  <artifactId>httpclient</artifactId>
+   	  <version>4.0</version>
+    </dependency>
+    <dependency>
+   	  <groupId>commons-logging</groupId>
+   	  <artifactId>commons-logging</artifactId>
+   	  <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.4</version>
+    </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>org.apache.httpcomponents:*</include>
+              <include>commons-logging:*</include>
+              <include>commons-codec:*</include>
+            </includes>
+            <!-- <excludes>
+              <exclude>org.codehaus.plexus:plexus-utils</exclude>
+            </excludes> -->
+          </artifactSet>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

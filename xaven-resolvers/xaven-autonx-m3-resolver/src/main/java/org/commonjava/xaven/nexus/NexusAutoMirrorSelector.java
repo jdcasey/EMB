@@ -19,51 +19,87 @@ package org.commonjava.xaven.nexus;
  * under the License.
  */
 
+import static org.codehaus.plexus.util.IOUtil.close;
+import static org.codehaus.plexus.util.StringUtils.isNotBlank;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.repository.MirrorSelector;
 import org.apache.maven.settings.Mirror;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.components.interactivity.Prompter;
+import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.nexus.conf.AutoNXConfiguration;
+import org.commonjava.xaven.nexus.search.NexusDiscoveryStrategy;
 
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Component( role = MirrorSelector.class, hint = "nexus-auto" )
+@Component( role = MirrorSelector.class, hint = "autonx" )
 public class NexusAutoMirrorSelector
     implements MirrorSelector, Initializable, LogEnabled
 {
 
-    private Map<String, Mirror> autodetectedMirrors;
+    private final Map<String, String> autodetectedMirrors = new HashMap<String, String>();
 
-    @Requirement
+    private boolean initialized = false;
+
+    //    @Requirement
+    //    private LegacySupport legacySupport;
+
+    @Requirement( hint = "#" )
     private MirrorSelector delegateSelector;
 
     @Requirement
     private AutoNXConfiguration autonxConfig;
 
+    @Requirement
+    private XavenConfiguration xavenConfig;
+
+    @Requirement( hint = "xaven" )
+    private Prompter prompter;
+
+    @Requirement( role = NexusDiscoveryStrategy.class )
+    private List<NexusDiscoveryStrategy> strategies;
+
     private Logger logger;
 
     public Mirror getMirror( final ArtifactRepository repository, final List<Mirror> mirrors )
     {
-        Mirror mirror = autodetectedMirrors.get( repository.getUrl() );
-        if ( mirror == null )
+        final String mirrorUrl = autodetectedMirrors.get( repository.getUrl() );
+
+        Mirror mirror = null;
+        if ( mirrorUrl != null )
+        {
+            mirror = new Mirror();
+            mirror.setMirrorOf( repository.getId() );
+            mirror.setLayout( "default" );
+            mirror.setId( autonxConfig.getMirrorId() );
+            mirror.setUrl( mirrorUrl );
+        }
+        else
         {
             mirror = delegateSelector.getMirror( repository, mirrors );
         }
@@ -71,113 +107,209 @@ public class NexusAutoMirrorSelector
         return mirror;
     }
 
-    public void initialize()
+    public synchronized void initialize()
         throws InitializationException
     {
-        String url = null;
-        if ( autonxConfig.getNexusUrl() != null )
+        if ( initialized )
         {
-            url = autonxConfig.getNexusUrl();
+            return;
         }
-        else
-        {
-            url = findNexus();
-        }
-    }
 
-    protected String findNexus()
-        throws InitializationException
-    {
-        final Set<String> candidates = new LinkedHashSet<String>();
-        // pile up candidates, then check them to (hopefully) find one that works.
-
-        String result = null;
-
-        final Map<String, String> env = new HashMap<String, String>();
-        env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
-
-        DirContext jndiContext;
         try
         {
-            jndiContext = new InitialDirContext( new Hashtable<String, String>( env ) );
-        }
-        catch ( final NamingException e )
-        {
-            throw new InitializationException( "[autonx] Failed to initialize JNDI context for DNS lookups: "
-                + e.getMessage(), e );
-        }
+            final Set<String> candidates = new LinkedHashSet<String>();
 
-        InetAddress[] addresses;
-        try
-        {
-            final InetAddress lh = InetAddress.getLocalHost();
-            addresses = InetAddress.getAllByName( lh.getHostName() );
-        }
-        catch ( final UnknownHostException e )
-        {
-            throw new InitializationException( "[autonx] Failed to retrieve local hostnames: " + e.getMessage(), e );
-        }
-
-        for ( final InetAddress addr : addresses )
-        {
-            final String hostname = addr.getCanonicalHostName();
-
-            final int idx = hostname.indexOf( '.' );
-            if ( idx > -1 )
+            if ( autonxConfig.getNexusUrl() != null )
             {
-                final String domain = hostname.substring( idx + 1 );
-                final Attributes attrs;
-                try
+                candidates.add( autonxConfig.getNexusUrl() );
+            }
+            else
+            {
+                LinkedHashSet<String> tmp = null;
+                for ( final NexusDiscoveryStrategy strategy : strategies )
                 {
-                    attrs = jndiContext.getAttributes( "_nexus." + domain, new String[] { "SRV", "TXT" } );
-                }
-                catch ( final NamingException e )
-                {
-                    continue;
-                }
-
-                String txtRecord = null;
-                try
-                {
-                    txtRecord = (String) attrs.get( "TXT" ).get();
-                }
-                catch ( final NamingException e )
-                {
-                }
-
-                if ( txtRecord != null )
-                {
-                    result = txtRecord;
-                    break;
-                }
-
-                String srvRecord = null;
-                try
-                {
-                    srvRecord = (String) attrs.get( "SRV" ).get();
-                }
-                catch ( final NamingException e )
-                {
-                }
-
-                if ( srvRecord != null )
-                {
-                    final String[] parts = srvRecord.split( " " );
-
-                    final int nexusPort = Integer.parseInt( parts[parts.length - 2] );
-                    String nexusHost = parts[parts.length - 1];
-
-                    if ( nexusHost.length() > 0 && nexusHost.charAt( nexusHost.length() - 1 ) == '.' )
+                    if ( strategy == null )
                     {
-                        nexusHost = nexusHost.substring( 0, nexusHost.length() - 1 );
+                        continue;
                     }
 
-                    break;
+                    tmp = strategy.findNexusCandidates();
+                    if ( tmp != null && !tmp.isEmpty() )
+                    {
+                        candidates.addAll( tmp );
+                    }
                 }
+            }
+
+            populateAutoMirrors( candidates );
+        }
+        catch ( final AutoNXException e )
+        {
+            if ( logger.isDebugEnabled() )
+            {
+                logger.error( "Failed to auto-detect Nexus mirrors: " + e.getMessage(), e );
             }
         }
 
-        return result;
+        initialized = true;
+    }
+
+    private void populateAutoMirrors( final Set<String> candidates )
+    {
+        if ( candidates != null && !candidates.isEmpty() )
+        {
+            final DefaultHttpClient client = new DefaultHttpClient();
+
+            client.setCredentialsProvider( new CredentialsProvider()
+            {
+                private final Map<String, UsernamePasswordCredentials> cached =
+                    new HashMap<String, UsernamePasswordCredentials>();
+
+                public void setCredentials( final AuthScope authscope, final Credentials credentials )
+                {
+                }
+
+                public synchronized Credentials getCredentials( final AuthScope authscope )
+                {
+                    UsernamePasswordCredentials creds = autonxConfig.getNexusCredentials();
+                    if ( creds == null && xavenConfig.isInteractive() )
+                    {
+                        final String key = authscope.getHost() + ":" + authscope.getPort();
+
+                        creds = cached.get( key );
+                        if ( creds == null )
+                        {
+                            final StringBuilder sb =
+                                new StringBuilder().append( authscope.getRealm() )
+                                                   .append( " (" )
+                                                   .append( key )
+                                                   .append( ") requires authentication.\n\nUsername" );
+
+                            try
+                            {
+                                final String user = prompter.prompt( sb.toString() );
+                                final String password = prompter.promptForPassword( "Password" );
+
+                                creds = new UsernamePasswordCredentials( user, password );
+                                cached.put( key, creds );
+                            }
+                            catch ( final PrompterException e )
+                            {
+                                if ( logger.isDebugEnabled() )
+                                {
+                                    logger.debug( "Failed to read credentials! Reason: " + e.getMessage(), e );
+                                }
+                            }
+                        }
+                    }
+
+                    return creds;
+                }
+
+                public void clear()
+                {
+                }
+            } );
+
+            final StringBuilder builder = new StringBuilder();
+
+            for ( final String baseUrl : candidates )
+            {
+                builder.setLength( 0 );
+                builder.append( baseUrl );
+                if ( !baseUrl.endsWith( "/" ) )
+                {
+                    builder.append( '/' );
+                }
+
+                builder.append( "service/local/autonx/mirrors" );
+
+                if ( logger.isDebugEnabled() )
+                {
+                    logger.debug( "Grabbing mirror mappings from: " + builder.toString() );
+                }
+
+                final HttpGet get = new HttpGet( builder.toString() );
+                try
+                {
+                    final Map<String, String> mirrors = client.execute( get, new ResponseHandler<Map<String, String>>()
+                    {
+                        public Map<String, String> handleResponse( final HttpResponse response )
+                            throws /*ClientProtocolException,*/IOException
+                        {
+                            final int statusCode = response.getStatusLine().getStatusCode();
+                            if ( statusCode > 199 && statusCode < 300 )
+                            {
+                                final Map<String, String> mirrors = new HashMap<String, String>();
+
+                                InputStream stream = null;
+                                try
+                                {
+                                    stream = response.getEntity().getContent();
+                                    final BufferedReader br = new BufferedReader( new InputStreamReader( stream ) );
+
+                                    String line = null;
+                                    while ( ( line = br.readLine() ) != null )
+                                    {
+                                        if ( isNotBlank( line ) )
+                                        {
+                                            final int idx = line.indexOf( '=' );
+                                            if ( idx > 0 )
+                                            {
+                                                final String repoUrl = line.substring( 0, idx );
+                                                final String mirrorUrl = line.substring( idx + 1 );
+
+                                                if ( logger.isDebugEnabled() )
+                                                {
+                                                    logger.debug( "Auto-configured mirror for: '" + repoUrl
+                                                        + "'\nMirror: '" + mirrorUrl + "'\n\n" );
+                                                }
+
+                                                mirrors.put( repoUrl, mirrorUrl );
+                                            }
+                                        }
+                                    }
+                                }
+                                finally
+                                {
+                                    close( stream );
+                                }
+
+                                return mirrors;
+                            }
+                            else if ( logger.isDebugEnabled() )
+                            {
+                                logger.debug( "Response: " + response.getStatusLine().getStatusCode() + " "
+                                    + response.getStatusLine().getReasonPhrase() );
+                            }
+
+                            return null;
+                        }
+                    } );
+
+                    if ( mirrors != null && !mirrors.isEmpty() )
+                    {
+                        autodetectedMirrors.putAll( mirrors );
+                    }
+                }
+                catch ( final ClientProtocolException e )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.debug( "Failed to read proxied repositories from: '" + builder.toString()
+                            + "'. Reason: " + e.getMessage(), e );
+                    }
+                }
+                catch ( final IOException e )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.debug( "Failed to read proxied repositories from: '" + builder.toString()
+                            + "'. Reason: " + e.getMessage(), e );
+                    }
+                }
+            }
+        }
     }
 
     protected final synchronized Logger getLogger()

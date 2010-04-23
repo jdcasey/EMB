@@ -46,7 +46,7 @@ public final class XavenExtensions
 
     private static final Logger logger = Logger.getLogger( XavenExtensions.class );
 
-    public static Set<String> getLoadedExtensions( final boolean debug )
+    public static Set<String> getLoadedExtensions()
         throws IOException
     {
         final Set<String> ext = new LinkedHashSet<String>();
@@ -71,9 +71,9 @@ public final class XavenExtensions
             }
             catch ( final IOException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to read extension info from: " + path, e );
+                    logger.debug( "Failed to read extension info from: " + path, e );
                 }
             }
             finally
@@ -86,8 +86,7 @@ public final class XavenExtensions
     }
 
     public static Map<String, ? extends ExtensionConfiguration> loadExtensionConfigurations(
-                                                                                             final XavenConfiguration xavenConfig,
-                                                                                             final boolean debug )
+                                                                                             final XavenConfiguration xavenConfig )
         throws IOException
     {
         final Map<String, ExtensionConfiguration> configs = new HashMap<String, ExtensionConfiguration>();
@@ -122,37 +121,37 @@ public final class XavenExtensions
             }
             catch ( final IOException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to read extension info from: " + path, e );
+                    logger.debug( "Failed to read extension info from: " + path, e );
                 }
             }
             catch ( final InstantiationException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load extension configuration for: " + name, e );
                 }
             }
             catch ( final IllegalAccessException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load extension configuration for: " + name, e );
                 }
             }
             catch ( final ClassNotFoundException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load extension configuration for: " + name, e );
                 }
             }
             catch ( final ExtensionConfigurationException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load extension configuration for: " + name, e );
                 }
             }
             finally
@@ -164,7 +163,7 @@ public final class XavenExtensions
         return configs;
     }
 
-    public static Properties getComponentOverrides( final boolean debug )
+    public static Properties getComponentOverrides()
         throws IOException
     {
         final Properties overrides = new Properties();
@@ -190,9 +189,9 @@ public final class XavenExtensions
                 {
                     final String key = (String) k;
 
-                    if ( debug && overrides.containsKey( key ) )
+                    if ( logger.isDebugEnabled() && overrides.containsKey( key ) )
                     {
-                        logger.warn( "REPLACING component override: '" + key + "'\nSupplied by: "
+                        logger.debug( "REPLACING component override: '" + key + "'\nSupplied by: "
                             + keyOrigins.get( key ) + "\nReplaced by: " + path );
                     }
 
@@ -202,9 +201,9 @@ public final class XavenExtensions
             }
             catch ( final IOException e )
             {
-                if ( debug )
+                if ( logger.isDebugEnabled() )
                 {
-                    logger.error( "Failed to read component overrides from: " + path, e );
+                    logger.debug( "Failed to read component overrides from: " + path, e );
                 }
             }
             finally

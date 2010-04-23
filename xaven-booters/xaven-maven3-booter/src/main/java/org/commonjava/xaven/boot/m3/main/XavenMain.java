@@ -21,6 +21,11 @@ import static org.commonjava.xaven.conf.XavenExtensions.loadExtensionConfigurati
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.Configurator;
+import org.apache.log4j.spi.LoggerRepository;
 import org.apache.maven.Maven;
 import org.apache.maven.cli.CLIManager;
 import org.apache.maven.cli.CLIReportingUtils;
@@ -29,7 +34,6 @@ import org.apache.maven.cli.PrintStreamLogger;
 import org.apache.maven.exception.DefaultExceptionHandler;
 import org.apache.maven.exception.ExceptionHandler;
 import org.apache.maven.exception.ExceptionSummary;
-import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.execution.MavenExecutionResult;
@@ -54,6 +58,7 @@ import org.commonjava.xaven.boot.m3.log.BatchTransferListener;
 import org.commonjava.xaven.boot.m3.log.EventLogger;
 import org.commonjava.xaven.boot.m3.log.InteractiveTransferListener;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
+import org.commonjava.xaven.conf.CliRequest;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -65,8 +70,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +93,7 @@ public class XavenMain
 
     public static final File DEFAULT_USER_SETTINGS_FILE = new File( userMavenConfigurationHome, "settings.xml" );
 
-    public static final File CONFIGURATION_DIRECTORY = new File( System.getProperty( "maven.home" ), "conf" );
+    public static final File CONFIGURATION_DIRECTORY = userMavenConfigurationHome;
 
     public static final File DEFAULT_GLOBAL_SETTINGS_FILE =
         new File( System.getProperty( "maven.home", System.getProperty( "user.dir", "" ) ), "conf/settings.xml" );
@@ -162,6 +169,7 @@ public class XavenMain
             initialize( cliRequest );
             // Need to process cli options first to get possible logging options
             cli( cliRequest );
+            xavenConfiguration( cliRequest );
             logging( cliRequest );
             commands( cliRequest );
             properties( cliRequest );
@@ -190,7 +198,7 @@ public class XavenMain
         }
     }
 
-    private void initialize( final CliRequest cliRequest )
+    protected void initialize( final CliRequest cliRequest )
     {
         if ( cliRequest.stdout == null )
         {
@@ -230,7 +238,7 @@ public class XavenMain
     //
     // Logging needs to be handled in a standard way at the container level.
     //
-    private void logging( final CliRequest cliRequest )
+    protected void logging( final CliRequest cliRequest )
     {
         cliRequest.debug = cliRequest.commandLine.hasOption( CLIManager.DEBUG );
         cliRequest.quiet = !cliRequest.debug && cliRequest.commandLine.hasOption( CLIManager.QUIET );
@@ -275,13 +283,32 @@ public class XavenMain
             logger.setStream( cliRequest.stdout );
         }
 
+        final Configurator log4jConfigurator = new Configurator()
+        {
+            @SuppressWarnings( "unchecked" )
+            public void doConfigure( final URL notUsed, final LoggerRepository repo )
+            {
+                final Enumeration<Logger> loggers = repo.getCurrentLoggers();
+                while ( loggers.hasMoreElements() )
+                {
+                    final Logger logger = loggers.nextElement();
+                    if ( cliRequest.xavenConfig.isDebugEnabled() )
+                    {
+                        logger.setLevel( Level.DEBUG );
+                    }
+                }
+            }
+        };
+
+        log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
+
         cliRequest.request.setExecutionListener( new EventLogger( logger ) );
     }
 
     //
     // Every bit of information taken from the CLI should be processed here.
     //
-    private void cli( final CliRequest cliRequest )
+    protected void cli( final CliRequest cliRequest )
         throws Exception
     {
         final CLIManager cliManager = new CLIManager();
@@ -313,7 +340,7 @@ public class XavenMain
         }
     }
 
-    private void commands( final CliRequest cliRequest )
+    protected void commands( final CliRequest cliRequest )
     {
         if ( cliRequest.debug || cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) )
         {
@@ -339,14 +366,14 @@ public class XavenMain
         }
     }
 
-    private void showXavenInfo( final CliRequest cliRequest )
+    protected void showXavenInfo( final CliRequest cliRequest )
     {
         cliRequest.stdout.println( "-- Xaven Extensions Loaded --" );
         cliRequest.stdout.println();
 
         try
         {
-            final Set<String> extensions = getLoadedExtensions( cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
+            final Set<String> extensions = getLoadedExtensions();
             for ( final String ext : extensions )
             {
                 cliRequest.stdout.println( "+" + ext );
@@ -362,12 +389,12 @@ public class XavenMain
         cliRequest.stdout.println();
     }
 
-    private void properties( final CliRequest cliRequest )
+    protected void properties( final CliRequest cliRequest )
     {
         populateProperties( cliRequest.commandLine, cliRequest.systemProperties, cliRequest.userProperties );
     }
 
-    private void container( final CliRequest cliRequest )
+    protected void container( final CliRequest cliRequest )
         throws Exception
     {
         if ( cliRequest.classWorld == null )
@@ -379,10 +406,9 @@ public class XavenMain
 
         if ( container == null )
         {
-            final XavenConfiguration xavenConfig = readXavenConfiguration( cliRequest );
-
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfig ).setClassWorld( cliRequest.classWorld ).setName( "maven" );
+                new XavenContainerConfiguration( cliRequest.xavenConfig ).setClassWorld( cliRequest.classWorld )
+                                                                         .setName( "maven" );
 
             container = new DefaultPlexusContainer( cc );
 
@@ -416,7 +442,7 @@ public class XavenMain
     //
     // This should probably be a separate tool and not be baked into Maven.
     //
-    private void encryption( final CliRequest cliRequest )
+    protected void encryption( final CliRequest cliRequest )
         throws Exception
     {
         if ( cliRequest.commandLine.hasOption( CLIManager.ENCRYPT_MASTER_PASSWORD ) )
@@ -466,7 +492,7 @@ public class XavenMain
         }
     }
 
-    private int execute( final CliRequest cliRequest )
+    protected int execute( final CliRequest cliRequest )
     {
         final MavenExecutionResult result = maven.execute( cliRequest.request );
 
@@ -537,8 +563,8 @@ public class XavenMain
         }
     }
 
-    private void logSummary( final ExceptionSummary summary, final Map<String, String> references, String indent,
-                             final boolean showErrors )
+    protected void logSummary( final ExceptionSummary summary, final Map<String, String> references, String indent,
+                               final boolean showErrors )
     {
         String referenceKey = "";
 
@@ -589,7 +615,7 @@ public class XavenMain
         return container.lookup( ModelProcessor.class );
     }
 
-    private void settings( final CliRequest cliRequest )
+    protected void settings( final CliRequest cliRequest )
         throws Exception
     {
         File userSettingsFile;
@@ -659,7 +685,7 @@ public class XavenMain
         }
     }
 
-    private MavenExecutionRequest populateRequest( final CliRequest cliRequest )
+    protected MavenExecutionRequest populateRequest( final CliRequest cliRequest )
     {
         final MavenExecutionRequest request = cliRequest.request;
         final CommandLine commandLine = cliRequest.commandLine;
@@ -941,7 +967,7 @@ public class XavenMain
         return request;
     }
 
-    static File resolveFile( final File file, final String workingDirectory )
+    protected File resolveFile( final File file, final String workingDirectory )
     {
         if ( file == null )
         {
@@ -966,8 +992,8 @@ public class XavenMain
     // System properties handling
     // ----------------------------------------------------------------------
 
-    static void populateProperties( final CommandLine commandLine, final Properties systemProperties,
-                                    final Properties userProperties )
+    protected void populateProperties( final CommandLine commandLine, final Properties systemProperties,
+                                       final Properties userProperties )
     {
         EnvironmentUtils.addEnvVars( systemProperties );
 
@@ -993,7 +1019,7 @@ public class XavenMain
         systemProperties.putAll( System.getProperties() );
     }
 
-    private static void setCliProperty( final String property, final Properties properties )
+    protected static void setCliProperty( final String property, final Properties properties )
     {
         String name;
 
@@ -1024,15 +1050,33 @@ public class XavenMain
         System.setProperty( name, value );
     }
 
-    private XavenConfiguration readXavenConfiguration( final CliRequest cliRequest )
+    protected void xavenConfiguration( final CliRequest cliRequest )
     {
-        final XavenConfiguration config = new XavenConfiguration().withConfigurationDirectory( CONFIGURATION_DIRECTORY );
+        final XavenConfiguration config =
+            new XavenConfiguration().withCliRequest( cliRequest ).withConfigurationDirectory( CONFIGURATION_DIRECTORY );
 
-        final boolean debug = cliRequest.commandLine.hasOption( CLIManager.DEBUG );
+        if ( cliRequest.debug )
+        {
+            config.withDebug();
+        }
+        else
+        {
+            config.withoutDebug();
+        }
+
+        if ( cliRequest.commandLine.hasOption( CLIManager.BATCH_MODE ) )
+        {
+            config.nonInteractive();
+        }
+        else
+        {
+            config.interactive();
+        }
+
         try
         {
-            config.withComponentSelections( getComponentOverrides( debug ) );
-            config.withExtensionConfigurations( loadExtensionConfigurations( config, debug ) );
+            config.withComponentSelections( getComponentOverrides() );
+            config.withExtensionConfigurations( loadExtensionConfigurations( config ) );
         }
         catch ( final IOException e )
         {
@@ -1040,46 +1084,10 @@ public class XavenMain
                 + e.getMessage(), e );
         }
 
-        return config;
+        cliRequest.xavenConfig = config;
     }
 
-    static class CliRequest
-    {
-        String[] args;
-
-        CommandLine commandLine;
-
-        PrintStream stdout;
-
-        PrintStream stderr;
-
-        ClassWorld classWorld;
-
-        String workingDirectory;
-
-        boolean debug;
-
-        boolean quiet;
-
-        boolean showErrors = true;
-
-        PrintStream fileStream;
-
-        Properties userProperties = new Properties();
-
-        Properties systemProperties = new Properties();
-
-        MavenExecutionRequest request;
-
-        CliRequest( final String[] args, final ClassWorld classWorld )
-        {
-            this.args = args;
-            this.classWorld = classWorld;
-            request = new DefaultMavenExecutionRequest();
-        }
-    }
-
-    static class ExitException
+    public static class ExitException
         extends Exception
     {
 

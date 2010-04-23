@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<security>
+  <version>2.0.3</version>
+  <roles>
+    <role>
+      <id>developer</id>
+      <privileges>
+        <privilege>autonx-mirrors</privilege>
+      </privileges>
+    </role>
+  </roles>
+  <privileges>
+    <privilege>
+      <id>autonx-mirrors</id>
+      <type>method</type>
+      <name>AutoNX: mirror-access</name>
+      <description>Access to proxied URLs for auto-configuring mirrors in Xaven.</description>
+      <properties>
+        <property>
+          <key>method</key>
+          <value>read</value>
+        </property>
+        <property>
+          <key>permission</key>
+          <value>nexus:autonx-mirrors</value>
+        </property>
+      </properties>
+    </privilege>
+  </privileges>
+</security>

@@ -15,14 +15,16 @@ package org.commonjava.xaven.boot.m3.plexus;
  * the License.
  */
 
-import static org.codehaus.plexus.util.StringUtils.isNotEmpty;
+import static org.codehaus.plexus.util.StringUtils.isNotBlank;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRepository;
 import org.codehaus.plexus.component.repository.DefaultComponentRepository;
+import org.commonjava.xaven.conf.XavenConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -32,22 +34,26 @@ public class SelectorComponentRepository
     implements ComponentRepository
 {
 
+    private static final Logger logger = Logger.getLogger( SelectorComponentRepository.class );
+
     private static final char LITERAL_HINT_DELIMITER = '_';
+
+    private static final String BLANK_ROLE_HINT_PLACEHOLDER = "#";
 
     private final ComponentRepository delegateRepository;
 
     private final Properties componentSelectors;
 
-    public SelectorComponentRepository( final Properties componentSelectors )
+    public SelectorComponentRepository( final XavenConfiguration xavenConfig )
     {
-        this.componentSelectors = componentSelectors;
+        componentSelectors = xavenConfig.getComponentSelections();
         delegateRepository = new DefaultComponentRepository();
     }
 
     public SelectorComponentRepository( final ComponentRepository delegateRepository,
-                                        final Properties componentSelectors )
+                                        final XavenConfiguration xavenConfig )
     {
-        this.componentSelectors = componentSelectors;
+        componentSelectors = xavenConfig.getComponentSelections();
         this.delegateRepository = delegateRepository;
     }
 
@@ -89,9 +95,13 @@ public class SelectorComponentRepository
     {
         final StringBuilder sb = new StringBuilder( role );
 
-        if ( isNotEmpty( roleHint ) )
+        if ( isNotBlank( roleHint ) )
         {
-            if ( roleHint.length() > 2 && roleHint.charAt( 0 ) == LITERAL_HINT_DELIMITER
+            if ( BLANK_ROLE_HINT_PLACEHOLDER.equals( roleHint ) )
+            {
+                return null;
+            }
+            else if ( roleHint.length() > 2 && roleHint.charAt( 0 ) == LITERAL_HINT_DELIMITER
                 && roleHint.charAt( roleHint.length() - 1 ) == LITERAL_HINT_DELIMITER )
             {
                 return roleHint.substring( 1, roleHint.length() - 1 );
@@ -106,7 +116,24 @@ public class SelectorComponentRepository
             selectedHint = componentSelectors.getProperty( role );
         }
 
-        return selectedHint == null ? roleHint : selectedHint;
-    }
+        if ( selectedHint == null )
+        {
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "No component override for role: '" + role + "', hint: '" + roleHint + "'." );
+            }
 
+            return roleHint;
+        }
+        else
+        {
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "Replaced hint: '" + roleHint + "' with hint: '" + selectedHint + "' for role: '" + role
+                    + "'." );
+            }
+
+            return selectedHint;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.commonjava.xaven.boot.m3.plexus;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.ComponentRegistry;
 import org.codehaus.plexus.DefaultComponentRegistry;
 import org.codehaus.plexus.MutablePlexusContainer;
@@ -15,6 +16,7 @@ import org.codehaus.plexus.lifecycle.LifecycleHandlerManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +39,11 @@ public class XavenComponentRegistry
     implements ComponentRegistry
 {
 
+    private static final Logger logger = Logger.getLogger( XavenComponentRegistry.class );
+
     private final DefaultComponentRegistry delegate;
+
+    private final Map<String, Object> configComponents = new HashMap<String, Object>();
 
     public XavenComponentRegistry( final MutablePlexusContainer container, final ComponentRepository repository,
                                    final LifecycleHandlerManager lifecycleHandlerManager,
@@ -45,14 +51,20 @@ public class XavenComponentRegistry
     {
         delegate = new DefaultComponentRegistry( container, repository, lifecycleHandlerManager );
 
-        delegate.addComponent( config, XavenConfiguration.class.getName(), "default" );
+        configComponents.put( XavenConfiguration.class.getName(), config );
 
         final Map<String, ? extends ExtensionConfiguration> ext = config.getExtensionConfigurations();
         if ( ext != null && !ext.isEmpty() )
         {
             for ( final Map.Entry<String, ? extends ExtensionConfiguration> entry : ext.entrySet() )
             {
-                delegate.addComponent( entry.getValue(), entry.getValue().getClass().getName(), "default" );
+                if ( logger.isDebugEnabled() )
+                {
+                    logger.debug( "Adding configuration component with role: '" + entry.getValue().getClass().getName()
+                        + "' and hint: 'default'." );
+                }
+
+                configComponents.put( entry.getValue().getClass().getName(), entry.getValue() );
             }
         }
     }
@@ -96,15 +108,27 @@ public class XavenComponentRegistry
         return delegate.getComponentDescriptorMap( type, role );
     }
 
+    @SuppressWarnings( "unchecked" )
     public <T> T lookup( final Class<T> type, final String role, final String roleHint )
         throws ComponentLookupException
     {
+        if ( configComponents.containsKey( role ) )
+        {
+            return (T) configComponents.get( role );
+        }
+
         return delegate.lookup( type, role, roleHint );
     }
 
+    @SuppressWarnings( "unchecked" )
     public <T> T lookup( final ComponentDescriptor<T> componentDescriptor )
         throws ComponentLookupException
     {
+        if ( configComponents.containsKey( componentDescriptor.getRole() ) )
+        {
+            return (T) configComponents.get( componentDescriptor.getRole() );
+        }
+
         return delegate.lookup( componentDescriptor );
     }
 
