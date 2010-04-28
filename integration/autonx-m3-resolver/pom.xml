@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.commonjava.xaven.integration</groupId>
+    <artifactId>xaven-integration</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>xaven-autonx-m3-resolver</artifactId>
+  <name>Xaven AutoNX Resolver for Maven3</name>
+  
+  <description>Auto-detect and auto-configure Maven to work with a Nexus instance.</description>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.commonjava.xaven.bom</groupId>
+        <artifactId>xaven-maven3-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.xaven</groupId>
+      <artifactId>xaven-api</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.maven</groupId>
+    	<artifactId>maven-artifact</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.maven</groupId>
+    	<artifactId>maven-compat</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+   	  <groupId>org.apache.httpcomponents</groupId>
+   	  <artifactId>httpclient</artifactId>
+   	  <version>4.0</version>
+    </dependency>
+    <dependency>
+   	  <groupId>commons-logging</groupId>
+   	  <artifactId>commons-logging</artifactId>
+   	  <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.4</version>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <artifactSet>
+            <includes>
+              <include>org.apache.httpcomponents:*</include>
+              <include>commons-logging:*</include>
+              <include>commons-codec:*</include>
+            </includes>
+            <!-- <excludes>
+              <exclude>org.codehaus.plexus:plexus-utils</exclude>
+            </excludes> -->
+          </artifactSet>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

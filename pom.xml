@@ -8,15 +8,14 @@
   <packaging>pom</packaging>
   
   <modules>
-    <!-- <module>maven-plexus-override</module>
-    <module>xaven-installers</module> -->
-    <module>xaven-nexus</module>
-    <module>xaven-resolvers</module>
+    <module>integration</module>
+    <module>resolvers</module>
     <module>examples</module>
-    <module>xaven-boms</module>
-    <module>xaven-booters</module>
-    <module>xaven-distro</module>
-    <module>xaven-api</module>
+    <module>boms</module>
+    <module>booters</module>
+    <module>distro</module>
+    <module>api</module>
+    <module>events</module>
   </modules>
   
   <properties>
