@@ -81,33 +81,9 @@ public class ExampleResolutionListener
         final StringBuilder sb = new StringBuilder();
         sb.append( "Plugin: " ).append( plugin.getId() ).append( "\n\n" );
 
-        sb.append( "Artifacts Resolved:\n---------------------\n\n" );
-        for ( final Artifact artifact : resolvedArtifacts )
-        {
-            sb.append( "  " )
-              .append( artifact.getId() )
-              .append( "\n    File: " )
-              .append( artifact.getFile() )
-              .append( "\n    Repository: " )
-              .append( artifact.getRepository().getUrl() )
-              .append( "\n\n" );
-        }
+        appendArtifactInfo( resolvedArtifacts, sb );
 
-        final File pFile = new File( dataDir, "plugin-" + plugin.getId().replace( ':', '_' ) + ".resolver.log" );
-        FileWriter writer = null;
-        try
-        {
-            writer = new FileWriter( pFile );
-            writer.write( sb.toString() );
-        }
-        catch ( final IOException e )
-        {
-            logger.error( "Failed to write plugin resolution output: " + e.getMessage(), e );
-        }
-        finally
-        {
-            close( writer );
-        }
+        writeFile( sb, "plugin-" + plugin.getId().replace( ':', '_' ) + ".resolver.log" );
     }
 
     private void logProjectResolution( final ProjectDependencyResolutionEvent event )
@@ -122,35 +98,11 @@ public class ExampleResolutionListener
             sb.append( "  " ).append( mavenProject.getId() ).append( "\n" );
         }
 
-        sb.append( "\nArtifacts Resolved:\n---------------------\\n\\n" );
-        for ( final Artifact artifact : resolvedArtifacts )
-        {
-            sb.append( "  " )
-              .append( artifact.getId() )
-              .append( "\n    File: " )
-              .append( artifact.getFile() )
-              .append( "\n    Repository: " )
-              .append( artifact.getRepository().getUrl() )
-              .append( "\n\n" );
-        }
+        appendArtifactInfo( resolvedArtifacts, sb );
 
         for ( final MavenProject project : projects )
         {
-            final File pFile = new File( dataDir, "project-" + project.getId().replace( ':', '_' ) + ".resolver.log" );
-            FileWriter writer = null;
-            try
-            {
-                writer = new FileWriter( pFile );
-                writer.write( sb.toString() );
-            }
-            catch ( final IOException e )
-            {
-                logger.error( "Failed to write project resolution output: " + e.getMessage(), e );
-            }
-            finally
-            {
-                close( writer );
-            }
+            writeFile( sb, "project-" + project.getId().replace( ':', '_' ) + ".resolver.log" );
         }
     }
 
@@ -158,7 +110,7 @@ public class ExampleResolutionListener
         throws InitializationException
     {
         final File confDir = xavenConfiguration.getConfigurationDirectory();
-        dataDir = new File( confDir, "../data" );
+        dataDir = new File( confDir, "data" );
         try
         {
             dataDir = dataDir.getCanonicalFile();
@@ -169,6 +121,51 @@ public class ExampleResolutionListener
         }
 
         dataDir.mkdirs();
+    }
+
+    private void appendArtifactInfo( final Collection<Artifact> resolvedArtifacts, final StringBuilder sb )
+    {
+        sb.append( "Artifacts Resolved:\n---------------------\n\n" );
+        for ( final Artifact artifact : resolvedArtifacts )
+        {
+            if ( artifact == null )
+            {
+                continue;
+            }
+
+            sb.append( "  " )
+              .append( artifact.getId() )
+              .append( "\n    File: " )
+              .append( artifact.getFile() )
+              .append( "\n    Repository: " )
+              .append( artifact.getRepository() == null ? "-UNKNOWN-" : artifact.getRepository().getUrl() )
+              .append( "\n\n" );
+        }
+    }
+
+    private void writeFile( final StringBuilder sb, final String filename )
+    {
+        final File pFile = new File( dataDir, filename );
+
+        if ( logger.isDebugEnabled() )
+        {
+            logger.debug( "Writing: " + pFile.getAbsolutePath() );
+        }
+
+        FileWriter writer = null;
+        try
+        {
+            writer = new FileWriter( pFile );
+            writer.write( sb.toString() );
+        }
+        catch ( final IOException e )
+        {
+            logger.error( "Failed to write : " + pFile.getAbsolutePath() + "\nReason: " + e.getMessage(), e );
+        }
+        finally
+        {
+            close( writer );
+        }
     }
 
 }

@@ -18,6 +18,7 @@
 package org.commonjava.xaven.event;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.StoppingException;
@@ -31,8 +32,10 @@ public class XavenEventManager
     implements Startable
 {
 
+    @Requirement( role = XavenSyncEventListener.class )
     private List<XavenSyncEventListener> syncListeners;
 
+    @Requirement( role = XavenAsyncEventListener.class )
     private List<XavenAsyncEventListener> asyncListeners;
 
     private Executor executor;
