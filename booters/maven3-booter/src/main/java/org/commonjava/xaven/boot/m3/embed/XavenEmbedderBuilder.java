@@ -405,7 +405,7 @@ public class XavenEmbedderBuilder
     {
         return new XavenEmbedder( maven(), xavenConfiguration(), container(), settingsBuilder(),
                                   executionRequestPopulator(), securityDispatcher(), standardOut(), logger(),
-                                  shouldShowErrors(), shouldShowDebug(), shouldBeQuiet(), showVersion() );
+                                  shouldShowErrors(), showVersion() );
     }
 
     public synchronized XavenEmbedder build()

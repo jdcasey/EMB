@@ -171,6 +171,16 @@ public class XavenMain
             throw e;
         }
 
+        cliRequest.builder.withErrorMode( cliRequest.commandLine.hasOption( CLIManager.ERRORS ) );
+        cliRequest.builder.withDebugMode( cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
+        cliRequest.builder.withQuietMode( cliRequest.commandLine.hasOption( CLIManager.QUIET ) );
+        cliRequest.builder.withVersion( cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) );
+
+        if ( cliRequest.commandLine.hasOption( CLIManager.LOG_FILE ) )
+        {
+            cliRequest.builder.withLogFile( new File( cliRequest.commandLine.getOptionValue( CLIManager.LOG_FILE ) ) );
+        }
+
         // TODO: these should be moved out of here. Wrong place.
         //
         if ( cliRequest.commandLine.hasOption( CLIManager.HELP ) )

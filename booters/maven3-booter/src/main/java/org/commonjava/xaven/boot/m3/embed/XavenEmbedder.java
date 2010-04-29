@@ -72,11 +72,7 @@ public class XavenEmbedder
 
     private final PrintStream standardOut;
 
-    private final boolean shouldBeQuiet;
-
     private final boolean shouldShowErrors;
-
-    private final boolean shouldShowDebug;
 
     private final Maven maven;
 
@@ -96,8 +92,7 @@ public class XavenEmbedder
                    final MutablePlexusContainer container, final SettingsBuilder settingsBuilder,
                    final MavenExecutionRequestPopulator executionRequestPopulator,
                    final DefaultSecDispatcher securityDispatcher, final PrintStream standardOut, final Logger logger,
-                   final boolean shouldShowErrors, final boolean shouldShowDebug, final boolean shouldBeQuiet,
-                   final boolean showVersion )
+                   final boolean shouldShowErrors, final boolean showVersion )
     {
         this.maven = maven;
         this.xavenConfiguration = xavenConfiguration;
@@ -108,8 +103,6 @@ public class XavenEmbedder
         this.standardOut = standardOut;
         this.logger = logger;
         this.shouldShowErrors = shouldShowErrors;
-        this.shouldShowDebug = shouldShowDebug;
-        this.shouldBeQuiet = shouldBeQuiet;
         this.showVersion = showVersion;
     }
 
@@ -257,24 +250,18 @@ public class XavenEmbedder
 
     protected void injectLogSettings( final XavenExecutionRequest request )
     {
-        if ( shouldShowDebug )
+        final int logLevel = request.getLoggingLevel();
+
+        if ( Logger.LEVEL_DEBUG == logLevel )
         {
-            request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_DEBUG );
-        }
-        else if ( shouldBeQuiet )
-        {
-            // TODO: we need to do some more work here. Some plugins use sys out or log errors at info level.
-            // Ideally, we could use Warn across the board
-            request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_ERROR );
-            // TODO:Additionally, we can't change the mojo level because the component key includes 
-            // the version and it isn't known ahead of time. This seems worth changing.
+            xavenConfiguration.withDebug();
         }
         else
         {
-            request.setLoggingLevel( MavenExecutionRequest.LOGGING_LEVEL_INFO );
+            xavenConfiguration.withoutDebug();
         }
 
-        logger.setThreshold( request.getLoggingLevel() );
+        logger.setThreshold( logLevel );
         container.getLoggerManager().setThresholds( request.getLoggingLevel() );
 
         final Configurator log4jConfigurator = new Configurator()
@@ -286,13 +273,12 @@ public class XavenEmbedder
                 while ( loggers.hasMoreElements() )
                 {
                     final org.apache.log4j.Logger logger = loggers.nextElement();
-                    if ( shouldShowDebug )
+                    if ( Logger.LEVEL_DEBUG == logLevel )
                     {
                         logger.setLevel( Level.DEBUG );
                     }
-                    else if ( shouldBeQuiet )
+                    else if ( Logger.LEVEL_ERROR == logLevel )
                     {
-                        // TODO: Should this be even quieter??
                         logger.setLevel( Level.ERROR );
                     }
                 }
@@ -392,7 +378,7 @@ public class XavenEmbedder
 
     protected void printInfo( final XavenExecutionRequest request )
     {
-        if ( shouldShowDebug || showVersion )
+        if ( Logger.LEVEL_DEBUG == request.getLoggingLevel() || showVersion )
         {
             try
             {
