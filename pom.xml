@@ -16,7 +16,6 @@
     <module>distro</module>
     <module>api</module>
     <module>events</module>
-    <module>tools</module>
   </modules>
   
   <scm>
