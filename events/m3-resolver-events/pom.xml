@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>xaven-m3-resolver-events</artifactId>
+  <version>0.2-SNAPSHOT</version>
   <name>Xaven Maven3 Resolver Event Source</name>
 
   <dependencyManagement>

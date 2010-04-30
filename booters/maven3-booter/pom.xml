@@ -4,7 +4,7 @@
   <parent>
     <artifactId>xaven-booters</artifactId>
     <groupId>org.commonjava.xaven.boot</groupId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>xaven-maven3-booter</artifactId>

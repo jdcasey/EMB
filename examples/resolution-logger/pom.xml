@@ -4,7 +4,7 @@
   <parent>
     <artifactId>xaven-examples</artifactId>
     <groupId>org.commonjava.xaven.examples</groupId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
   
   <artifactId>xaven-resolution-logger</artifactId>
