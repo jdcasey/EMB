@@ -20,8 +20,6 @@ import org.commonjava.xaven.conf.XavenConfiguration;
 public interface ExtensionConfigurationLoader
 {
 
-    Class<? extends ExtensionConfiguration> getExtensionConfigurationClass();
-
     ExtensionConfiguration loadConfiguration( XavenConfiguration xavenConfig )
         throws ExtensionConfigurationException;
 

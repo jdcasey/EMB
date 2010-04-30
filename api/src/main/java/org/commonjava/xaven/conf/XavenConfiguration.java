@@ -16,7 +16,6 @@ package org.commonjava.xaven.conf;
  */
 
 import org.commonjava.xaven.XavenExecutionRequest;
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,11 +26,15 @@ import java.util.Properties;
 public class XavenConfiguration
 {
 
+    public static final String STANDARD_LOG_HANDLE_CORE = "core";
+
+    public static final String STANDARD_LOG_HANDLE_LOADER = "xaven-loader";
+
     private static final File DEFAULT_CONFIGURATION_DIRECTORY = new File( System.getProperty( "user.home" ), ".m2" );
 
     private Properties componentSelections;
 
-    private Map<String, ? extends ExtensionConfiguration> configs;
+    private Map<String, XavenLibrary> extensions;
 
     private File configurationDirectory = DEFAULT_CONFIGURATION_DIRECTORY;
 
@@ -45,7 +48,7 @@ public class XavenConfiguration
 
     private boolean debug;
 
-    private boolean interactive;
+    private boolean interactive = true;
 
     public XavenConfiguration()
     {
@@ -116,21 +119,20 @@ public class XavenConfiguration
         return configurationDirectory;
     }
 
-    public XavenConfiguration withExtensionConfigurations( final Map<String, ? extends ExtensionConfiguration> configs )
+    public XavenConfiguration withExtensions( final Map<String, XavenLibrary> extensions )
     {
-        this.configs = configs;
+        this.extensions = extensions;
         return this;
     }
 
-    @SuppressWarnings( "unchecked" )
-    public <T extends ExtensionConfiguration> T getExtensionConfiguration( final Class<T> configClass )
+    public XavenLibrary getExtension( final String extId )
     {
-        return (T) configs.get( configClass.getName() );
+        return extensions.get( extId );
     }
 
-    public Map<String, ? extends ExtensionConfiguration> getExtensionConfigurations()
+    public Map<String, XavenLibrary> getExtensions()
     {
-        return configs;
+        return extensions;
     }
 
     public Properties getComponentSelections()

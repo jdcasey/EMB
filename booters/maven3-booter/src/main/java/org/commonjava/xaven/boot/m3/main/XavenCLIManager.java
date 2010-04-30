@@ -32,11 +32,19 @@ import java.util.List;
 public class XavenCLIManager
 {
 
+    public static final String XAVEN_DEBUG_LOG_HANDLES = "ZX";
+
     private final Options options;
 
+    @SuppressWarnings( "static-access" )
     public XavenCLIManager()
     {
         options = new Options();
+
+        options.addOption( OptionBuilder.withLongOpt( "debug-xaven" )
+                                        .hasArg()
+                                        .withDescription( "Comma-separated list of Xaven log-handles to debug." )
+                                        .create( XAVEN_DEBUG_LOG_HANDLES ) );
 
         populateNativeMavenOptions( options );
     }
@@ -315,7 +323,7 @@ public class XavenCLIManager
 
         final HelpFormatter formatter = new HelpFormatter();
 
-        formatter.printHelp( pw, HelpFormatter.DEFAULT_WIDTH, "mvn [options] [<goal(s)>] [<phase(s)>]", "\nOptions:",
+        formatter.printHelp( pw, HelpFormatter.DEFAULT_WIDTH, "xvn [options] [<goal(s)>] [<phase(s)>]", "\nOptions:",
                              options, HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, "\n", false );
 
         pw.flush();

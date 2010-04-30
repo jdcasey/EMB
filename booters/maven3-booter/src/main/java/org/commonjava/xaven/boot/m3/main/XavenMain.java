@@ -158,7 +158,7 @@ public class XavenMain
     protected void cli( final CliRequest cliRequest )
         throws Exception
     {
-        final CLIManager cliManager = new CLIManager();
+        final XavenCLIManager cliManager = new XavenCLIManager();
 
         try
         {
@@ -175,6 +175,12 @@ public class XavenMain
         cliRequest.builder.withDebugMode( cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
         cliRequest.builder.withQuietMode( cliRequest.commandLine.hasOption( CLIManager.QUIET ) );
         cliRequest.builder.withVersion( cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) );
+        if ( cliRequest.commandLine.hasOption( XavenCLIManager.XAVEN_DEBUG_LOG_HANDLES ) )
+        {
+            cliRequest.builder.withDebugLogHandles( cliRequest.commandLine.getOptionValue(
+                                                                                           XavenCLIManager.XAVEN_DEBUG_LOG_HANDLES )
+                                                                          .split( "\\s*,\\s*" ) );
+        }
 
         if ( cliRequest.commandLine.hasOption( CLIManager.LOG_FILE ) )
         {
@@ -193,7 +199,7 @@ public class XavenMain
         {
             try
             {
-                XavenEmbedder.showVersion( cliRequest.builder.standardOut() );
+                XavenEmbedder.showVersion( cliRequest.builder.xavenConfiguration(), cliRequest.builder.standardOut() );
             }
             catch ( final IOException e )
             {
@@ -300,7 +306,7 @@ public class XavenMain
     protected XavenExecutionRequest populateRequest( final CliRequest cliRequest )
         throws XavenEmbeddingException
     {
-        cliRequest.builder.build();
+        //        cliRequest.builder.build();
 
         final XavenExecutionRequest request = cliRequest.request;
         final CommandLine commandLine = cliRequest.commandLine;
@@ -317,6 +323,7 @@ public class XavenMain
         if ( commandLine.hasOption( CLIManager.BATCH_MODE ) )
         {
             request.setInteractiveMode( false );
+            cliRequest.builder.xavenConfiguration().nonInteractive();
         }
 
         boolean pluginUpdateOverride = false;

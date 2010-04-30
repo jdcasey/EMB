@@ -1,22 +1,25 @@
 package org.commonjava.xaven.conf;
 
 import static org.codehaus.plexus.util.IOUtil.close;
+import static org.codehaus.plexus.util.StringUtils.isBlank;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
+import static org.codehaus.plexus.util.StringUtils.join;
 
 import org.apache.log4j.Logger;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -33,10 +36,16 @@ import java.util.Set;
  * the License.
  */
 
-public final class XavenExtensions
+public final class XavenLibraries
 {
 
+    private static final String INFO_KEY_ID = "Id";
+
     private static final String INFO_KEY_NAME = "Name";
+
+    private static final String INFO_KEY_VERSION = "Version";
+
+    private static final String INFO_KEY_LOG_HANDLE = "Log-Handle";
 
     private static final String INFO_KEY_CONFIG_LOADER = "Configuration-Loader";
 
@@ -44,61 +53,35 @@ public final class XavenExtensions
 
     private static final String XAVEN_COMPONENT_OVERRIDES_PATH = "META-INF/xaven/component-overrides.properties";
 
-    private static final Logger logger = Logger.getLogger( XavenExtensions.class );
+    private static final Logger logger = Logger.getLogger( XavenConfiguration.STANDARD_LOG_HANDLE_LOADER );
 
-    public static Set<String> getLoadedExtensions()
+    private static Map<String, XavenLibrary> libraries;
+
+    public static Map<String, XavenLibrary> loadLibraryInformation( final XavenConfiguration xavenConfig )
         throws IOException
     {
-        final Set<String> ext = new LinkedHashSet<String>();
-
-        final ClassLoader cloader = Thread.currentThread().getContextClassLoader();
-
-        final Enumeration<URL> resources = cloader.getResources( XAVEN_INFO_PATH );
-        while ( resources.hasMoreElements() )
+        if ( libraries != null )
         {
-            final URL resource = resources.nextElement();
-            final String path = resource.getPath();
-
-            InputStream stream = null;
-            try
-            {
-                stream = resource.openStream();
-                final Properties p = new Properties();
-                p.load( stream );
-
-                final String name = p.getProperty( INFO_KEY_NAME, path );
-                ext.add( name );
-            }
-            catch ( final IOException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to read extension info from: " + path, e );
-                }
-            }
-            finally
-            {
-                close( stream );
-            }
+            return libraries;
         }
 
-        return ext;
-    }
-
-    public static Map<String, ? extends ExtensionConfiguration> loadExtensionConfigurations(
-                                                                                             final XavenConfiguration xavenConfig )
-        throws IOException
-    {
-        final Map<String, ExtensionConfiguration> configs = new HashMap<String, ExtensionConfiguration>();
+        libraries = new HashMap<String, XavenLibrary>();
+        final List<String> extIdAndPath = new ArrayList<String>();
 
         final ClassLoader cloader = Thread.currentThread().getContextClassLoader();
 
         final Enumeration<URL> resources = cloader.getResources( XAVEN_INFO_PATH );
+
+        boolean foundOverlap = false;
         while ( resources.hasMoreElements() )
         {
             final URL resource = resources.nextElement();
-            final String path = resource.getPath();
-            String name = path;
+            final String path = getJarPath( resource );
+
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "Loading extension info from: " + path );
+            }
 
             InputStream stream = null;
             try
@@ -107,51 +90,77 @@ public final class XavenExtensions
                 final Properties p = new Properties();
                 p.load( stream );
 
-                name = p.getProperty( INFO_KEY_NAME, path );
-                final String cls = p.getProperty( INFO_KEY_CONFIG_LOADER );
+                final String id = p.getProperty( INFO_KEY_ID );
+                if ( isBlank( id ) )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.error( "Missing required value '" + INFO_KEY_ID + "' for library from: " + path );
+                    }
+                    continue;
+                }
 
-                if ( isNotBlank( cls ) )
+                extIdAndPath.add( id + ": " + path );
+                if ( libraries.containsKey( id ) )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.error( "DUPLICATE LIBRARY ID FOUND: '" + id + "'. See below." );
+                    }
+                    foundOverlap = true;
+                    continue;
+                }
+
+                final String name = p.getProperty( INFO_KEY_NAME, path );
+                final String version = p.getProperty( INFO_KEY_VERSION, "UNKNOWN" );
+                final String logHandle = p.getProperty( INFO_KEY_LOG_HANDLE, id );
+                final String loaderCls = p.getProperty( INFO_KEY_CONFIG_LOADER );
+                ExtensionConfiguration configuration = null;
+
+                if ( isNotBlank( loaderCls ) )
                 {
                     final ExtensionConfigurationLoader loader =
-                        (ExtensionConfigurationLoader) cloader.loadClass( cls ).newInstance();
+                        (ExtensionConfigurationLoader) cloader.loadClass( loaderCls ).newInstance();
 
-                    configs.put( loader.getExtensionConfigurationClass().getName(),
-                                 loader.loadConfiguration( xavenConfig ) );
+                    configuration = loader.loadConfiguration( xavenConfig );
                 }
+
+                final XavenLibrary ext = new XavenLibrary( id, name, version, logHandle, configuration );
+                libraries.put( id, ext );
             }
             catch ( final IOException e )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Failed to read extension info from: " + path, e );
+                    logger.debug( "Failed to read library info from: " + path, e );
                 }
             }
             catch ( final InstantiationException e )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load library configuration for: " + path, e );
                 }
             }
             catch ( final IllegalAccessException e )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load library configuration for: " + path, e );
                 }
             }
             catch ( final ClassNotFoundException e )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load library configuration for: " + path, e );
                 }
             }
             catch ( final ExtensionConfigurationException e )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Failed to load extension configuration for: " + name, e );
+                    logger.debug( "Failed to load library configuration for: " + path, e );
                 }
             }
             finally
@@ -160,7 +169,25 @@ public final class XavenExtensions
             }
         }
 
-        return configs;
+        if ( foundOverlap && logger.isDebugEnabled() )
+        {
+            logger.error( "The following library information paths were encountered:\n\n"
+                + join( extIdAndPath.iterator(), "\n\t" ) );
+        }
+
+        return libraries;
+    }
+
+    private static String getJarPath( final URL resource )
+    {
+        String path = resource.getPath();
+        final int idx = path.indexOf( '!' );
+        if ( idx > 0 )
+        {
+            path = path.substring( 0, idx );
+        }
+
+        return new File( path ).getAbsolutePath();
     }
 
     public static Properties getComponentOverrides()
@@ -176,7 +203,7 @@ public final class XavenExtensions
         while ( resources.hasMoreElements() )
         {
             final URL resource = resources.nextElement();
-            final String path = resource.getPath();
+            final String path = getJarPath( resource );
 
             InputStream stream = null;
             try

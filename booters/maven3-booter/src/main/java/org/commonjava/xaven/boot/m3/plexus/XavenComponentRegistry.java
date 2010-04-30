@@ -1,9 +1,12 @@
 package org.commonjava.xaven.boot.m3.plexus;
 
+import static org.codehaus.plexus.util.StringUtils.isBlank;
+
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.ComponentRegistry;
 import org.codehaus.plexus.DefaultComponentRegistry;
 import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
@@ -14,6 +17,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLifecycleExce
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.lifecycle.LifecycleHandlerManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 
 import java.util.HashMap;
@@ -39,11 +43,13 @@ public class XavenComponentRegistry
     implements ComponentRegistry
 {
 
-    private static final Logger logger = Logger.getLogger( XavenComponentRegistry.class );
+    private static final Logger logger = Logger.getLogger( XavenConfiguration.STANDARD_LOG_HANDLE_LOADER );
+
+    private static final String EXTENSION_ROLE = XavenLibrary.class.getName();
 
     private final DefaultComponentRegistry delegate;
 
-    private final Map<String, Object> configComponents = new HashMap<String, Object>();
+    private final Map<String, Object> xavenInstances = new HashMap<String, Object>();
 
     public XavenComponentRegistry( final MutablePlexusContainer container, final ComponentRepository repository,
                                    final LifecycleHandlerManager lifecycleHandlerManager,
@@ -51,20 +57,32 @@ public class XavenComponentRegistry
     {
         delegate = new DefaultComponentRegistry( container, repository, lifecycleHandlerManager );
 
-        configComponents.put( XavenConfiguration.class.getName(), config );
+        xavenInstances.put( XavenConfiguration.class.getName(), config );
 
-        final Map<String, ? extends ExtensionConfiguration> ext = config.getExtensionConfigurations();
-        if ( ext != null && !ext.isEmpty() )
+        final Map<String, XavenLibrary> extensions = config.getExtensions();
+        if ( extensions != null && !extensions.isEmpty() )
         {
-            for ( final Map.Entry<String, ? extends ExtensionConfiguration> entry : ext.entrySet() )
+            for ( final XavenLibrary ext : extensions.values() )
             {
                 if ( logger.isDebugEnabled() )
                 {
-                    logger.debug( "Adding configuration component with role: '" + entry.getValue().getClass().getName()
-                        + "' and hint: 'default'." );
+                    logger.debug( "Adding extension component with role: '" + ext.getClass().getName()
+                        + "' and hint: '" + ext.getId() + "'." );
                 }
 
-                configComponents.put( entry.getValue().getClass().getName(), entry.getValue() );
+                xavenInstances.put( EXTENSION_ROLE + "#" + ext.getId(), ext );
+
+                final ExtensionConfiguration extConfig = ext.getConfiguration();
+                if ( extConfig != null )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.debug( "Adding extension configuration component with role: '"
+                            + extConfig.getClass().getName() + "' and hint: 'default'." );
+                    }
+
+                    xavenInstances.put( extConfig.getClass().getName(), extConfig );
+                }
             }
         }
     }
@@ -112,24 +130,16 @@ public class XavenComponentRegistry
     public <T> T lookup( final Class<T> type, final String role, final String roleHint )
         throws ComponentLookupException
     {
-        if ( configComponents.containsKey( role ) )
-        {
-            return (T) configComponents.get( role );
-        }
-
-        return delegate.lookup( type, role, roleHint );
+        final T result = (T) lookupXavenInstance( role, roleHint );
+        return result != null ? result : delegate.lookup( type, role, roleHint );
     }
 
     @SuppressWarnings( "unchecked" )
-    public <T> T lookup( final ComponentDescriptor<T> componentDescriptor )
+    public <T> T lookup( final ComponentDescriptor<T> cd )
         throws ComponentLookupException
     {
-        if ( configComponents.containsKey( componentDescriptor.getRole() ) )
-        {
-            return (T) configComponents.get( componentDescriptor.getRole() );
-        }
-
-        return delegate.lookup( componentDescriptor );
+        final T result = (T) lookupXavenInstance( cd.getRole(), cd.getRoleHint() );
+        return result != null ? result : delegate.lookup( cd );
     }
 
     public <T> List<T> lookupList( final Class<T> type, final String role, final List<String> roleHints )
@@ -161,4 +171,18 @@ public class XavenComponentRegistry
         delegate.removeComponentRealm( classRealm );
     }
 
+    protected Object lookupXavenInstance( final String role, final String roleHint )
+    {
+        if ( xavenInstances.containsKey( role + "#" + roleHint ) )
+        {
+            return xavenInstances.get( role + "#" + roleHint );
+        }
+        else if ( ( isBlank( roleHint ) || PlexusConstants.PLEXUS_DEFAULT_HINT.equals( roleHint ) )
+            && xavenInstances.containsKey( role ) )
+        {
+            return xavenInstances.get( role );
+        }
+
+        return null;
+    }
 }

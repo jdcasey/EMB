@@ -1,13 +1,7 @@
 package org.commonjava.xaven.boot.m3.embed;
 
-import static org.commonjava.xaven.conf.XavenExtensions.getComponentOverrides;
-import static org.commonjava.xaven.conf.XavenExtensions.getLoadedExtensions;
-import static org.commonjava.xaven.conf.XavenExtensions.loadExtensionConfigurations;
+import static org.commonjava.xaven.conf.XavenLibraries.loadLibraryInformation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.spi.Configurator;
-import org.apache.log4j.spi.LoggerRepository;
 import org.apache.maven.Maven;
 import org.apache.maven.cli.CLIReportingUtils;
 import org.apache.maven.exception.DefaultExceptionHandler;
@@ -34,6 +28,7 @@ import org.commonjava.xaven.XavenExecutionRequest;
 import org.commonjava.xaven.boot.m3.log.EventLogger;
 import org.commonjava.xaven.boot.m3.main.XavenMain;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -43,12 +38,9 @@ import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -109,9 +101,22 @@ public class XavenEmbedder
     public MavenExecutionResult execute( final XavenExecutionRequest request )
         throws XavenEmbeddingException
     {
-        injectEnvironment( request );
-        printInfo( request );
-        return maven.execute( request.asMavenExecutionRequest() );
+        final PrintStream oldOut = System.out;
+        try
+        {
+            if ( standardOut != null )
+            {
+                System.setOut( standardOut );
+            }
+
+            injectEnvironment( request );
+            printInfo( request );
+            return maven.execute( request.asMavenExecutionRequest() );
+        }
+        finally
+        {
+            System.setOut( oldOut );
+        }
     }
 
     public String encryptMasterPassword( final XavenExecutionRequest request )
@@ -212,24 +217,13 @@ public class XavenEmbedder
             xavenConfiguration.nonInteractive();
         }
 
-        if ( request.isInteractiveMode() )
+        if ( Logger.LEVEL_DEBUG == request.getLoggingLevel() )
         {
-            xavenConfiguration.interactive();
+            xavenConfiguration.withDebug();
         }
         else
         {
-            xavenConfiguration.nonInteractive();
-        }
-
-        try
-        {
-            xavenConfiguration.withComponentSelections( getComponentOverrides() );
-            xavenConfiguration.withExtensionConfigurations( loadExtensionConfigurations( xavenConfiguration ) );
-        }
-        catch ( final IOException e )
-        {
-            logger.error( "Failed to query context classloader for component-overrides files. Reason: "
-                + e.getMessage(), e );
+            xavenConfiguration.withoutDebug();
         }
     }
 
@@ -264,28 +258,28 @@ public class XavenEmbedder
         logger.setThreshold( logLevel );
         container.getLoggerManager().setThresholds( request.getLoggingLevel() );
 
-        final Configurator log4jConfigurator = new Configurator()
-        {
-            @SuppressWarnings( "unchecked" )
-            public void doConfigure( final URL notUsed, final LoggerRepository repo )
-            {
-                final Enumeration<org.apache.log4j.Logger> loggers = repo.getCurrentLoggers();
-                while ( loggers.hasMoreElements() )
-                {
-                    final org.apache.log4j.Logger logger = loggers.nextElement();
-                    if ( Logger.LEVEL_DEBUG == logLevel )
-                    {
-                        logger.setLevel( Level.DEBUG );
-                    }
-                    else if ( Logger.LEVEL_ERROR == logLevel )
-                    {
-                        logger.setLevel( Level.ERROR );
-                    }
-                }
-            }
-        };
-
-        log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
+        //        final Configurator log4jConfigurator = new Configurator()
+        //        {
+        //            @SuppressWarnings( "unchecked" )
+        //            public void doConfigure( final URL notUsed, final LoggerRepository repo )
+        //            {
+        //                final Enumeration<org.apache.log4j.Logger> loggers = repo.getCurrentLoggers();
+        //                while ( loggers.hasMoreElements() )
+        //                {
+        //                    final org.apache.log4j.Logger logger = loggers.nextElement();
+        //                    if ( Logger.LEVEL_DEBUG == logLevel )
+        //                    {
+        //                        logger.setLevel( Level.DEBUG );
+        //                    }
+        //                    else if ( Logger.LEVEL_ERROR == logLevel )
+        //                    {
+        //                        logger.setLevel( Level.ERROR );
+        //                    }
+        //                }
+        //            }
+        //        };
+        //
+        //        log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
 
         request.setExecutionListener( new EventLogger( logger ) );
     }
@@ -357,22 +351,28 @@ public class XavenEmbedder
         }
     }
 
-    public static void showVersion( final PrintStream standardOut )
+    public static void showXavenInfo( final XavenConfiguration xavenConfig, final PrintStream standardOut )
         throws IOException
     {
-        standardOut.println( "-- Xaven Extensions Loaded --" );
+        standardOut.println();
+        standardOut.println( "-- Xaven Libraries Loaded --" );
         standardOut.println();
 
-        final Set<String> extensions = getLoadedExtensions();
-        for ( final String ext : extensions )
+        final Map<String, XavenLibrary> libraries = loadLibraryInformation( xavenConfig );
+        for ( final XavenLibrary ext : libraries.values() )
         {
-            standardOut.println( "+" + ext );
+            standardOut.println( "+" + ext.getLabel() + " (Log handle: '" + ext.getLogHandle() + "')" );
         }
 
         standardOut.println();
         standardOut.println( "--------------------------" );
         standardOut.println();
+    }
 
+    public static void showVersion( final XavenConfiguration xavenConfig, final PrintStream standardOut )
+        throws IOException
+    {
+        showXavenInfo( xavenConfig, standardOut );
         CLIReportingUtils.showVersion( standardOut );
     }
 
@@ -382,7 +382,7 @@ public class XavenEmbedder
         {
             try
             {
-                showVersion( standardOut );
+                showVersion( xavenConfiguration, standardOut );
             }
             catch ( final IOException e )
             {

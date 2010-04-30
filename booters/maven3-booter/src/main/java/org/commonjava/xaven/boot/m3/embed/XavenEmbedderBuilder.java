@@ -1,8 +1,9 @@
 package org.commonjava.xaven.boot.m3.embed;
 
-import static org.commonjava.xaven.conf.XavenExtensions.getComponentOverrides;
-import static org.commonjava.xaven.conf.XavenExtensions.loadExtensionConfigurations;
+import static org.commonjava.xaven.conf.XavenLibraries.getComponentOverrides;
+import static org.commonjava.xaven.conf.XavenLibraries.loadLibraryInformation;
 
+import org.apache.log4j.Level;
 import org.apache.maven.Maven;
 import org.apache.maven.cli.MavenLoggerManager;
 import org.apache.maven.cli.PrintStreamLogger;
@@ -12,13 +13,13 @@ import org.apache.maven.settings.building.SettingsBuilder;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.MutablePlexusContainer;
-import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
@@ -27,6 +28,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Map;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -86,81 +89,211 @@ public class XavenEmbedderBuilder
 
     private XavenEmbedder embedder;
 
-    public XavenEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
+    private String[] debugLogHandles;
+
+    private boolean modelProcessorProvided;
+
+    private boolean mavenProvided;
+
+    private boolean executionRequestPopulatorProvided;
+
+    private boolean settingsBuilderProvided;
+
+    private boolean securityDispatcherProvided;
+
+    public synchronized XavenEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
         this.settingsBuilder = settingsBuilder;
+        settingsBuilderProvided = true;
         return this;
     }
 
-    public SettingsBuilder settingsBuilder()
+    public synchronized SettingsBuilder settingsBuilder()
+        throws XavenEmbeddingException
     {
+        if ( settingsBuilder == null )
+        {
+            settingsBuilder = lookup( SettingsBuilder.class );
+            settingsBuilderProvided = false;
+        }
         return settingsBuilder;
     }
 
-    public XavenEmbedderBuilder withSecurityDispatcher( final DefaultSecDispatcher securityDispatcher )
+    public synchronized XavenEmbedderBuilder withSecurityDispatcher( final DefaultSecDispatcher securityDispatcher )
     {
         this.securityDispatcher = securityDispatcher;
+        securityDispatcherProvided = true;
         return this;
     }
 
-    public DefaultSecDispatcher securityDispatcher()
+    public synchronized DefaultSecDispatcher securityDispatcher()
+        throws XavenEmbeddingException
     {
+        if ( securityDispatcher == null )
+        {
+            securityDispatcher = (DefaultSecDispatcher) lookup( SecDispatcher.class, "maven" );
+            securityDispatcherProvided = false;
+        }
         return securityDispatcher;
     }
 
-    public XavenEmbedderBuilder withExecutionRequestPopulator(
-                                                               final MavenExecutionRequestPopulator executionRequestPopulator )
+    public synchronized XavenEmbedderBuilder withExecutionRequestPopulator(
+                                                                            final MavenExecutionRequestPopulator executionRequestPopulator )
     {
         this.executionRequestPopulator = executionRequestPopulator;
+        executionRequestPopulatorProvided = true;
         return this;
     }
 
-    public MavenExecutionRequestPopulator executionRequestPopulator()
+    public synchronized MavenExecutionRequestPopulator executionRequestPopulator()
+        throws XavenEmbeddingException
     {
+        if ( executionRequestPopulator == null )
+        {
+            executionRequestPopulator = lookup( MavenExecutionRequestPopulator.class );
+            executionRequestPopulatorProvided = false;
+        }
+
         return executionRequestPopulator;
     }
 
-    public XavenEmbedderBuilder withClassWorld( final ClassWorld classWorld )
+    public synchronized XavenEmbedderBuilder withClassWorld( final ClassWorld classWorld )
     {
         this.classWorld = classWorld;
         return this;
     }
 
-    public ClassWorld classWorld()
+    public synchronized ClassWorld classWorld()
     {
+        if ( classWorld == null )
+        {
+            classWorld = new ClassWorld( "plexus.core", Thread.currentThread().getContextClassLoader() );
+        }
+
         return classWorld;
     }
 
-    public XavenEmbedderBuilder withMaven( final Maven maven )
+    public synchronized XavenEmbedderBuilder withMaven( final Maven maven )
     {
         this.maven = maven;
+        mavenProvided = true;
         return this;
     }
 
-    public Maven maven()
+    public synchronized Maven maven()
+        throws XavenEmbeddingException
     {
+        if ( maven == null )
+        {
+            maven = lookup( Maven.class );
+            mavenProvided = false;
+        }
         return maven;
     }
 
-    public XavenEmbedderBuilder withModelProcessor( final ModelProcessor modelProcessor )
+    public synchronized XavenEmbedderBuilder withModelProcessor( final ModelProcessor modelProcessor )
     {
         this.modelProcessor = modelProcessor;
+        modelProcessorProvided = true;
         return this;
     }
 
-    public ModelProcessor modelProcessor()
+    public synchronized ModelProcessor modelProcessor()
+        throws XavenEmbeddingException
     {
+        if ( modelProcessor == null )
+        {
+            modelProcessor = lookup( ModelProcessor.class );
+            modelProcessorProvided = false;
+        }
+
         return modelProcessor;
     }
 
-    public XavenEmbedderBuilder withContainer( final MutablePlexusContainer container )
+    private <T> T lookup( final Class<T> cls )
+        throws XavenEmbeddingException
+    {
+        try
+        {
+            return container().lookup( cls );
+        }
+        catch ( final ComponentLookupException e )
+        {
+            throw new XavenEmbeddingException( "Failed to lookup component: {0}. Reason: {1}", e, cls.getName(),
+                                               e.getMessage() );
+        }
+    }
+
+    private <T> T lookup( final Class<T> cls, final String hint )
+        throws XavenEmbeddingException
+    {
+        try
+        {
+            return container().lookup( cls, hint );
+        }
+        catch ( final ComponentLookupException e )
+        {
+            throw new XavenEmbeddingException( "Failed to lookup component: {0} with hint: {1}. Reason: {2}", e,
+                                               cls.getName(), hint, e.getMessage() );
+        }
+    }
+
+    public synchronized XavenEmbedderBuilder withContainer( final MutablePlexusContainer container )
     {
         this.container = container;
+        resetContainerComponents();
+
         return this;
     }
 
-    public MutablePlexusContainer container()
+    public synchronized void resetContainerComponents()
     {
+        if ( !modelProcessorProvided )
+        {
+            modelProcessor = null;
+        }
+        if ( !executionRequestPopulatorProvided )
+        {
+            executionRequestPopulator = null;
+        }
+        if ( !settingsBuilderProvided )
+        {
+            settingsBuilder = null;
+        }
+        if ( !securityDispatcherProvided )
+        {
+            securityDispatcher = null;
+        }
+        if ( !mavenProvided )
+        {
+            maven = null;
+        }
+    }
+
+    public synchronized MutablePlexusContainer container()
+        throws XavenEmbeddingException
+    {
+        if ( container == null )
+        {
+            final ContainerConfiguration cc =
+                new XavenContainerConfiguration( xavenConfiguration() ).setClassWorld( classWorld() ).setName( "maven" );
+
+            DefaultPlexusContainer c;
+            try
+            {
+                c = new DefaultPlexusContainer( cc );
+            }
+            catch ( final PlexusContainerException e )
+            {
+                throw new XavenEmbeddingException( "Failed to initialize component container: {0}", e, e.getMessage() );
+            }
+
+            c.setLoggerManager( new MavenLoggerManager( logger ) );
+
+            container = c;
+            withContainer( c );
+        }
+
         return container;
     }
 
@@ -172,6 +305,16 @@ public class XavenEmbedderBuilder
 
     public synchronized XavenConfiguration xavenConfiguration()
     {
+        final String[] debugLogHandles = debugLogHandles();
+        if ( debugLogHandles != null )
+        {
+            for ( final String logHandle : debugLogHandles )
+            {
+                final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger( logHandle );
+                logger.setLevel( Level.DEBUG );
+            }
+        }
+
         if ( xavenConfiguration == null )
         {
             xavenConfiguration = new XavenConfiguration();
@@ -188,7 +331,14 @@ public class XavenEmbedderBuilder
             try
             {
                 xavenConfiguration.withComponentSelections( getComponentOverrides() );
-                xavenConfiguration.withExtensionConfigurations( loadExtensionConfigurations( xavenConfiguration ) );
+
+                final Map<String, XavenLibrary> extensions = loadLibraryInformation( xavenConfiguration );
+                xavenConfiguration.withExtensions( extensions );
+                if ( debugLogHandles != null
+                    && Arrays.binarySearch( debugLogHandles, XavenConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )
+                {
+                    XavenEmbedder.showXavenInfo( xavenConfiguration, standardOut() );
+                }
             }
             catch ( final IOException e )
             {
@@ -353,55 +503,8 @@ public class XavenEmbedderBuilder
         logger();
     }
 
-    protected synchronized void wireContainerAndComponents()
-        throws ComponentLookupException, PlexusContainerException
-    {
-        if ( classWorld() == null )
-        {
-            withClassWorld( new ClassWorld( "plexus.core", Thread.currentThread().getContextClassLoader() ) );
-        }
-
-        PlexusContainer container = container();
-
-        if ( container == null )
-        {
-            final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration() ).setClassWorld( classWorld() ).setName( "maven" );
-
-            final DefaultPlexusContainer c = new DefaultPlexusContainer( cc );
-            c.setLoggerManager( new MavenLoggerManager( logger ) );
-
-            container = c;
-            withContainer( c );
-        }
-
-        if ( maven() == null )
-        {
-            withMaven( container.lookup( Maven.class ) );
-        }
-
-        if ( executionRequestPopulator() == null )
-        {
-            withExecutionRequestPopulator( container.lookup( MavenExecutionRequestPopulator.class ) );
-        }
-
-        if ( modelProcessor() == null )
-        {
-            withModelProcessor( container.lookup( ModelProcessor.class ) );
-        }
-
-        if ( settingsBuilder() == null )
-        {
-            withSettingsBuilder( container.lookup( SettingsBuilder.class ) );
-        }
-
-        if ( securityDispatcher() == null )
-        {
-            withSecurityDispatcher( (DefaultSecDispatcher) container.lookup( SecDispatcher.class, "maven" ) );
-        }
-    }
-
-    protected XavenEmbedder createEmbedder()
+    protected synchronized XavenEmbedder createEmbedder()
+        throws XavenEmbeddingException
     {
         return new XavenEmbedder( maven(), xavenConfiguration(), container(), settingsBuilder(),
                                   executionRequestPopulator(), securityDispatcher(), standardOut(), logger(),
@@ -418,27 +521,20 @@ public class XavenEmbedderBuilder
             mavenHome();
 
             wireLogging();
-            try
-            {
-                wireContainerAndComponents();
-            }
-            catch ( final ComponentLookupException e )
-            {
-                throw new XavenEmbeddingException(
-                                                   "Failed to initialize Plexus container and associated components: {0}",
-                                                   e, e.getMessage() );
-            }
-            catch ( final PlexusContainerException e )
-            {
-                throw new XavenEmbeddingException(
-                                                   "Failed to initialize Plexus container and associated components: {0}",
-                                                   e, e.getMessage() );
-            }
-
             embedder = createEmbedder();
         }
 
         return embedder;
+    }
+
+    public void withDebugLogHandles( final String[] debugLogHandles )
+    {
+        this.debugLogHandles = debugLogHandles;
+    }
+
+    public String[] debugLogHandles()
+    {
+        return debugLogHandles;
     }
 
 }

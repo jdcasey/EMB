@@ -38,12 +38,10 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.components.interactivity.Prompter;
 import org.codehaus.plexus.components.interactivity.PrompterException;
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.nexus.conf.AutoNXConfiguration;
 import org.commonjava.xaven.nexus.search.NexusDiscoveryStrategy;
 
@@ -59,7 +57,7 @@ import java.util.Set;
 
 @Component( role = MirrorSelector.class, hint = "autonx" )
 public class NexusAutoMirrorSelector
-    implements MirrorSelector, Initializable, LogEnabled
+    implements MirrorSelector, Initializable
 {
 
     private final Map<String, String> autodetectedMirrors = new HashMap<String, String>();
@@ -72,6 +70,9 @@ public class NexusAutoMirrorSelector
     @Requirement( hint = "#" )
     private MirrorSelector delegateSelector;
 
+    @Requirement( hint = "autonx" )
+    private XavenLibrary library;
+
     @Requirement
     private AutoNXConfiguration autonxConfig;
 
@@ -83,8 +84,6 @@ public class NexusAutoMirrorSelector
 
     @Requirement( role = NexusDiscoveryStrategy.class )
     private List<NexusDiscoveryStrategy> strategies;
-
-    private Logger logger;
 
     public Mirror getMirror( final ArtifactRepository repository, final List<Mirror> mirrors )
     {
@@ -145,9 +144,9 @@ public class NexusAutoMirrorSelector
         }
         catch ( final AutoNXException e )
         {
-            if ( logger.isDebugEnabled() )
+            if ( library.getLogger().isDebugEnabled() )
             {
-                logger.error( "Failed to auto-detect Nexus mirrors: " + e.getMessage(), e );
+                library.getLogger().error( "Failed to auto-detect Nexus mirrors: " + e.getMessage(), e );
             }
         }
 
@@ -195,9 +194,10 @@ public class NexusAutoMirrorSelector
                             }
                             catch ( final PrompterException e )
                             {
-                                if ( logger.isDebugEnabled() )
+                                if ( library.getLogger().isDebugEnabled() )
                                 {
-                                    logger.debug( "Failed to read credentials! Reason: " + e.getMessage(), e );
+                                    library.getLogger().debug( "Failed to read credentials! Reason: " + e.getMessage(),
+                                                               e );
                                 }
                             }
                         }
@@ -224,9 +224,9 @@ public class NexusAutoMirrorSelector
 
                 builder.append( "service/local/autonx/mirrors" );
 
-                if ( logger.isDebugEnabled() )
+                if ( library.getLogger().isDebugEnabled() )
                 {
-                    logger.debug( "Grabbing mirror mappings from: " + builder.toString() );
+                    library.getLogger().debug( "Grabbing mirror mappings from: " + builder.toString() );
                 }
 
                 final HttpGet get = new HttpGet( builder.toString() );
@@ -259,10 +259,11 @@ public class NexusAutoMirrorSelector
                                                 final String repoUrl = line.substring( 0, idx );
                                                 final String mirrorUrl = line.substring( idx + 1 );
 
-                                                if ( logger.isDebugEnabled() )
+                                                if ( library.getLogger().isDebugEnabled() )
                                                 {
-                                                    logger.debug( "Auto-configured mirror for: '" + repoUrl
-                                                        + "'\nMirror: '" + mirrorUrl + "'\n\n" );
+                                                    library.getLogger().debug(
+                                                                               "Mirroring: " + repoUrl + "\n\t==> "
+                                                                                   + mirrorUrl );
                                                 }
 
                                                 mirrors.put( repoUrl, mirrorUrl );
@@ -277,10 +278,11 @@ public class NexusAutoMirrorSelector
 
                                 return mirrors;
                             }
-                            else if ( logger.isDebugEnabled() )
+                            else if ( library.getLogger().isDebugEnabled() )
                             {
-                                logger.debug( "Response: " + response.getStatusLine().getStatusCode() + " "
-                                    + response.getStatusLine().getReasonPhrase() );
+                                library.getLogger().debug(
+                                                           "Response: " + response.getStatusLine().getStatusCode()
+                                                               + " " + response.getStatusLine().getReasonPhrase() );
                             }
 
                             return null;
@@ -294,37 +296,24 @@ public class NexusAutoMirrorSelector
                 }
                 catch ( final ClientProtocolException e )
                 {
-                    if ( logger.isDebugEnabled() )
+                    if ( library.getLogger().isDebugEnabled() )
                     {
-                        logger.debug( "Failed to read proxied repositories from: '" + builder.toString()
-                            + "'. Reason: " + e.getMessage(), e );
+                        library.getLogger().debug(
+                                                   "Failed to read proxied repositories from: '" + builder.toString()
+                                                       + "'. Reason: " + e.getMessage(), e );
                     }
                 }
                 catch ( final IOException e )
                 {
-                    if ( logger.isDebugEnabled() )
+                    if ( library.getLogger().isDebugEnabled() )
                     {
-                        logger.debug( "Failed to read proxied repositories from: '" + builder.toString()
-                            + "'. Reason: " + e.getMessage(), e );
+                        library.getLogger().debug(
+                                                   "Failed to read proxied repositories from: '" + builder.toString()
+                                                       + "'. Reason: " + e.getMessage(), e );
                     }
                 }
             }
         }
-    }
-
-    protected final synchronized Logger getLogger()
-    {
-        if ( logger == null )
-        {
-            logger = new ConsoleLogger( Logger.LEVEL_WARN, "internal" );
-        }
-
-        return logger;
-    }
-
-    public final void enableLogging( final Logger logger )
-    {
-        this.logger = logger;
     }
 
 }

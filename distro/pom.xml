@@ -12,5 +12,6 @@
   
   <modules>
     <module>maven3</module>
+    <!-- <module>maven2</module> -->
   </modules>
 </project>

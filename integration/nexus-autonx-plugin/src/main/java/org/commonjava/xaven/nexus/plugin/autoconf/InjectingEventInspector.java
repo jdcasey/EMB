@@ -17,17 +17,27 @@
 
 package org.commonjava.xaven.nexus.plugin.autoconf;
 
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.proxy.events.AbstractEventInspector;
 import org.sonatype.nexus.proxy.events.EventInspector;
 import org.sonatype.plexus.appevents.Event;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named( "autonx-startup-injector" )
 public class InjectingEventInspector
     extends AbstractEventInspector
-    implements EventInspector
+    implements EventInspector, Startable
 {
+
+    private static final Logger logger = LoggerFactory.getLogger( InjectingEventInspector.class );
+
+    @Inject
+    @Named( "multicast" )
+    private NexusResponder multicast;
 
     public boolean accepts( final Event<?> evt )
     {
@@ -35,6 +45,16 @@ public class InjectingEventInspector
     }
 
     public void inspect( final Event<?> evt )
+    {
+    }
+
+    public void start()
+    {
+        logger.info( "Using responders:" );
+        logger.info( "\tmulticast: " + multicast.getClass().getName() );
+    }
+
+    public void stop()
     {
     }
 

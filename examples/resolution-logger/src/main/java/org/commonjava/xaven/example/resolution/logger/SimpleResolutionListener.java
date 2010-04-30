@@ -24,10 +24,10 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.event.XavenAsyncEventListener;
 import org.commonjava.xaven.event.XavenEvent;
 import org.commonjava.xaven.event.resolver.PluginResolutionEvent;
@@ -42,16 +42,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@Component( role = XavenAsyncEventListener.class, hint = "example-resolution-listener" )
-public class ExampleResolutionListener
+@Component( role = XavenAsyncEventListener.class, hint = "simple-resolution-listener" )
+public class SimpleResolutionListener
     implements XavenAsyncEventListener, Initializable
 {
 
     @Requirement
-    private Logger logger;
-
-    @Requirement
     private XavenConfiguration xavenConfiguration;
+
+    @Requirement( hint = "sample-resolution-logger" )
+    private XavenLibrary library;
 
     private File dataDir;
 
@@ -83,7 +83,7 @@ public class ExampleResolutionListener
 
         appendArtifactInfo( resolvedArtifacts, sb );
 
-        writeFile( sb, "plugin-" + plugin.getId().replace( ':', '_' ) + ".resolver.log" );
+        writeFile( sb, new File( dataDir, "plugin-" + plugin.getId().replace( ':', '_' ) + ".resolver.log" ) );
     }
 
     private void logProjectResolution( final ProjectDependencyResolutionEvent event )
@@ -102,7 +102,8 @@ public class ExampleResolutionListener
 
         for ( final MavenProject project : projects )
         {
-            writeFile( sb, "project-" + project.getId().replace( ':', '_' ) + ".resolver.log" );
+            writeFile( sb, new File( project.getBuild().getDirectory(), "project-" + project.getId().replace( ':', '_' )
+                + ".resolver.log" ) );
         }
     }
 
@@ -143,24 +144,23 @@ public class ExampleResolutionListener
         }
     }
 
-    private void writeFile( final StringBuilder sb, final String filename )
+    private void writeFile( final StringBuilder sb, final File file )
     {
-        final File pFile = new File( dataDir, filename );
-
-        if ( logger.isDebugEnabled() )
+        if ( library.getLogger().isDebugEnabled() )
         {
-            logger.debug( "Writing: " + pFile.getAbsolutePath() );
+            library.getLogger().debug( "Writing: " + file.getAbsolutePath() );
         }
 
         FileWriter writer = null;
         try
         {
-            writer = new FileWriter( pFile );
+            writer = new FileWriter( file );
             writer.write( sb.toString() );
         }
         catch ( final IOException e )
         {
-            logger.error( "Failed to write : " + pFile.getAbsolutePath() + "\nReason: " + e.getMessage(), e );
+            library.getLogger()
+                   .error( "Failed to write : " + file.getAbsolutePath() + "\nReason: " + e.getMessage(), e );
         }
         finally
         {

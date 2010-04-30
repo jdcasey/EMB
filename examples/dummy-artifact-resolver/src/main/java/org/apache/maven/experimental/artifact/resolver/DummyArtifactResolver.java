@@ -28,8 +28,6 @@ import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.artifact.resolver.ResolutionListener;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.wagon.events.TransferListener;
-import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -37,39 +35,8 @@ import java.util.Set;
 
 @SuppressWarnings( "deprecation" )
 public class DummyArtifactResolver
-    implements ArtifactResolver, LogEnabled
+    implements ArtifactResolver
 {
-
-    @SuppressWarnings( "unused" )
-    private Logger logger;
-
-    public void enableLogging( final Logger logger )
-    {
-        this.logger = logger;
-    }
-
-    //    private void logDummy( final String message, final Object... params )
-    //    {
-    //        logger.info( "\n\n\n\n\n" + MessageFormat.format( message, params ) + "\n\n\n\n" );
-    //    }
-    //
-    //    private String join( final Iterator<?> iterator, String separator )
-    //    {
-    //        if ( separator == null )
-    //        {
-    //            separator = "";
-    //        }
-    //        final StringBuilder buf = new StringBuilder( 256 ); // Java default is 16, probably too small
-    //        while ( iterator.hasNext() )
-    //        {
-    //            buf.append( iterator.next() );
-    //            if ( iterator.hasNext() )
-    //            {
-    //                buf.append( separator );
-    //            }
-    //        }
-    //        return buf.toString();
-    //    }
 
     public ArtifactResolutionResult resolve( final ArtifactResolutionRequest request )
     {
