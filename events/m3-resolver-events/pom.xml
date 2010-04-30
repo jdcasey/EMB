@@ -4,11 +4,10 @@
   <parent>
     <artifactId>xaven-events</artifactId>
     <groupId>org.commonjava.xaven.event</groupId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>xaven-m3-resolver-events</artifactId>
-  <version>0.2-SNAPSHOT</version>
   <name>Xaven Maven3 Resolver Event Source</name>
 
   <dependencyManagement>
