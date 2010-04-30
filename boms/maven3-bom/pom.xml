@@ -4,7 +4,7 @@
   <parent>
     <artifactId>xaven-boms</artifactId>
     <groupId>org.commonjava.xaven.bom</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
   </parent>
   
   <artifactId>xaven-maven3-bom</artifactId>

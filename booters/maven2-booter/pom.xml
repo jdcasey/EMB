@@ -5,11 +5,11 @@
   <parent>
     <artifactId>xaven-booters</artifactId>
     <groupId>org.commonjava.xaven.boot</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
   </parent>
   <groupId>org.commonjava.xaven.boot</groupId>
   <artifactId>xaven-maven2-booter</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <name>xaven-maven2-booter</name>
   <url>http://maven.apache.org</url>
   <dependencies>

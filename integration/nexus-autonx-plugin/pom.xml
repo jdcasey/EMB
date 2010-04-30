@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.commonjava.xaven.integration</groupId>
     <artifactId>xaven-integration</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
   </parent>
   
   <artifactId>nexus-autonx-plugin</artifactId>
