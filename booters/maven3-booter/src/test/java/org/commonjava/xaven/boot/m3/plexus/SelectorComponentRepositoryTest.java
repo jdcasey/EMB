@@ -3,11 +3,20 @@ package org.commonjava.xaven.boot.m3.plexus;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
+import org.apache.log4j.spi.Configurator;
+import org.apache.log4j.spi.LoggerRepository;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
-import org.commonjava.xaven.conf.XavenConfiguration;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /*
@@ -28,6 +37,27 @@ import java.util.Properties;
 public class SelectorComponentRepositoryTest
 {
 
+    @BeforeClass
+    public static void setupLogging()
+    {
+        final Configurator log4jConfigurator = new Configurator()
+        {
+            @SuppressWarnings( "unchecked" )
+            public void doConfigure( final URL notUsed, final LoggerRepository repo )
+            {
+                repo.getRootLogger().addAppender( new ConsoleAppender( new SimpleLayout() ) );
+
+                final Enumeration<Logger> loggers = repo.getCurrentLoggers();
+                while ( loggers.hasMoreElements() )
+                {
+                    loggers.nextElement().setLevel( Level.DEBUG );
+                }
+            }
+        };
+
+        log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
+    }
+
     @Test
     public void componentSubstitutionWhenTargetHasRoleHint()
         throws CycleDetectedInComponentGraphException
@@ -45,8 +75,7 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role#hint", "other-hint" );
 
-        final SelectorComponentRepository repo =
-            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+        final SelectorComponentRepository repo = new SelectorComponentRepository( new ComponentSelector( selectors ) );
 
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
@@ -73,8 +102,7 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role", "other-hint" );
 
-        final SelectorComponentRepository repo =
-            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+        final SelectorComponentRepository repo = new SelectorComponentRepository( new ComponentSelector( selectors ) );
 
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
@@ -101,8 +129,7 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role", "other-hint" );
 
-        final SelectorComponentRepository repo =
-            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+        final SelectorComponentRepository repo = new SelectorComponentRepository( new ComponentSelector( selectors ) );
 
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );
@@ -129,8 +156,7 @@ public class SelectorComponentRepositoryTest
         final Properties selectors = new Properties();
         selectors.setProperty( "role#hint", "other-hint" );
 
-        final SelectorComponentRepository repo =
-            new SelectorComponentRepository( new XavenConfiguration().withDebug().withComponentSelections( selectors ) );
+        final SelectorComponentRepository repo = new SelectorComponentRepository( new ComponentSelector( selectors ) );
 
         repo.addComponentDescriptor( cd1 );
         repo.addComponentDescriptor( cd2 );

@@ -89,9 +89,13 @@ public class XavenContainerConfiguration
 
     private final InstanceRegistry instanceRegistry;
 
-    public XavenContainerConfiguration( final XavenConfiguration xavenConfig, final InstanceRegistry instanceRegistry )
+    private final ComponentSelector selector;
+
+    public XavenContainerConfiguration( final XavenConfiguration xavenConfig, final ComponentSelector selector,
+                                        final InstanceRegistry instanceRegistry )
     {
         this.xavenConfig = xavenConfig;
+        this.selector = selector;
         this.instanceRegistry = instanceRegistry;
     }
 
@@ -262,7 +266,7 @@ public class XavenContainerConfiguration
 
     public ContainerConfiguration setComponentRepository( final ComponentRepository componentRepository )
     {
-        this.componentRepository = new SelectorComponentRepository( componentRepository, xavenConfig );
+        this.componentRepository = new SelectorComponentRepository( componentRepository, selector );
 
         return this;
     }
@@ -271,7 +275,7 @@ public class XavenContainerConfiguration
     {
         if ( componentRepository == null )
         {
-            componentRepository = new SelectorComponentRepository( xavenConfig );
+            componentRepository = new SelectorComponentRepository( selector );
         }
 
         return componentRepository;

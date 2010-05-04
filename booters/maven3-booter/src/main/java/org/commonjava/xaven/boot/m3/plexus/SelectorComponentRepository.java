@@ -15,45 +15,32 @@ package org.commonjava.xaven.boot.m3.plexus;
  * the License.
  */
 
-import static org.codehaus.plexus.util.StringUtils.isNotBlank;
-
-import org.apache.log4j.Logger;
-import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRepository;
 import org.codehaus.plexus.component.repository.DefaultComponentRepository;
-import org.commonjava.xaven.conf.XavenConfiguration;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class SelectorComponentRepository
     implements ComponentRepository
 {
 
-    private static final Logger logger = Logger.getLogger( SelectorComponentRepository.class );
-
-    private static final char LITERAL_HINT_DELIMITER = '_';
-
-    private static final String BLANK_ROLE_HINT_PLACEHOLDER = "#";
-
     private final ComponentRepository delegateRepository;
 
-    private final Properties componentSelectors;
+    private final ComponentSelector selector;
 
-    public SelectorComponentRepository( final XavenConfiguration xavenConfig )
+    public SelectorComponentRepository( final ComponentSelector selector )
     {
-        componentSelectors = xavenConfig.getComponentSelections();
+        this.selector = selector;
         delegateRepository = new DefaultComponentRepository();
     }
 
-    public SelectorComponentRepository( final ComponentRepository delegateRepository,
-                                        final XavenConfiguration xavenConfig )
+    public SelectorComponentRepository( final ComponentRepository delegateRepository, final ComponentSelector selector )
     {
-        componentSelectors = xavenConfig.getComponentSelections();
+        this.selector = selector;
         this.delegateRepository = delegateRepository;
     }
 
@@ -66,14 +53,14 @@ public class SelectorComponentRepository
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role,
                                                               final String roleHint )
     {
-        return delegateRepository.getComponentDescriptor( type, role, selectRoleHint( role, roleHint ) );
+        return delegateRepository.getComponentDescriptor( type, role, selector.selectRoleHint( role, roleHint ) );
     }
 
     @Deprecated
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String roleHint,
                                                           final ClassRealm realm )
     {
-        return delegateRepository.getComponentDescriptor( role, selectRoleHint( role, roleHint ), realm );
+        return delegateRepository.getComponentDescriptor( role, selector.selectRoleHint( role, roleHint ), realm );
     }
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
@@ -91,49 +78,4 @@ public class SelectorComponentRepository
         delegateRepository.removeComponentRealm( classRealm );
     }
 
-    private String selectRoleHint( final String role, final String roleHint )
-    {
-        final StringBuilder sb = new StringBuilder( role );
-
-        if ( isNotBlank( roleHint ) )
-        {
-            if ( BLANK_ROLE_HINT_PLACEHOLDER.equals( roleHint ) )
-            {
-                return null;
-            }
-            else if ( roleHint.length() > 2 && roleHint.charAt( 0 ) == LITERAL_HINT_DELIMITER
-                && roleHint.charAt( roleHint.length() - 1 ) == LITERAL_HINT_DELIMITER )
-            {
-                return roleHint.substring( 1, roleHint.length() - 1 );
-            }
-
-            sb.append( '#' ).append( roleHint );
-        }
-
-        String selectedHint = componentSelectors.getProperty( sb.toString() );
-        if ( selectedHint == null && PlexusConstants.PLEXUS_DEFAULT_HINT.equals( roleHint ) )
-        {
-            selectedHint = componentSelectors.getProperty( role );
-        }
-
-        if ( selectedHint == null )
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug( "No component override for role: '" + role + "', hint: '" + roleHint + "'." );
-            }
-
-            return roleHint;
-        }
-        else
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug( "Replaced hint: '" + roleHint + "' with hint: '" + selectedHint + "' for role: '" + role
-                    + "'." );
-            }
-
-            return selectedHint;
-        }
-    }
 }

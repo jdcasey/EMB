@@ -18,6 +18,7 @@ import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.commonjava.xaven.boot.m3.plexus.ComponentKey;
+import org.commonjava.xaven.boot.m3.plexus.ComponentSelector;
 import org.commonjava.xaven.boot.m3.plexus.InstanceRegistry;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.conf.XavenConfiguration;
@@ -80,6 +81,8 @@ public class XavenEmbedderBuilder
     private MutablePlexusContainer container;
 
     private InstanceRegistry instanceRegistry;
+
+    private ComponentSelector selector;
 
     private MavenExecutionRequestPopulator executionRequestPopulator;
 
@@ -280,8 +283,9 @@ public class XavenEmbedderBuilder
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration(), instanceRegistry ).setClassWorld( classWorld() )
-                                                                                         .setName( "maven" );
+                new XavenContainerConfiguration( xavenConfiguration(), selector, instanceRegistry ).setClassWorld(
+                                                                                                                   classWorld() )
+                                                                                                   .setName( "maven" );
 
             DefaultPlexusContainer c;
             try
@@ -302,7 +306,43 @@ public class XavenEmbedderBuilder
         return container;
     }
 
-    public synchronized XavenEmbedderBuilder withInjectedComponent( final ComponentKey key, final Object instance )
+    public synchronized XavenEmbedderBuilder withComponentSelection( final ComponentKey key, final String newHint )
+    {
+        if ( selector == null )
+        {
+            final XavenConfiguration config = xavenConfiguration();
+            selector = new ComponentSelector( config.getComponentSelections() );
+        }
+
+        selector.setSelection( key, newHint );
+        return this;
+    }
+
+    public synchronized XavenEmbedderBuilder withComponentSelections( final Map<ComponentKey, String> selections )
+    {
+        if ( selector == null )
+        {
+            final XavenConfiguration config = xavenConfiguration();
+            selector = new ComponentSelector( config.getComponentSelections() );
+        }
+
+        if ( selections != null )
+        {
+            for ( final Map.Entry<ComponentKey, String> entry : selections.entrySet() )
+            {
+                if ( entry == null || entry.getKey() == null || entry.getValue() == null )
+                {
+                    continue;
+                }
+
+                selector.setSelection( entry.getKey(), entry.getValue() );
+            }
+        }
+
+        return this;
+    }
+
+    public synchronized XavenEmbedderBuilder withComponentInstance( final ComponentKey key, final Object instance )
     {
         if ( instanceRegistry == null )
         {
