@@ -12,6 +12,7 @@
   
   <modules>
     <module>maven3</module>
+    <module>maven3-embeddable</module>
     <!-- <module>maven2</module> -->
   </modules>
 </project>
