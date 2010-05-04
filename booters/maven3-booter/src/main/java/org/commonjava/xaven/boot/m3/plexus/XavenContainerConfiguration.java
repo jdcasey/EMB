@@ -87,9 +87,12 @@ public class XavenContainerConfiguration
 
     private final XavenConfiguration xavenConfig;
 
-    public XavenContainerConfiguration( final XavenConfiguration xavenConfig )
+    private final InstanceRegistry instanceRegistry;
+
+    public XavenContainerConfiguration( final XavenConfiguration xavenConfig, final InstanceRegistry instanceRegistry )
     {
         this.xavenConfig = xavenConfig;
+        this.instanceRegistry = instanceRegistry;
     }
 
     public ContainerConfiguration setName( final String name )
@@ -168,7 +171,7 @@ public class XavenContainerConfiguration
 
     public ContainerInitializationPhase[] getInitializationPhases()
     {
-        return new ContainerInitializationPhase[] { new InitXavenRegistryPhase( xavenConfig ),
+        return new ContainerInitializationPhase[] { new InitXavenRegistryPhase( xavenConfig, instanceRegistry ),
             new InitializeComponentFactoryManagerPhase(), new InitializeContainerConfigurationSourcePhase(),
             new InitializeLoggerManagerPhase(), new InitializeSystemPropertiesPhase(),
             new InitializeComponentDiscovererManagerPhase(), new InitializeUserConfigurationSourcePhase()

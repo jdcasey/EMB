@@ -36,9 +36,12 @@ public class InitXavenRegistryPhase
 
     private final XavenConfiguration config;
 
-    public InitXavenRegistryPhase( final XavenConfiguration config )
+    private final InstanceRegistry instanceRegistry;
+
+    public InitXavenRegistryPhase( final XavenConfiguration config, final InstanceRegistry instanceRegistry )
     {
         this.config = config;
+        this.instanceRegistry = instanceRegistry;
     }
 
     public void execute( final ContainerInitializationContext context )
@@ -49,7 +52,8 @@ public class InitXavenRegistryPhase
         final LifecycleHandlerManager lifecycleHandlerManager = getLifecycleHandlerManager( context );
 
         final ComponentRegistry componentRegistry =
-            new XavenComponentRegistry( context.getContainer(), repository, lifecycleHandlerManager, config );
+            new XavenComponentRegistry( context.getContainer(), repository, lifecycleHandlerManager, config,
+                                        instanceRegistry );
 
         componentRegistry.registerComponentManagerFactory( new PerLookupComponentManagerFactory() );
 

@@ -17,6 +17,8 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
+import org.commonjava.xaven.boot.m3.plexus.ComponentKey;
+import org.commonjava.xaven.boot.m3.plexus.InstanceRegistry;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.XavenLibrary;
@@ -76,6 +78,8 @@ public class XavenEmbedderBuilder
     private ModelProcessor modelProcessor;
 
     private MutablePlexusContainer container;
+
+    private InstanceRegistry instanceRegistry;
 
     private MavenExecutionRequestPopulator executionRequestPopulator;
 
@@ -276,7 +280,8 @@ public class XavenEmbedderBuilder
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration() ).setClassWorld( classWorld() ).setName( "maven" );
+                new XavenContainerConfiguration( xavenConfiguration(), instanceRegistry ).setClassWorld( classWorld() )
+                                                                                         .setName( "maven" );
 
             DefaultPlexusContainer c;
             try
@@ -295,6 +300,34 @@ public class XavenEmbedderBuilder
         }
 
         return container;
+    }
+
+    public synchronized XavenEmbedderBuilder withInjectedComponent( final ComponentKey key, final Object instance )
+    {
+        if ( instanceRegistry == null )
+        {
+            instanceRegistry = new InstanceRegistry();
+        }
+        instanceRegistry.add( key, instance );
+
+        return this;
+    }
+
+    public synchronized XavenEmbedderBuilder withInstanceRegistry( final InstanceRegistry instanceRegistry )
+    {
+        if ( instanceRegistry != null )
+        {
+            final InstanceRegistry r = new InstanceRegistry();
+            if ( this.instanceRegistry != null )
+            {
+                r.addDelegate( this.instanceRegistry );
+            }
+            r.addDelegate( instanceRegistry );
+
+            this.instanceRegistry = r;
+        }
+
+        return this;
     }
 
     public XavenEmbedderBuilder withXavenConfiguration( final XavenConfiguration config )

@@ -22,11 +22,13 @@ import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
 import org.apache.maven.settings.building.SettingsProblem;
 import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.xaven.XavenExecutionRequest;
 import org.commonjava.xaven.boot.m3.log.EventLogger;
 import org.commonjava.xaven.boot.m3.main.XavenMain;
+import org.commonjava.xaven.boot.m3.services.XavenServiceManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.XavenLibrary;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
@@ -80,6 +82,8 @@ public class XavenEmbedder
 
     private final DefaultSecDispatcher securityDispatcher;
 
+    private transient XavenServiceManager serviceManager;
+
     XavenEmbedder( final Maven maven, final XavenConfiguration xavenConfiguration,
                    final MutablePlexusContainer container, final SettingsBuilder settingsBuilder,
                    final MavenExecutionRequestPopulator executionRequestPopulator,
@@ -96,6 +100,25 @@ public class XavenEmbedder
         this.logger = logger;
         this.shouldShowErrors = shouldShowErrors;
         this.showVersion = showVersion;
+    }
+
+    public synchronized XavenServiceManager serviceManager()
+        throws XavenEmbeddingException
+    {
+        if ( serviceManager == null )
+        {
+            try
+            {
+                serviceManager = container.lookup( XavenServiceManager.class );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new XavenEmbeddingException( "Failed to lookup Xaven service-manager component. Reason: {0}", e,
+                                                   e.getMessage() );
+            }
+        }
+
+        return serviceManager;
     }
 
     public MavenExecutionResult execute( final XavenExecutionRequest request )
