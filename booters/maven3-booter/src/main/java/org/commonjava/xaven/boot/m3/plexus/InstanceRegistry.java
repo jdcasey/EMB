@@ -89,7 +89,7 @@ public class InstanceRegistry
         {
             for ( final InstanceRegistry reg : delegates )
             {
-                result = reg.get( key );
+                result = (T) reg.get( key );
                 if ( result != null )
                 {
                     break;
@@ -100,14 +100,16 @@ public class InstanceRegistry
         return result;
     }
 
+    @SuppressWarnings( "unchecked" )
     public <T> T get( final Class<T> role, final String hint )
     {
-        return get( new ComponentKey( role, hint ) );
+        return (T) get( new ComponentKey( role, hint ) );
     }
 
+    @SuppressWarnings( "unchecked" )
     public <T> T get( final String role, final String hint )
     {
-        return get( new ComponentKey( role, hint ) );
+        return (T) get( new ComponentKey( role, hint ) );
     }
 
     public void add( final ComponentKey key, final Object instance )
