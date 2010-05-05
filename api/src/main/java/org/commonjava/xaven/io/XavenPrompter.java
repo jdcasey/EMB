@@ -1,4 +1,4 @@
-package org.commonjava.xaven.nexus.io;
+package org.commonjava.xaven.io;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;

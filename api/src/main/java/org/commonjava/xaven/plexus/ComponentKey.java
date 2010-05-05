@@ -1,4 +1,4 @@
-package org.commonjava.xaven.boot.m3.plexus;
+package org.commonjava.xaven.plexus;
 
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 

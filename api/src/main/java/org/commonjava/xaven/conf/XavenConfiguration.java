@@ -16,12 +16,13 @@ package org.commonjava.xaven.conf;
  */
 
 import org.commonjava.xaven.XavenExecutionRequest;
+import org.commonjava.xaven.plexus.ComponentSelector;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class XavenConfiguration
 {
@@ -32,7 +33,7 @@ public class XavenConfiguration
 
     private static final File DEFAULT_CONFIGURATION_DIRECTORY = new File( System.getProperty( "user.home" ), ".m2" );
 
-    private Properties componentSelections;
+    private ComponentSelector componentSelector;
 
     private Map<String, XavenLibrary> extensions;
 
@@ -119,9 +120,13 @@ public class XavenConfiguration
         return configurationDirectory;
     }
 
-    public XavenConfiguration withExtensions( final Map<String, XavenLibrary> extensions )
+    public XavenConfiguration withLibraries( final Map<String, XavenLibrary> libraries )
     {
-        this.extensions = extensions;
+        getLibraries().putAll( libraries );
+        for ( final XavenLibrary library : libraries.values() )
+        {
+            withComponentSelector( library.getComponentSelector() );
+        }
         return this;
     }
 
@@ -130,19 +135,30 @@ public class XavenConfiguration
         return extensions.get( extId );
     }
 
-    public Map<String, XavenLibrary> getExtensions()
+    public Map<String, XavenLibrary> getLibraries()
     {
+        if ( extensions == null )
+        {
+            extensions = new HashMap<String, XavenLibrary>();
+        }
+
         return extensions;
     }
 
-    public Properties getComponentSelections()
+    public ComponentSelector getComponentSelector()
     {
-        return componentSelections == null ? new Properties() : componentSelections;
+        if ( componentSelector == null )
+        {
+            componentSelector = new ComponentSelector();
+        }
+
+        return componentSelector;
     }
 
-    public XavenConfiguration withComponentSelections( final Properties componentSelections )
+    public XavenConfiguration withComponentSelector( final ComponentSelector selector )
     {
-        this.componentSelections = componentSelections;
+        componentSelector.merge( selector );
+
         return this;
     }
 
@@ -167,6 +183,14 @@ public class XavenConfiguration
     public XavenConfiguration nonInteractive()
     {
         interactive = false;
+        return this;
+    }
+
+    public XavenConfiguration withLibrary( final XavenLibrary library )
+    {
+        getLibraries().put( library.getId(), library );
+        withComponentSelector( library.getComponentSelector() );
+
         return this;
     }
 

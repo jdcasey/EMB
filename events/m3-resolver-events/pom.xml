@@ -35,6 +35,10 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>org.commonjava.xaven</groupId>
+    	<artifactId>xaven-api</artifactId>
+    </dependency>
   </dependencies>
   
   <build>

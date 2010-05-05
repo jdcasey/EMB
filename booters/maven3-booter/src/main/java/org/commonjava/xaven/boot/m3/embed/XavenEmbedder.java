@@ -381,7 +381,9 @@ public class XavenEmbedder
         standardOut.println( "-- Xaven Libraries Loaded --" );
         standardOut.println();
 
-        final Map<String, XavenLibrary> libraries = loadLibraryInformation( xavenConfig );
+        loadLibraryInformation( xavenConfig );
+
+        final Map<String, XavenLibrary> libraries = xavenConfig.getLibraries();
         for ( final XavenLibrary ext : libraries.values() )
         {
             standardOut.println( "+" + ext.getLabel() + " (Log handle: '" + ext.getLogHandle() + "')" );

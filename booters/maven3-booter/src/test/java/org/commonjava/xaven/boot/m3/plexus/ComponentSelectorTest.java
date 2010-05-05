@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.spi.Configurator;
 import org.apache.log4j.spi.LoggerRepository;
+import org.commonjava.xaven.plexus.ComponentSelector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

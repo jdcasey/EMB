@@ -1,4 +1,4 @@
-package org.commonjava.xaven.boot.m3.plexus;
+package org.commonjava.xaven.plexus;
 
 import static org.codehaus.plexus.util.StringUtils.isBlank;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
@@ -39,9 +39,30 @@ public class ComponentSelector
         this.selections = selections == null ? new Properties() : selections;
     }
 
+    public ComponentSelector( final ComponentSelector selectorToCopy )
+    {
+        selections = new Properties();
+        merge( selectorToCopy );
+    }
+
     public ComponentSelector()
     {
         selections = new Properties();
+    }
+
+    public ComponentSelector merge( final ComponentSelector selectorToCopy )
+    {
+        if ( selectorToCopy != null && !selectorToCopy.isEmpty() )
+        {
+            selections.putAll( selectorToCopy.selections );
+        }
+
+        return this;
+    }
+
+    public boolean isEmpty()
+    {
+        return selections.isEmpty();
     }
 
     public String selectRoleHint( final String role, final String roleHint )

@@ -48,6 +48,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.LogEnablePhase;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartPhase;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.StopPhase;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.plexus.ComponentSelector;
+import org.commonjava.xaven.plexus.InstanceRegistry;
 
 import java.net.URL;
 import java.util.ArrayList;

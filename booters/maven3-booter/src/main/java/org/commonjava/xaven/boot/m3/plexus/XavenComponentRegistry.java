@@ -16,6 +16,8 @@ import org.codehaus.plexus.lifecycle.LifecycleHandlerManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
+import org.commonjava.xaven.plexus.ComponentKey;
+import org.commonjava.xaven.plexus.InstanceRegistry;
 
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class XavenComponentRegistry
         this.instanceRegistry = new InstanceRegistry( instanceRegistry );
         this.instanceRegistry.add( XavenConfiguration.class, config );
 
-        final Map<String, XavenLibrary> extensions = config.getExtensions();
+        final Map<String, XavenLibrary> extensions = config.getLibraries();
         if ( extensions != null && !extensions.isEmpty() )
         {
             for ( final XavenLibrary ext : extensions.values() )

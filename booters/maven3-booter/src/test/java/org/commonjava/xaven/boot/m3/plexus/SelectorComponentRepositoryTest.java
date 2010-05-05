@@ -12,6 +12,7 @@ import org.apache.log4j.spi.Configurator;
 import org.apache.log4j.spi.LoggerRepository;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
+import org.commonjava.xaven.plexus.ComponentSelector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

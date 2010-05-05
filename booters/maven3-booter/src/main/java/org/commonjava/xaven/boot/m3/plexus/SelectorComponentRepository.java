@@ -20,6 +20,7 @@ import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphEx
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRepository;
 import org.codehaus.plexus.component.repository.DefaultComponentRepository;
+import org.commonjava.xaven.plexus.ComponentSelector;
 
 import java.util.List;
 import java.util.Map;

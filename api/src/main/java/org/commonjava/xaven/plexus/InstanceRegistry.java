@@ -1,4 +1,4 @@
-package org.commonjava.xaven.boot.m3.plexus;
+package org.commonjava.xaven.plexus;
 
 import java.util.ArrayList;
 import java.util.Arrays;

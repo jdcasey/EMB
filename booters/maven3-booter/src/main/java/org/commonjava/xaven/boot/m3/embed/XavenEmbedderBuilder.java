@@ -1,6 +1,5 @@
 package org.commonjava.xaven.boot.m3.embed;
 
-import static org.commonjava.xaven.conf.XavenLibraries.getComponentOverrides;
 import static org.commonjava.xaven.conf.XavenLibraries.loadLibraryInformation;
 
 import org.apache.log4j.Level;
@@ -17,12 +16,11 @@ import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.commonjava.xaven.boot.m3.plexus.ComponentKey;
-import org.commonjava.xaven.boot.m3.plexus.ComponentSelector;
-import org.commonjava.xaven.boot.m3.plexus.InstanceRegistry;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.conf.XavenConfiguration;
-import org.commonjava.xaven.conf.XavenLibrary;
+import org.commonjava.xaven.plexus.ComponentKey;
+import org.commonjava.xaven.plexus.ComponentSelector;
+import org.commonjava.xaven.plexus.InstanceRegistry;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
@@ -311,7 +309,7 @@ public class XavenEmbedderBuilder
         if ( selector == null )
         {
             final XavenConfiguration config = xavenConfiguration();
-            selector = new ComponentSelector( config.getComponentSelections() );
+            selector = new ComponentSelector( config.getComponentSelector() );
         }
 
         selector.setSelection( key, newHint );
@@ -323,7 +321,7 @@ public class XavenEmbedderBuilder
         if ( selector == null )
         {
             final XavenConfiguration config = xavenConfiguration();
-            selector = new ComponentSelector( config.getComponentSelections() );
+            selector = new ComponentSelector( config.getComponentSelector() );
         }
 
         if ( selections != null )
@@ -403,10 +401,8 @@ public class XavenEmbedderBuilder
 
             try
             {
-                xavenConfiguration.withComponentSelections( getComponentOverrides() );
+                loadLibraryInformation( xavenConfiguration );
 
-                final Map<String, XavenLibrary> extensions = loadLibraryInformation( xavenConfiguration );
-                xavenConfiguration.withExtensions( extensions );
                 if ( debugLogHandles != null
                     && Arrays.binarySearch( debugLogHandles, XavenConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )
                 {

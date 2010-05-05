@@ -1,25 +1,21 @@
 package org.commonjava.xaven.conf;
 
 import static org.codehaus.plexus.util.IOUtil.close;
-import static org.codehaus.plexus.util.StringUtils.isBlank;
-import static org.codehaus.plexus.util.StringUtils.isNotBlank;
 import static org.codehaus.plexus.util.StringUtils.join;
 
 import org.apache.log4j.Logger;
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
-import org.commonjava.xaven.conf.ext.ExtensionConfigurationLoader;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -39,38 +35,27 @@ import java.util.Properties;
 public final class XavenLibraries
 {
 
-    private static final String INFO_KEY_ID = "Id";
-
-    private static final String INFO_KEY_NAME = "Name";
-
-    private static final String INFO_KEY_VERSION = "Version";
-
-    private static final String INFO_KEY_LOG_HANDLE = "Log-Handle";
-
-    private static final String INFO_KEY_CONFIG_LOADER = "Configuration-Loader";
-
-    private static final String XAVEN_INFO_PATH = "META-INF/xaven/extension.info.properties";
-
-    private static final String XAVEN_COMPONENT_OVERRIDES_PATH = "META-INF/xaven/component-overrides.properties";
+    private static final String XAVEN_LIBRARY_SERVICE_PATH = "META-INF/xaven/libraries.conf";
 
     private static final Logger logger = Logger.getLogger( XavenConfiguration.STANDARD_LOG_HANDLE_LOADER );
 
     private static Map<String, XavenLibrary> libraries;
 
-    public static Map<String, XavenLibrary> loadLibraryInformation( final XavenConfiguration xavenConfig )
+    public static void loadLibraryInformation( final XavenConfiguration xavenConfig )
         throws IOException
     {
         if ( libraries != null )
         {
-            return libraries;
+            xavenConfig.withLibraries( libraries );
+            return;
         }
 
         libraries = new HashMap<String, XavenLibrary>();
-        final List<String> extIdAndPath = new ArrayList<String>();
+        final List<String> overlappingLabels = new ArrayList<String>();
 
         final ClassLoader cloader = Thread.currentThread().getContextClassLoader();
 
-        final Enumeration<URL> resources = cloader.getResources( XAVEN_INFO_PATH );
+        final Enumeration<URL> resources = cloader.getResources( XAVEN_LIBRARY_SERVICE_PATH );
 
         boolean foundOverlap = false;
         while ( resources.hasMoreElements() )
@@ -83,50 +68,60 @@ public final class XavenLibraries
                 logger.debug( "Loading extension info from: " + path );
             }
 
-            InputStream stream = null;
+            BufferedReader reader = null;
             try
             {
-                stream = resource.openStream();
-                final Properties p = new Properties();
-                p.load( stream );
-
-                final String id = p.getProperty( INFO_KEY_ID );
-                if ( isBlank( id ) )
+                reader = new BufferedReader( new InputStreamReader( resource.openStream() ) );
+                String line = null;
+                while ( ( line = reader.readLine() ) != null )
                 {
-                    if ( logger.isDebugEnabled() )
+                    line = line.trim();
+                    try
                     {
-                        logger.error( "Missing required value '" + INFO_KEY_ID + "' for library from: " + path );
-                    }
-                    continue;
-                }
+                        final XavenLibrary library = (XavenLibrary) cloader.loadClass( line ).newInstance();
+                        if ( libraries.containsKey( library.getId() ) )
+                        {
+                            foundOverlap = true;
+                            overlappingLabels.add( library.getLabel() );
+                        }
 
-                extIdAndPath.add( id + ": " + path );
-                if ( libraries.containsKey( id ) )
-                {
-                    if ( logger.isDebugEnabled() )
+                        library.loadConfiguration( xavenConfig );
+                        libraries.put( library.getId(), library );
+                        xavenConfig.withLibrary( library );
+                    }
+                    catch ( final InstantiationException e )
                     {
-                        logger.error( "DUPLICATE LIBRARY ID FOUND: '" + id + "'. See below." );
+                        if ( logger.isDebugEnabled() )
+                        {
+                            logger.debug( "Failed to load library configuration for: " + line + ", from resource: "
+                                + path, e );
+                        }
                     }
-                    foundOverlap = true;
-                    continue;
+                    catch ( final IllegalAccessException e )
+                    {
+                        if ( logger.isDebugEnabled() )
+                        {
+                            logger.debug( "Failed to load library configuration for: " + line + ", from resource: "
+                                + path, e );
+                        }
+                    }
+                    catch ( final ClassNotFoundException e )
+                    {
+                        if ( logger.isDebugEnabled() )
+                        {
+                            logger.debug( "Failed to load library configuration for: " + line + ", from resource: "
+                                + path, e );
+                        }
+                    }
+                    catch ( final ExtensionConfigurationException e )
+                    {
+                        if ( logger.isDebugEnabled() )
+                        {
+                            logger.debug( "Failed to load library configuration for: " + line + ", from resource: "
+                                + path, e );
+                        }
+                    }
                 }
-
-                final String name = p.getProperty( INFO_KEY_NAME, path );
-                final String version = p.getProperty( INFO_KEY_VERSION, "UNKNOWN" );
-                final String logHandle = p.getProperty( INFO_KEY_LOG_HANDLE, id );
-                final String loaderCls = p.getProperty( INFO_KEY_CONFIG_LOADER );
-                ExtensionConfiguration configuration = null;
-
-                if ( isNotBlank( loaderCls ) )
-                {
-                    final ExtensionConfigurationLoader loader =
-                        (ExtensionConfigurationLoader) cloader.loadClass( loaderCls ).newInstance();
-
-                    configuration = loader.loadConfiguration( xavenConfig );
-                }
-
-                final XavenLibrary ext = new XavenLibrary( id, name, version, logHandle, configuration );
-                libraries.put( id, ext );
             }
             catch ( final IOException e )
             {
@@ -135,47 +130,17 @@ public final class XavenLibraries
                     logger.debug( "Failed to read library info from: " + path, e );
                 }
             }
-            catch ( final InstantiationException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to load library configuration for: " + path, e );
-                }
-            }
-            catch ( final IllegalAccessException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to load library configuration for: " + path, e );
-                }
-            }
-            catch ( final ClassNotFoundException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to load library configuration for: " + path, e );
-                }
-            }
-            catch ( final ExtensionConfigurationException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to load library configuration for: " + path, e );
-                }
-            }
             finally
             {
-                close( stream );
+                close( reader );
             }
         }
 
         if ( foundOverlap && logger.isDebugEnabled() )
         {
-            logger.error( "The following library information paths were encountered:\n\n"
-                + join( extIdAndPath.iterator(), "\n\t" ) );
+            logger.error( "The following overlapping library information paths were encountered:\n\n"
+                + join( overlappingLabels.iterator(), "\n\t" ) );
         }
-
-        return libraries;
     }
 
     private static String getJarPath( final URL resource )
@@ -188,58 +153,6 @@ public final class XavenLibraries
         }
 
         return new File( path ).getAbsolutePath();
-    }
-
-    public static Properties getComponentOverrides()
-        throws IOException
-    {
-        final Properties overrides = new Properties();
-
-        final Map<String, String> keyOrigins = new HashMap<String, String>();
-
-        final ClassLoader cloader = Thread.currentThread().getContextClassLoader();
-
-        final Enumeration<URL> resources = cloader.getResources( XAVEN_COMPONENT_OVERRIDES_PATH );
-        while ( resources.hasMoreElements() )
-        {
-            final URL resource = resources.nextElement();
-            final String path = getJarPath( resource );
-
-            InputStream stream = null;
-            try
-            {
-                stream = resource.openStream();
-                final Properties p = new Properties();
-                p.load( stream );
-
-                for ( final Object k : p.keySet() )
-                {
-                    final String key = (String) k;
-
-                    if ( logger.isDebugEnabled() && overrides.containsKey( key ) )
-                    {
-                        logger.debug( "REPLACING component override: '" + key + "'\nSupplied by: "
-                            + keyOrigins.get( key ) + "\nReplaced by: " + path );
-                    }
-
-                    overrides.setProperty( key, p.getProperty( key ) );
-                    keyOrigins.put( key, path );
-                }
-            }
-            catch ( final IOException e )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Failed to read component overrides from: " + path, e );
-                }
-            }
-            finally
-            {
-                close( stream );
-            }
-        }
-
-        return overrides;
     }
 
 }

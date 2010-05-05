@@ -1,10 +1,5 @@
 package org.commonjava.xaven.conf;
 
-import org.apache.log4j.Logger;
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
-import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
-import org.commonjava.xaven.plexus.ComponentSelector;
-
 /*
  *  Copyright (C) 2010 John Casey.
  *  
@@ -22,26 +17,7 @@ import org.commonjava.xaven.plexus.ComponentSelector;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public interface XavenLibrary
+public interface VersionProvider
 {
-
-    Logger getLogger();
-
-    ExtensionConfiguration getConfiguration();
-
-    ComponentSelector getComponentSelector();
-
-    String getLabel();
-
-    String getId();
-
-    String getLogHandle();
-
-    String getName();
-
     String getVersion();
-
-    void loadConfiguration( final XavenConfiguration xavenConfig )
-        throws ExtensionConfigurationException;
-
 }

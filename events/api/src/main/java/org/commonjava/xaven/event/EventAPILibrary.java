@@ -1,10 +1,3 @@
-package org.commonjava.xaven.conf;
-
-import org.apache.log4j.Logger;
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
-import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
-import org.commonjava.xaven.plexus.ComponentSelector;
-
 /*
  *  Copyright (C) 2010 John Casey.
  *  
@@ -22,26 +15,17 @@ import org.commonjava.xaven.plexus.ComponentSelector;
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-public interface XavenLibrary
+package org.commonjava.xaven.event;
+
+import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.xaven.conf.AbstractXavenLibrary;
+
+public class EventAPILibrary
+    extends AbstractXavenLibrary
 {
-
-    Logger getLogger();
-
-    ExtensionConfiguration getConfiguration();
-
-    ComponentSelector getComponentSelector();
-
-    String getLabel();
-
-    String getId();
-
-    String getLogHandle();
-
-    String getName();
-
-    String getVersion();
-
-    void loadConfiguration( final XavenConfiguration xavenConfig )
-        throws ExtensionConfigurationException;
-
+    public EventAPILibrary()
+    {
+        super( "events", "Xaven-Event-Core", new MavenPomVersionProvider( "org.commonjava.xaven.event",
+                                                                          "xaven-event-api" ) );
+    }
 }

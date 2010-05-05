@@ -14,6 +14,7 @@ import org.codehaus.plexus.container.initialization.ContainerInitializationExcep
 import org.codehaus.plexus.container.initialization.ContainerInitializationPhase;
 import org.codehaus.plexus.lifecycle.LifecycleHandlerManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.plexus.InstanceRegistry;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
