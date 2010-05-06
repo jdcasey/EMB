@@ -1,6 +1,6 @@
 package org.commonjava.xaven.boot.m3.embed;
 
-import static org.commonjava.xaven.conf.XavenLibraries.loadLibraryInformation;
+import static org.commonjava.xaven.conf.XavenLibraries.loadLibraries;
 
 import org.apache.maven.Maven;
 import org.apache.maven.cli.CLIReportingUtils;
@@ -381,7 +381,7 @@ public class XavenEmbedder
         standardOut.println( "-- Xaven Libraries Loaded --" );
         standardOut.println();
 
-        loadLibraryInformation( xavenConfig );
+        loadLibraries( xavenConfig );
 
         final Map<String, XavenLibrary> libraries = xavenConfig.getLibraries();
         for ( final XavenLibrary ext : libraries.values() )

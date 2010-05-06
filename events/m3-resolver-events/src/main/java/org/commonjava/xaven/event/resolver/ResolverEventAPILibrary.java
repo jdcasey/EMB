@@ -20,10 +20,13 @@ package org.commonjava.xaven.event.resolver;
 import org.apache.maven.ProjectDependenciesResolver;
 import org.apache.maven.plugin.internal.PluginDependenciesResolver;
 import org.apache.maven.repository.RepositorySystem;
+import org.commonjava.atservice.annotation.Service;
 import org.commonjava.xaven.conf.AbstractXavenLibrary;
 import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.plexus.ComponentSelector;
 
+@Service( XavenLibrary.class )
 public class ResolverEventAPILibrary
     extends AbstractXavenLibrary
 {

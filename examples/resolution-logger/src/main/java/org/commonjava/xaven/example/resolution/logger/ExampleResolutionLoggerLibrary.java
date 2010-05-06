@@ -17,9 +17,12 @@
 
 package org.commonjava.xaven.example.resolution.logger;
 
-import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.atservice.annotation.Service;
 import org.commonjava.xaven.conf.AbstractXavenLibrary;
+import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.xaven.conf.XavenLibrary;
 
+@Service( XavenLibrary.class )
 public class ExampleResolutionLoggerLibrary
     extends AbstractXavenLibrary
 {

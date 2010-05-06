@@ -19,8 +19,8 @@
   </modules>
   
   <scm>
-    <connection>scm:git:git://github.com/jdcasey/Xaven.git</connection>
-    <developerConnection>scm:git:https://github.com/jdcasey/Xaven.git</developerConnection>
+    <connection>scm:git:git@github.com:jdcasey/Xaven.git</connection>
+    <developerConnection>scm:git:git@github.com:jdcasey/Xaven.git</developerConnection>
     <url>http://github.com/jdcasey/Xaven</url>
   </scm>
   
@@ -35,11 +35,21 @@
       <name>Local Nexus Snapshots Repository</name>
       <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
     </snapshotRepository>
-    <site>
-      <id>github</id>
-      <url>http://github.com/jdcasey/Xaven</url>
-    </site>
   </distributionManagement>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.atservice</groupId>
+      <artifactId>atservice-annotation</artifactId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.atservice</groupId>
+      <artifactId>atservice-processor</artifactId>
+      <version>0.1</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   
   <properties>
     <plexusVersion>1.5.4</plexusVersion>
@@ -120,8 +130,11 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.3</version>
           <configuration>
-            <source>1.5</source>
-            <target>1.5</target>
+            <source>1.6</source>
+            <target>1.6</target>
+            <!-- <annotationProcessors>
+              <annotationProcessor>org.commonjava.atservice.processor.ServiceAnnotationProcessor</annotationProcessor>
+            </annotationProcessors> -->
           </configuration>
         </plugin>
         <plugin>

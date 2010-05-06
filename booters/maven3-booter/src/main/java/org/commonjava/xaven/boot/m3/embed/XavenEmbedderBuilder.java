@@ -1,6 +1,6 @@
 package org.commonjava.xaven.boot.m3.embed;
 
-import static org.commonjava.xaven.conf.XavenLibraries.loadLibraryInformation;
+import static org.commonjava.xaven.conf.XavenLibraries.loadLibraries;
 
 import org.apache.log4j.Level;
 import org.apache.maven.Maven;
@@ -401,7 +401,7 @@ public class XavenEmbedderBuilder
 
             try
             {
-                loadLibraryInformation( xavenConfiguration );
+                loadLibraries( xavenConfiguration );
 
                 if ( debugLogHandles != null
                     && Arrays.binarySearch( debugLogHandles, XavenConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )

@@ -1,7 +1,9 @@
 package org.commonjava.xaven.boot.m3;
 
+import org.commonjava.atservice.annotation.Service;
 import org.commonjava.xaven.conf.AbstractXavenLibrary;
 import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.xaven.conf.XavenLibrary;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -18,6 +20,7 @@ import org.commonjava.xaven.conf.MavenPomVersionProvider;
  * the License.
  */
 
+@Service( XavenLibrary.class )
 public class Maven3BooterLibrary
     extends AbstractXavenLibrary
 {
