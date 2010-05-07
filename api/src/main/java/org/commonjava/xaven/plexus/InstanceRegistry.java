@@ -53,6 +53,11 @@ public class InstanceRegistry
 
     public boolean has( final ComponentKey key )
     {
+        if ( key == null )
+        {
+            return false;
+        }
+
         if ( instances.containsKey( key ) )
         {
             return true;
@@ -61,7 +66,7 @@ public class InstanceRegistry
         {
             for ( final InstanceRegistry reg : delegates )
             {
-                if ( reg.has( key ) )
+                if ( reg != null && reg.has( key ) )
                 {
                     return true;
                 }
