@@ -23,7 +23,7 @@ import org.commonjava.xaven.boot.m3.embed.XavenEmbeddingException;
  * the License.
  */
 
-@Component( role = XavenServiceManager.class )
+@Component( role = XavenServiceManager.class, hint = "default" )
 public class DefaultXavenServiceManager
     implements XavenServiceManager
 {
