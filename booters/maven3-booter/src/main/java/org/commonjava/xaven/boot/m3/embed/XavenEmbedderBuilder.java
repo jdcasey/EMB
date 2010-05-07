@@ -17,6 +17,7 @@ import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
+import org.commonjava.xaven.boot.m3.services.XavenServiceManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
@@ -88,6 +89,8 @@ public class XavenEmbedderBuilder
 
     private DefaultSecDispatcher securityDispatcher;
 
+    private XavenServiceManager serviceManager;
+
     private transient String mavenHome;
 
     private transient boolean loggerAutoCreated = false;
@@ -105,6 +108,8 @@ public class XavenEmbedderBuilder
     private boolean settingsBuilderProvided;
 
     private boolean securityDispatcherProvided;
+
+    private boolean serviceManagerProvided;
 
     public synchronized XavenEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -140,6 +145,25 @@ public class XavenEmbedderBuilder
             securityDispatcherProvided = false;
         }
         return securityDispatcher;
+    }
+
+    public synchronized XavenEmbedderBuilder withServiceManager( final XavenServiceManager serviceManager )
+    {
+        this.serviceManager = serviceManager;
+        serviceManagerProvided = true;
+        return this;
+    }
+
+    public synchronized XavenServiceManager serviceManager()
+        throws XavenEmbeddingException
+    {
+        if ( serviceManager == null )
+        {
+            serviceManager = lookup( XavenServiceManager.class );
+            logger().info( "Using service manager from lookup: " + serviceManager );
+            serviceManagerProvided = true;
+        }
+        return serviceManager;
     }
 
     public synchronized XavenEmbedderBuilder withExecutionRequestPopulator(
@@ -268,6 +292,10 @@ public class XavenEmbedderBuilder
         if ( !securityDispatcherProvided )
         {
             securityDispatcher = null;
+        }
+        if ( !serviceManagerProvided )
+        {
+            serviceManager = null;
         }
         if ( !mavenProvided )
         {
@@ -576,8 +604,8 @@ public class XavenEmbedderBuilder
         throws XavenEmbeddingException
     {
         return new XavenEmbedder( maven(), xavenConfiguration(), container(), settingsBuilder(),
-                                  executionRequestPopulator(), securityDispatcher(), standardOut(), logger(),
-                                  shouldShowErrors(), showVersion() );
+                                  executionRequestPopulator(), securityDispatcher(), serviceManager(), standardOut(),
+                                  logger(), shouldShowErrors(), showVersion() );
     }
 
     public synchronized XavenEmbedder build()

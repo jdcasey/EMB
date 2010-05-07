@@ -22,7 +22,6 @@ import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
 import org.apache.maven.settings.building.SettingsProblem;
 import org.codehaus.plexus.MutablePlexusContainer;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.xaven.XavenExecutionRequest;
@@ -82,13 +81,14 @@ public class XavenEmbedder
 
     private final DefaultSecDispatcher securityDispatcher;
 
-    private transient XavenServiceManager serviceManager;
+    private transient final XavenServiceManager serviceManager;
 
     XavenEmbedder( final Maven maven, final XavenConfiguration xavenConfiguration,
                    final MutablePlexusContainer container, final SettingsBuilder settingsBuilder,
                    final MavenExecutionRequestPopulator executionRequestPopulator,
-                   final DefaultSecDispatcher securityDispatcher, final PrintStream standardOut, final Logger logger,
-                   final boolean shouldShowErrors, final boolean showVersion )
+                   final DefaultSecDispatcher securityDispatcher, final XavenServiceManager serviceManager,
+                   final PrintStream standardOut, final Logger logger, final boolean shouldShowErrors,
+                   final boolean showVersion )
     {
         this.maven = maven;
         this.xavenConfiguration = xavenConfiguration;
@@ -96,6 +96,7 @@ public class XavenEmbedder
         this.settingsBuilder = settingsBuilder;
         this.executionRequestPopulator = executionRequestPopulator;
         this.securityDispatcher = securityDispatcher;
+        this.serviceManager = serviceManager;
         this.standardOut = standardOut;
         this.logger = logger;
         this.shouldShowErrors = shouldShowErrors;
@@ -105,19 +106,6 @@ public class XavenEmbedder
     public synchronized XavenServiceManager serviceManager()
         throws XavenEmbeddingException
     {
-        if ( serviceManager == null )
-        {
-            try
-            {
-                serviceManager = container.lookup( XavenServiceManager.class );
-            }
-            catch ( final ComponentLookupException e )
-            {
-                throw new XavenEmbeddingException( "Failed to lookup Xaven service-manager component. Reason: {0}", e,
-                                                   e.getMessage() );
-            }
-        }
-
         return serviceManager;
     }
 
