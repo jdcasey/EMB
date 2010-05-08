@@ -268,7 +268,10 @@ public class XavenContainerConfiguration
 
     public ContainerConfiguration setComponentRepository( final ComponentRepository componentRepository )
     {
-        this.componentRepository = new SelectorComponentRepository( componentRepository, selector );
+        if ( componentRepository != null )
+        {
+            this.componentRepository = new SelectorComponentRepository( componentRepository, selector );
+        }
 
         return this;
     }

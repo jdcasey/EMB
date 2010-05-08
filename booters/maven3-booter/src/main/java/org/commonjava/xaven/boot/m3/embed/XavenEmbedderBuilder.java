@@ -309,9 +309,10 @@ public class XavenEmbedderBuilder
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration(), selector, instanceRegistry ).setClassWorld(
-                                                                                                                   classWorld() )
-                                                                                                   .setName( "maven" );
+                new XavenContainerConfiguration( xavenConfiguration(), selector(), instanceRegistry() ).setClassWorld(
+                                                                                                                       classWorld() )
+                                                                                                       .setName(
+                                                                                                                 "maven" );
 
             DefaultPlexusContainer c;
             try
@@ -368,6 +369,16 @@ public class XavenEmbedderBuilder
         return this;
     }
 
+    public synchronized ComponentSelector selector()
+    {
+        if ( selector == null )
+        {
+            selector = new ComponentSelector();
+        }
+
+        return selector;
+    }
+
     public synchronized XavenEmbedderBuilder withComponentInstance( final ComponentKey key, final Object instance )
     {
         if ( instanceRegistry == null )
@@ -394,6 +405,16 @@ public class XavenEmbedderBuilder
         }
 
         return this;
+    }
+
+    public synchronized InstanceRegistry instanceRegistry()
+    {
+        if ( instanceRegistry == null )
+        {
+            instanceRegistry = new InstanceRegistry();
+        }
+
+        return instanceRegistry;
     }
 
     public XavenEmbedderBuilder withXavenConfiguration( final XavenConfiguration config )

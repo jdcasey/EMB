@@ -35,14 +35,13 @@ public class SelectorComponentRepository
 
     public SelectorComponentRepository( final ComponentSelector selector )
     {
-        this.selector = selector;
-        delegateRepository = new DefaultComponentRepository();
+        this( null, selector );
     }
 
     public SelectorComponentRepository( final ComponentRepository delegateRepository, final ComponentSelector selector )
     {
-        this.selector = selector;
-        this.delegateRepository = delegateRepository;
+        this.selector = selector == null ? new ComponentSelector() : selector;
+        this.delegateRepository = delegateRepository == null ? new DefaultComponentRepository() : delegateRepository;
     }
 
     public void addComponentDescriptor( final ComponentDescriptor<?> componentDescriptor )

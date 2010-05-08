@@ -29,16 +29,18 @@ public class InstanceRegistry
 
     private final Map<ComponentKey, Object> instances = new HashMap<ComponentKey, Object>();
 
-    private List<InstanceRegistry> delegates = new ArrayList<InstanceRegistry>();
+    private final List<InstanceRegistry> delegates = new ArrayList<InstanceRegistry>();
 
     public InstanceRegistry()
     {
-        delegates = null;
     }
 
     public InstanceRegistry( final InstanceRegistry... delegates )
     {
-        this.delegates.addAll( Arrays.asList( delegates ) );
+        if ( delegates != null && delegates.length > 0 )
+        {
+            this.delegates.addAll( Arrays.asList( delegates ) );
+        }
     }
 
     public void addDelegate( final InstanceRegistry instanceRegistry )
