@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.commonjava.xaven.examples</groupId>
     <artifactId>xaven-examples</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
   </parent>
   
   <artifactId>dummy-artifact-resolver</artifactId>

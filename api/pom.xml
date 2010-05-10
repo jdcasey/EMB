@@ -4,7 +4,7 @@
   <parent>
     <artifactId>xaven</artifactId>
     <groupId>org.commonjava.xaven</groupId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
   </parent>
   
   <artifactId>xaven-api</artifactId>
