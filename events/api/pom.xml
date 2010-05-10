@@ -4,11 +4,11 @@
   <parent>
     <artifactId>xaven-events</artifactId>
     <groupId>org.commonjava.xaven.event</groupId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
   </parent>
   
   <artifactId>xaven-event-api</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <name>Xaven Event API</name>
   
   <dependencies>

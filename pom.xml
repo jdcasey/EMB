@@ -4,7 +4,7 @@
   
   <groupId>org.commonjava.xaven</groupId>
   <artifactId>xaven</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <modules>
