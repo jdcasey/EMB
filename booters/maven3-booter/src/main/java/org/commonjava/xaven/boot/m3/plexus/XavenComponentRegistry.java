@@ -1,9 +1,9 @@
 package org.commonjava.xaven.boot.m3.plexus;
 
-import org.apache.log4j.Logger;
 import org.codehaus.plexus.ComponentRegistry;
 import org.codehaus.plexus.DefaultComponentRegistry;
 import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
@@ -14,8 +14,6 @@ import org.codehaus.plexus.component.repository.exception.ComponentLifecycleExce
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.lifecycle.LifecycleHandlerManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
-import org.commonjava.xaven.conf.XavenLibrary;
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.InstanceRegistry;
 
@@ -41,10 +39,6 @@ public class XavenComponentRegistry
     implements ComponentRegistry
 {
 
-    private static final Logger logger = Logger.getLogger( XavenConfiguration.STANDARD_LOG_HANDLE_LOADER );
-
-    private static final Class<XavenLibrary> EXTENSION_ROLE = XavenLibrary.class;
-
     private final DefaultComponentRegistry delegate;
 
     private final InstanceRegistry instanceRegistry;
@@ -55,40 +49,13 @@ public class XavenComponentRegistry
     {
         delegate = new DefaultComponentRegistry( container, repository, lifecycleHandlerManager );
 
-        this.instanceRegistry = new InstanceRegistry( instanceRegistry );
+        this.instanceRegistry = instanceRegistry == null ? new InstanceRegistry( instanceRegistry ) : instanceRegistry;
         this.instanceRegistry.add( XavenConfiguration.class, config );
-
-        final Map<String, XavenLibrary> extensions = config.getLibraries();
-        if ( extensions != null && !extensions.isEmpty() )
-        {
-            for ( final XavenLibrary ext : extensions.values() )
-            {
-                if ( logger.isDebugEnabled() )
-                {
-                    logger.debug( "Adding extension component with role: '" + ext.getClass().getName()
-                        + "' and hint: '" + ext.getId() + "'." );
-                }
-
-                this.instanceRegistry.add( EXTENSION_ROLE, ext.getId(), ext );
-
-                final ExtensionConfiguration extConfig = ext.getConfiguration();
-                if ( extConfig != null )
-                {
-                    if ( logger.isDebugEnabled() )
-                    {
-                        logger.debug( "Adding extension configuration component with role: '"
-                            + extConfig.getClass().getName() + "' and hint: 'default'." );
-                    }
-
-                    this.instanceRegistry.add( extConfig.getClass(), extConfig );
-                }
-            }
-        }
     }
 
     public <T> void addComponent( final T component, final String role, final String roleHint )
     {
-        delegate.addComponent( component, role, roleHint );
+        instanceRegistry.add( new ComponentKey( role, roleHint ), component );
     }
 
     public void addComponentDescriptor( final ComponentDescriptor<?> componentDescriptor )
@@ -172,10 +139,18 @@ public class XavenComponentRegistry
 
     protected Object lookupXavenInstance( final String role, final String roleHint )
     {
-        final ComponentKey key = new ComponentKey( role, roleHint );
+        ComponentKey key = new ComponentKey( role, roleHint );
         if ( instanceRegistry.has( key ) )
         {
             return instanceRegistry.get( key );
+        }
+        else if ( PlexusConstants.PLEXUS_DEFAULT_HINT.equals( roleHint ) )
+        {
+            key = new ComponentKey( role );
+            if ( instanceRegistry.has( key ) )
+            {
+                return instanceRegistry.get( key );
+            }
         }
 
         return null;

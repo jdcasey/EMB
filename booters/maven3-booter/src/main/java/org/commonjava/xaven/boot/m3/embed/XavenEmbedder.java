@@ -61,6 +61,8 @@ import java.util.Properties;
 public class XavenEmbedder
 {
 
+    private static boolean xavenInfoShown;
+
     private final Logger logger;
 
     private final PrintStream standardOut;
@@ -365,6 +367,11 @@ public class XavenEmbedder
     public static void showXavenInfo( final XavenConfiguration xavenConfig, final PrintStream standardOut )
         throws IOException
     {
+        if ( xavenInfoShown )
+        {
+            return;
+        }
+
         standardOut.println();
         standardOut.println( "-- Xaven Libraries Loaded --" );
         standardOut.println();
@@ -380,6 +387,8 @@ public class XavenEmbedder
         standardOut.println();
         standardOut.println( "--------------------------" );
         standardOut.println();
+
+        xavenInfoShown = true;
     }
 
     public static void showVersion( final XavenConfiguration xavenConfig, final PrintStream standardOut )

@@ -15,7 +15,7 @@ public class AutoNXLibrary
     public AutoNXLibrary()
     {
         super( "autonx", "AutoNX-Mirror-Selector", new MavenPomVersionProvider( "org.commonjava.xaven.integration",
-                                                                                "xaven-autonx-m3-resolver" ), "autonx",
+                                                                                "xaven-autonx-m3-resolver" ),
                new AutoNXConfigLoader(), new ComponentSelector().setSelection( MirrorSelector.class, "autonx" ) );
     }
 

@@ -19,7 +19,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.boot.m3.services.XavenServiceManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
-import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
 import org.commonjava.xaven.plexus.InstanceRegistry;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Map;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -79,10 +77,6 @@ public class XavenEmbedderBuilder
 
     private MutablePlexusContainer container;
 
-    private InstanceRegistry instanceRegistry;
-
-    private ComponentSelector selector;
-
     private MavenExecutionRequestPopulator executionRequestPopulator;
 
     private SettingsBuilder settingsBuilder;
@@ -110,6 +104,10 @@ public class XavenEmbedderBuilder
     private boolean securityDispatcherProvided;
 
     private boolean serviceManagerProvided;
+
+    private boolean logHandlesConfigured;
+
+    private boolean xavenConfigurationProvided;
 
     public synchronized XavenEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -160,7 +158,6 @@ public class XavenEmbedderBuilder
         if ( serviceManager == null )
         {
             serviceManager = lookup( XavenServiceManager.class );
-            logger().info( "Using service manager from lookup: " + serviceManager );
             serviceManagerProvided = true;
         }
         return serviceManager;
@@ -270,12 +267,12 @@ public class XavenEmbedderBuilder
     public synchronized XavenEmbedderBuilder withContainer( final MutablePlexusContainer container )
     {
         this.container = container;
-        resetContainerComponents();
+        resetContainer();
 
         return this;
     }
 
-    public synchronized void resetContainerComponents()
+    public synchronized void resetContainer()
     {
         if ( !modelProcessorProvided )
         {
@@ -300,6 +297,14 @@ public class XavenEmbedderBuilder
         if ( !mavenProvided )
         {
             maven = null;
+        }
+        if ( !xavenConfigurationProvided )
+        {
+            xavenConfiguration = null;
+        }
+        if ( container != null )
+        {
+            container = null;
         }
     }
 
@@ -327,112 +332,40 @@ public class XavenEmbedderBuilder
             c.setLoggerManager( new MavenLoggerManager( logger ) );
 
             container = c;
-            withContainer( c );
         }
 
         return container;
     }
 
-    public synchronized XavenEmbedderBuilder withComponentSelection( final ComponentKey key, final String newHint )
-    {
-        if ( selector == null )
-        {
-            final XavenConfiguration config = xavenConfiguration();
-            selector = new ComponentSelector( config.getComponentSelector() );
-        }
-
-        selector.setSelection( key, newHint );
-        return this;
-    }
-
-    public synchronized XavenEmbedderBuilder withComponentSelections( final Map<ComponentKey, String> selections )
-    {
-        if ( selector == null )
-        {
-            final XavenConfiguration config = xavenConfiguration();
-            selector = new ComponentSelector( config.getComponentSelector() );
-        }
-
-        if ( selections != null )
-        {
-            for ( final Map.Entry<ComponentKey, String> entry : selections.entrySet() )
-            {
-                if ( entry == null || entry.getKey() == null || entry.getValue() == null )
-                {
-                    continue;
-                }
-
-                selector.setSelection( entry.getKey(), entry.getValue() );
-            }
-        }
-
-        return this;
-    }
-
     public synchronized ComponentSelector selector()
     {
-        if ( selector == null )
-        {
-            selector = new ComponentSelector();
-        }
-
-        return selector;
-    }
-
-    public synchronized XavenEmbedderBuilder withComponentInstance( final ComponentKey key, final Object instance )
-    {
-        if ( instanceRegistry == null )
-        {
-            instanceRegistry = new InstanceRegistry();
-        }
-        instanceRegistry.add( key, instance );
-
-        return this;
-    }
-
-    public synchronized XavenEmbedderBuilder withInstanceRegistry( final InstanceRegistry instanceRegistry )
-    {
-        if ( instanceRegistry != null )
-        {
-            final InstanceRegistry r = new InstanceRegistry();
-            if ( this.instanceRegistry != null )
-            {
-                r.addDelegate( this.instanceRegistry );
-            }
-            r.addDelegate( instanceRegistry );
-
-            this.instanceRegistry = r;
-        }
-
-        return this;
+        return xavenConfiguration().getComponentSelector();
     }
 
     public synchronized InstanceRegistry instanceRegistry()
     {
-        if ( instanceRegistry == null )
-        {
-            instanceRegistry = new InstanceRegistry();
-        }
-
-        return instanceRegistry;
+        return xavenConfiguration().getInstanceRegistry();
     }
 
     public XavenEmbedderBuilder withXavenConfiguration( final XavenConfiguration config )
     {
         xavenConfiguration = config;
+        xavenConfigurationProvided = true;
         return this;
     }
 
     public synchronized XavenConfiguration xavenConfiguration()
     {
         final String[] debugLogHandles = debugLogHandles();
-        if ( debugLogHandles != null )
+        if ( !logHandlesConfigured && debugLogHandles != null )
         {
             for ( final String logHandle : debugLogHandles )
             {
                 final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger( logHandle );
                 logger.setLevel( Level.DEBUG );
             }
+
+            logHandlesConfigured = true;
         }
 
         if ( xavenConfiguration == null )
@@ -463,6 +396,8 @@ public class XavenEmbedderBuilder
                 logger.error( "Failed to query context classloader for component-overrides files. Reason: "
                     + e.getMessage(), e );
             }
+
+            xavenConfigurationProvided = false;
         }
 
         return xavenConfiguration;
@@ -648,6 +583,7 @@ public class XavenEmbedderBuilder
     public void withDebugLogHandles( final String[] debugLogHandles )
     {
         this.debugLogHandles = debugLogHandles;
+        logHandlesConfigured = false;
     }
 
     public String[] debugLogHandles()

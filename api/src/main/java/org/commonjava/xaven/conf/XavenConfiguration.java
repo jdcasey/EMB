@@ -16,7 +16,10 @@ package org.commonjava.xaven.conf;
  */
 
 import org.commonjava.xaven.XavenExecutionRequest;
+import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
+import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
+import org.commonjava.xaven.plexus.InstanceRegistry;
 
 import java.io.File;
 import java.io.InputStream;
@@ -34,6 +37,8 @@ public class XavenConfiguration
     private static final File DEFAULT_CONFIGURATION_DIRECTORY = new File( System.getProperty( "user.home" ), ".m2" );
 
     private ComponentSelector componentSelector;
+
+    private InstanceRegistry instanceRegistry;
 
     private Map<String, XavenLibrary> extensions;
 
@@ -125,7 +130,7 @@ public class XavenConfiguration
         getLibraries().putAll( libraries );
         for ( final XavenLibrary library : libraries.values() )
         {
-            withComponentSelector( library.getComponentSelector() );
+            withLibrary( library );
         }
         return this;
     }
@@ -155,9 +160,43 @@ public class XavenConfiguration
         return componentSelector;
     }
 
+    public synchronized XavenConfiguration withComponentSelection( final ComponentKey key, final String newHint )
+    {
+        getComponentSelector().setSelection( key, newHint );
+        return this;
+    }
+
+    public synchronized XavenConfiguration withComponentSelections( final Map<ComponentKey, String> selections )
+    {
+        if ( selections != null )
+        {
+            for ( final Map.Entry<ComponentKey, String> entry : selections.entrySet() )
+            {
+                if ( entry == null || entry.getKey() == null || entry.getValue() == null )
+                {
+                    continue;
+                }
+
+                getComponentSelector().setSelection( entry.getKey(), entry.getValue() );
+            }
+        }
+
+        return this;
+    }
+
+    public synchronized XavenConfiguration withComponentSelections( final ComponentSelector newSelector )
+    {
+        if ( newSelector != null )
+        {
+            getComponentSelector().merge( newSelector );
+        }
+
+        return this;
+    }
+
     public XavenConfiguration withComponentSelector( final ComponentSelector selector )
     {
-        componentSelector.merge( selector );
+        getComponentSelector().merge( selector );
 
         return this;
     }
@@ -190,8 +229,42 @@ public class XavenConfiguration
     {
         getLibraries().put( library.getId(), library );
         withComponentSelector( library.getComponentSelector() );
+        withComponentInstance( new ComponentKey( XavenLibrary.class, library.getId() ), library );
+
+        final ExtensionConfiguration configuration = library.getConfiguration();
+        if ( configuration != null )
+        {
+            withComponentInstance( new ComponentKey( configuration.getClass() ), configuration );
+        }
 
         return this;
+    }
+
+    public synchronized XavenConfiguration withComponentInstance( final ComponentKey key, final Object instance )
+    {
+        getInstanceRegistry().add( key, instance );
+
+        return this;
+    }
+
+    public synchronized XavenConfiguration withInstanceRegistry( final InstanceRegistry instanceRegistry )
+    {
+        if ( instanceRegistry != null )
+        {
+            getInstanceRegistry().overrideMerge( instanceRegistry );
+        }
+
+        return this;
+    }
+
+    public synchronized InstanceRegistry getInstanceRegistry()
+    {
+        if ( instanceRegistry == null )
+        {
+            instanceRegistry = new InstanceRegistry();
+        }
+
+        return instanceRegistry;
     }
 
 }

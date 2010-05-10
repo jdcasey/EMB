@@ -1,10 +1,6 @@
 package org.commonjava.xaven.plexus;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /*
@@ -25,11 +21,7 @@ import java.util.Map;
 public class InstanceRegistry
 {
 
-    private static final List<InstanceRegistry> EMPTY = Collections.emptyList();
-
     private final Map<ComponentKey, Object> instances = new HashMap<ComponentKey, Object>();
-
-    private final List<InstanceRegistry> delegates = new ArrayList<InstanceRegistry>();
 
     public InstanceRegistry()
     {
@@ -39,18 +31,11 @@ public class InstanceRegistry
     {
         if ( delegates != null && delegates.length > 0 )
         {
-            this.delegates.addAll( Arrays.asList( delegates ) );
+            for ( final InstanceRegistry delegate : delegates )
+            {
+                overrideMerge( delegate );
+            }
         }
-    }
-
-    public void addDelegate( final InstanceRegistry instanceRegistry )
-    {
-        delegates.add( instanceRegistry );
-    }
-
-    public List<InstanceRegistry> getDelegates()
-    {
-        return delegates.isEmpty() ? EMPTY : new ArrayList<InstanceRegistry>( delegates );
     }
 
     public boolean has( final ComponentKey key )
@@ -60,22 +45,7 @@ public class InstanceRegistry
             return false;
         }
 
-        if ( instances.containsKey( key ) )
-        {
-            return true;
-        }
-        else if ( delegates != null )
-        {
-            for ( final InstanceRegistry reg : delegates )
-            {
-                if ( reg != null && reg.has( key ) )
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return instances.containsKey( key );
     }
 
     public boolean has( final Class<?> role, final String hint )
@@ -91,20 +61,7 @@ public class InstanceRegistry
     @SuppressWarnings( "unchecked" )
     public <T> T get( final ComponentKey key )
     {
-        T result = (T) instances.get( key );
-        if ( result == null && delegates != null )
-        {
-            for ( final InstanceRegistry reg : delegates )
-            {
-                result = (T) reg.get( key );
-                if ( result != null )
-                {
-                    break;
-                }
-            }
-        }
-
-        return result;
+        return (T) instances.get( key );
     }
 
     @SuppressWarnings( "unchecked" )
@@ -119,12 +76,13 @@ public class InstanceRegistry
         return (T) get( new ComponentKey( role, hint ) );
     }
 
-    public void add( final ComponentKey key, final Object instance )
+    public InstanceRegistry add( final ComponentKey key, final Object instance )
     {
         instances.put( key, instance );
+        return this;
     }
 
-    public void add( final Class<?> role, final String hint, final Object instance )
+    public InstanceRegistry add( final Class<?> role, final String hint, final Object instance )
     {
         if ( role == null )
         {
@@ -142,15 +100,15 @@ public class InstanceRegistry
                 + " is not assignable to role: " + role.getClass() );
         }
 
-        add( new ComponentKey( role, hint ), instance );
+        return add( new ComponentKey( role, hint ), instance );
     }
 
-    public void add( final String role, final String hint, final Object instance )
+    public InstanceRegistry add( final String role, final String hint, final Object instance )
     {
-        add( new ComponentKey( role, hint ), instance );
+        return add( new ComponentKey( role, hint ), instance );
     }
 
-    public void add( final Class<?> role, final Object instance )
+    public InstanceRegistry add( final Class<?> role, final Object instance )
     {
         if ( role == null )
         {
@@ -168,12 +126,18 @@ public class InstanceRegistry
                 + " is not assignable to role: " + role.getClass() );
         }
 
-        add( new ComponentKey( role ), instance );
+        return add( new ComponentKey( role ), instance );
     }
 
-    public void add( final String role, final Object instance )
+    public InstanceRegistry add( final String role, final Object instance )
     {
-        add( new ComponentKey( role ), instance );
+        return add( new ComponentKey( role ), instance );
+    }
+
+    public InstanceRegistry overrideMerge( final InstanceRegistry instanceRegistry )
+    {
+        instances.putAll( instanceRegistry.instances );
+        return this;
     }
 
 }

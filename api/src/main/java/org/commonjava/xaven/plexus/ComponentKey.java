@@ -63,4 +63,61 @@ public class ComponentKey
         return role + ( isBlank( hint ) ? "" : "#" + hint );
     }
 
+    @Override
+    public String toString()
+    {
+        return key();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( hint == null ) ? 0 : hint.hashCode() );
+        result = prime * result + ( ( role == null ) ? 0 : role.hashCode() );
+        return result;
+    }
+
+    @Override
+    public boolean equals( final Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        final ComponentKey other = (ComponentKey) obj;
+        if ( hint == null )
+        {
+            if ( other.hint != null )
+            {
+                return false;
+            }
+        }
+        else if ( !hint.equals( other.hint ) )
+        {
+            return false;
+        }
+        if ( role == null )
+        {
+            if ( other.role != null )
+            {
+                return false;
+            }
+        }
+        else if ( !role.equals( other.role ) )
+        {
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -171,7 +171,8 @@ public class XavenMain
             throw e;
         }
 
-        cliRequest.builder.withErrorMode( cliRequest.commandLine.hasOption( CLIManager.ERRORS ) );
+        cliRequest.builder.withErrorMode( cliRequest.commandLine.hasOption( CLIManager.ERRORS )
+            || cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
         cliRequest.builder.withDebugMode( cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
         cliRequest.builder.withQuietMode( cliRequest.commandLine.hasOption( CLIManager.QUIET ) );
         cliRequest.builder.withVersion( cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) );
@@ -521,6 +522,7 @@ public class XavenMain
         else
         {
             final File pom = cliRequest.builder.modelProcessor().locatePom( baseDirectory );
+            cliRequest.builder.resetContainer();
 
             if ( pom.isFile() )
             {

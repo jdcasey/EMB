@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -30,13 +31,13 @@ public final class XavenLibraries
 
     private static Map<String, XavenLibrary> libraries;
 
-    public static void loadLibraries( final XavenConfiguration xavenConfig )
+    public static Collection<XavenLibrary> loadLibraries( final XavenConfiguration xavenConfig )
         throws IOException
     {
         if ( libraries != null )
         {
             xavenConfig.withLibraries( libraries );
-            return;
+            return libraries.values();
         }
 
         libraries = new HashMap<String, XavenLibrary>();
@@ -59,6 +60,8 @@ public final class XavenLibraries
             libraries.put( library.getId(), library );
             xavenConfig.withLibrary( library );
         }
+
+        return libraries.values();
     }
 
 }

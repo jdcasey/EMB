@@ -124,7 +124,7 @@ public abstract class AbstractXavenLibrary
 
     public String getLabel()
     {
-        return name + ": " + versionProvider;
+        return name + ": " + versionProvider.getVersion();
     }
 
     public String getId()
