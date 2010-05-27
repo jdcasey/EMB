@@ -71,6 +71,8 @@ public class XavenEmbedderBuilder
 
     private ClassWorld classWorld;
 
+    private ClassLoader coreClassLoader;
+
     private Maven maven;
 
     private ModelProcessor modelProcessor;
@@ -183,17 +185,33 @@ public class XavenEmbedderBuilder
         return executionRequestPopulator;
     }
 
+    public synchronized XavenEmbedderBuilder withCoreClassLoader( final ClassLoader classLoader )
+    {
+        coreClassLoader = classLoader;
+        return this;
+    }
+
     public synchronized XavenEmbedderBuilder withClassWorld( final ClassWorld classWorld )
     {
         this.classWorld = classWorld;
         return this;
     }
 
+    public synchronized ClassLoader coreClassLoader()
+    {
+        if ( coreClassLoader == null )
+        {
+            coreClassLoader = Thread.currentThread().getContextClassLoader();
+        }
+
+        return coreClassLoader;
+    }
+
     public synchronized ClassWorld classWorld()
     {
         if ( classWorld == null )
         {
-            classWorld = new ClassWorld( "plexus.core", Thread.currentThread().getContextClassLoader() );
+            classWorld = new ClassWorld( "plexus.core", coreClassLoader() );
         }
 
         return classWorld;
