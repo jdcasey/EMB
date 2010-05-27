@@ -1,5 +1,7 @@
 package org.commonjava.xaven.boot.m3.plexus;
 
+import static org.codehaus.plexus.util.StringUtils.isBlank;
+
 import org.codehaus.plexus.ComponentRegistry;
 import org.codehaus.plexus.DefaultComponentRegistry;
 import org.codehaus.plexus.MutablePlexusContainer;
@@ -96,8 +98,15 @@ public class XavenComponentRegistry
     public <T> T lookup( final Class<T> type, final String role, final String roleHint )
         throws ComponentLookupException
     {
-        final T result = (T) lookupXavenInstance( role, roleHint );
-        return result != null ? result : delegate.lookup( type, role, roleHint );
+        T result = (T) lookupXavenInstance( role, roleHint );
+
+        if ( result == null )
+        {
+            final String hint = isBlank( roleHint ) ? PlexusConstants.PLEXUS_DEFAULT_HINT : roleHint;
+            result = delegate.lookup( type, role, hint );
+        }
+
+        return result;
     }
 
     @SuppressWarnings( "unchecked" )
