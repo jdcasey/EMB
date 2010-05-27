@@ -219,18 +219,21 @@ public class XavenEmbedderBuilder
                 else
                 {
                     String fname;
+                    ClassLoader cloader;
                     if ( object instanceof Class<?> )
                     {
                         fname = ( (Class<?>) object ).getName();
+                        cloader = ( (Class<?>) object ).getClassLoader();
                     }
                     else
                     {
                         fname = object.getClass().getName();
+                        cloader = object.getClass().getClassLoader();
                     }
 
                     fname = "/" + fname.replace( '.', '/' ) + ".class";
 
-                    final URL resource = object.getClass().getClassLoader().getResource( fname );
+                    final URL resource = cloader.getResource( fname );
                     if ( resource == null )
                     {
                         throw new IllegalStateException( "Class doesn't appear in its own classloader! ["
