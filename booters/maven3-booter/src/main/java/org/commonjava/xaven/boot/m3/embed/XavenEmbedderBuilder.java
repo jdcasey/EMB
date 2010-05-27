@@ -29,7 +29,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -188,6 +193,73 @@ public class XavenEmbedderBuilder
     public synchronized XavenEmbedderBuilder withCoreClassLoader( final ClassLoader classLoader )
     {
         coreClassLoader = classLoader;
+        return this;
+    }
+
+    public synchronized XavenEmbedderBuilder withCoreClassLoader( final ClassLoader root, final Object... constituents )
+        throws MalformedURLException
+    {
+        if ( constituents != null && constituents.length > 0 )
+        {
+            final Set<URL> urls = new LinkedHashSet<URL>();
+            for ( final Object object : constituents )
+            {
+                if ( object instanceof URL )
+                {
+                    urls.add( (URL) object );
+                }
+                else if ( object instanceof CharSequence )
+                {
+                    urls.add( new URL( object.toString() ) );
+                }
+                else if ( object instanceof File )
+                {
+                    urls.add( ( (File) object ).toURI().toURL() );
+                }
+                else
+                {
+                    String fname;
+                    if ( object instanceof Class<?> )
+                    {
+                        fname = ( (Class<?>) object ).getName();
+                    }
+                    else
+                    {
+                        fname = object.getClass().getName();
+                    }
+
+                    fname = "/" + fname.replace( '.', '/' ) + ".class";
+
+                    final URL resource = object.getClass().getClassLoader().getResource( fname );
+                    if ( resource == null )
+                    {
+                        throw new IllegalStateException( "Class doesn't appear in its own classloader! ["
+                            + object.getClass().getName() + "]" );
+                    }
+
+                    String path = resource.toExternalForm();
+                    if ( path.startsWith( "jar:" ) )
+                    {
+                        path = path.substring( "jar:".length() );
+                    }
+
+                    final int idx = path.indexOf( '!' );
+                    if ( idx > -1 )
+                    {
+                        path = path.substring( 0, idx );
+                    }
+
+                    urls.add( new URL( path ) );
+                }
+            }
+
+            coreClassLoader = new URLClassLoader( urls.toArray( new URL[] {} ), root );
+        }
+        else
+        {
+            coreClassLoader = root;
+        }
+
         return this;
     }
 
