@@ -91,7 +91,6 @@ public class XavenMain
         return cli.doMain( new CliRequest( args, classWorld ) );
     }
 
-    // TODO: need to externalize CliRequest
     public static int doMain( final String[] args, final ClassWorld classWorld )
     {
         final XavenMain cli = new XavenMain();
@@ -110,7 +109,6 @@ public class XavenMain
         return doMain( cliRequest );
     }
 
-    // TODO: need to externalize CliRequest
     public int doMain( final CliRequest cliRequest )
     {
         try

@@ -60,6 +60,10 @@ public interface XavenExecutionRequest
     Date getStartTime();
 
     // Goals
+    XavenExecutionRequest withPluginGoals( PluginGoal... goal );
+
+    XavenExecutionRequest withPluginGoal( PluginGoal goal );
+
     XavenExecutionRequest setGoals( List<String> goals );
 
     List<String> getGoals();
@@ -74,6 +78,8 @@ public interface XavenExecutionRequest
      * @return This request, never {@code null}.
      */
     XavenExecutionRequest setSystemProperties( Properties systemProperties );
+
+    XavenExecutionRequest setSystemProperty( String key, String value );
 
     /**
      * Gets the system properties to use for interpolation and profile activation. The system properties are collected
@@ -92,6 +98,8 @@ public interface XavenExecutionRequest
      * @return This request, never {@code null}.
      */
     XavenExecutionRequest setUserProperties( Properties userProperties );
+
+    XavenExecutionRequest setUserProperty( String key, String value );
 
     /**
      * Gets the user properties to use for interpolation and profile activation. The user properties have been

@@ -4,7 +4,11 @@ import org.apache.log4j.Logger;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationLoader;
+import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  *  Copyright (C) 2010 John Casey.
@@ -42,6 +46,8 @@ public abstract class AbstractXavenLibrary
     private ExtensionConfiguration config;
 
     private final ComponentSelector selector;
+
+    private final Set<ComponentKey> exportedComponents = new HashSet<ComponentKey>();
 
     protected AbstractXavenLibrary( final String id, final String name, final VersionProvider versionProvider,
                                     final ExtensionConfigurationLoader configLoader )
@@ -145,6 +151,18 @@ public abstract class AbstractXavenLibrary
     public String getVersion()
     {
         return versionProvider.getVersion();
+    }
+
+    protected AbstractXavenLibrary withExportedComponent( final ComponentKey key )
+    {
+        exportedComponents.add( key );
+        return this;
+    }
+
+    @Override
+    public Set<ComponentKey> getExportedComponents()
+    {
+        return exportedComponents;
     }
 
 }

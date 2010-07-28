@@ -3,7 +3,10 @@ package org.commonjava.xaven.conf;
 import org.apache.log4j.Logger;
 import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
+import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
+
+import java.util.Set;
 
 /*
  *  Copyright (C) 2010 John Casey.
@@ -30,6 +33,8 @@ public interface XavenLibrary
     ExtensionConfiguration getConfiguration();
 
     ComponentSelector getComponentSelector();
+
+    Set<ComponentKey> getExportedComponents();
 
     String getLabel();
 

@@ -650,4 +650,36 @@ public class DefaultXavenExecutionRequest
         return embedded.useReactor();
     }
 
+    @Override
+    public XavenExecutionRequest withPluginGoal( final PluginGoal goal )
+    {
+        embedded.getGoals().add( goal.formatCliGoal() );
+        return this;
+    }
+
+    @Override
+    public XavenExecutionRequest withPluginGoals( final PluginGoal... goals )
+    {
+        for ( final PluginGoal goal : goals )
+        {
+            embedded.getGoals().add( goal.formatCliGoal() );
+        }
+
+        return this;
+    }
+
+    @Override
+    public XavenExecutionRequest setSystemProperty( final String key, final String value )
+    {
+        embedded.getSystemProperties().setProperty( key, value );
+        return this;
+    }
+
+    @Override
+    public XavenExecutionRequest setUserProperty( final String key, final String value )
+    {
+        embedded.getUserProperties().setProperty( key, value );
+        return this;
+    }
+
 }

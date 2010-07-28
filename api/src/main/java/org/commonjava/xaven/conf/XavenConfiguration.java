@@ -20,12 +20,15 @@ import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
 import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
 import org.commonjava.xaven.plexus.InstanceRegistry;
+import org.commonjava.xaven.plexus.ServiceAuthorizer;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class XavenConfiguration
 {
@@ -263,6 +266,18 @@ public class XavenConfiguration
         {
             instanceRegistry = new InstanceRegistry();
         }
+
+        final Set<ComponentKey> keys = new HashSet<ComponentKey>();
+        for ( final XavenLibrary lib : getLibraries().values() )
+        {
+            final Set<ComponentKey> exports = lib.getExportedComponents();
+            if ( exports != null && !exports.isEmpty() )
+            {
+                keys.addAll( exports );
+            }
+        }
+
+        instanceRegistry.add( new ComponentKey( ServiceAuthorizer.class ), new ServiceAuthorizer( keys ) );
 
         return instanceRegistry;
     }

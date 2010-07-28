@@ -1,9 +1,6 @@
-package org.commonjava.xaven.boot.m3.services;
+package org.commonjava.xaven.plexus;
 
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.repository.RepositorySystem;
-import org.commonjava.xaven.boot.m3.embed.XavenEmbeddingException;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -20,20 +17,24 @@ import org.commonjava.xaven.boot.m3.embed.XavenEmbeddingException;
  * the License.
  */
 
-public interface XavenServiceManager
+public class ServiceAuthorizer
 {
 
-    ProjectBuilder projectBuilder();
+    private final Set<ComponentKey> authorizedKeys;
 
-    RepositorySystem repositorySystem();
+    public ServiceAuthorizer( final Set<ComponentKey> authorizedKeys )
+    {
+        this.authorizedKeys = authorizedKeys;
+    }
 
-    <T> T service( Class<T> type )
-        throws XavenEmbeddingException;
+    public boolean isAvailable( final Class<?> serviceType )
+    {
+        return authorizedKeys.contains( new ComponentKey( serviceType ) );
+    }
 
-    <T> T service( Class<T> type, String hint )
-        throws XavenEmbeddingException;
-
-    ArtifactRepository defaultLocalRepository()
-        throws XavenEmbeddingException;
+    public boolean isAvailable( final Class<?> serviceType, final String hint )
+    {
+        return authorizedKeys.contains( new ComponentKey( serviceType, hint ) );
+    }
 
 }

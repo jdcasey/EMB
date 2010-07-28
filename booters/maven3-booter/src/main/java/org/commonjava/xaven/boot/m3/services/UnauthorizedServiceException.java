@@ -1,8 +1,5 @@
 package org.commonjava.xaven.boot.m3.services;
 
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.repository.RepositorySystem;
 import org.commonjava.xaven.boot.m3.embed.XavenEmbeddingException;
 
 /*
@@ -20,20 +17,20 @@ import org.commonjava.xaven.boot.m3.embed.XavenEmbeddingException;
  * the License.
  */
 
-public interface XavenServiceManager
+public class UnauthorizedServiceException
+    extends XavenEmbeddingException
 {
 
-    ProjectBuilder projectBuilder();
+    private static final long serialVersionUID = 1L;
 
-    RepositorySystem repositorySystem();
+    public UnauthorizedServiceException( final Class<?> service )
+    {
+        super( "%s (with default hint) is not authorized for use outside of Xaven.", service.getName() );
+    }
 
-    <T> T service( Class<T> type )
-        throws XavenEmbeddingException;
-
-    <T> T service( Class<T> type, String hint )
-        throws XavenEmbeddingException;
-
-    ArtifactRepository defaultLocalRepository()
-        throws XavenEmbeddingException;
+    public UnauthorizedServiceException( final Class<?> service, final String hint )
+    {
+        super( "%s (with hint: %s) is not authorized for use outside of Xaven.", service.getName(), hint );
+    }
 
 }
