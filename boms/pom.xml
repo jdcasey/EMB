@@ -13,7 +13,6 @@
   
   <modules>
     <module>maven3-bom</module>
-    <module>maven2-bom</module>
   </modules>
   
   <dependencyManagement>

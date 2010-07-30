@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
   
   <modules>
-    <module>dummy-artifact-resolver</module>
+    <module>artifact-resolver</module>
     <module>resolution-logger</module>
   </modules>
 </project>

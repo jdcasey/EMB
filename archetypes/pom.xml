@@ -12,7 +12,7 @@
   <packaging>pom</packaging>
   
   <modules>
-    <!-- <module>xaven-maven3-distro-proto-archetype</module> -->
     <module>xaven-maven3-distro-archetype</module>
+    <module>xaven-component-archetype</module>
   </modules>
 </project>

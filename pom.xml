@@ -14,7 +14,7 @@
   
   <modules>
     <module>integration</module>
-    <module>resolvers</module>
+    <module>components</module>
     <module>examples</module>
     <module>boms</module>
     <module>booters</module>

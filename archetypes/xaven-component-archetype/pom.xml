@@ -7,11 +7,11 @@
     <artifactId>xaven-archetypes</artifactId>
     <version>0.3-SNAPSHOT</version>
   </parent>
-  
-  <artifactId>xaven-maven3-distro-archetype</artifactId>
+
+  <artifactId>xaven-component-archetype</artifactId>
   <packaging>maven-archetype</packaging>
   
-  <name>Xaven Maven-3 Disribution Archetype</name>
+  <name>Xaven Component Archetype</name>
   
   <build>
     <extensions>

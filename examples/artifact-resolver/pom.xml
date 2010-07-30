@@ -1,36 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  
   <parent>
-    <artifactId>xaven</artifactId>
-    <groupId>org.commonjava.xaven</groupId>
+    <groupId>org.commonjava.xaven.examples</groupId>
+    <artifactId>xaven-examples</artifactId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.xaven.event</groupId>
-  <artifactId>xaven-events</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>example-artifact-resolver</artifactId>
   
-  <modules>
-    <module>api</module>
-    <module>resolver-events</module>
-  </modules>
+  <name>Example Artifact Resolver</name>
   
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-boms</artifactId>
+        <artifactId>xaven-maven3-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      
-      <dependency>
-        <groupId>org.commonjava.xaven.event</groupId>
-        <artifactId>xaven-event-api</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-compat</artifactId>
+    </dependency>
+  </dependencies>
 </project>
