@@ -7,12 +7,8 @@
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>xaven-distro</artifactId>
-  <packaging>pom</packaging>
+  <artifactId>xaven-assembly-descriptors</artifactId>
   
-  <modules>
-    <module>distro-commons</module>
-    <module>maven3</module>
-    <!-- <module>maven2</module> -->
-  </modules>
+  <name>Xaven Assembly Descriptors</name>
+  
 </project>
