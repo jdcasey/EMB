@@ -1,12 +1,10 @@
 package org.commonjava.xaven;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.RepositoryCache;
 import org.apache.maven.execution.ExecutionListener;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.repository.ArtifactTransferListener;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
@@ -151,11 +149,6 @@ public interface XavenExecutionRequest
 
     boolean isShowErrors();
 
-    // Transfer listeners
-    XavenExecutionRequest setTransferListener( ArtifactTransferListener transferListener );
-
-    ArtifactTransferListener getTransferListener();
-
     // Logging
     XavenExecutionRequest setLoggingLevel( int loggingLevel );
 
@@ -249,10 +242,6 @@ public interface XavenExecutionRequest
 
     XavenExecutionRequest addPluginGroups( List<String> pluginGroups );
 
-    boolean isUsePluginUpdateOverride();
-
-    XavenExecutionRequest setUsePluginUpdateOverride( boolean usePluginUpdateOverride );
-
     boolean isProjectPresent();
 
     XavenExecutionRequest setProjectPresent( boolean isProjectPresent );
@@ -284,10 +273,6 @@ public interface XavenExecutionRequest
     XavenExecutionRequest setPluginArtifactRepositories( List<ArtifactRepository> repositories );
 
     List<ArtifactRepository> getPluginArtifactRepositories();
-
-    XavenExecutionRequest setRepositoryCache( RepositoryCache repositoryCache );
-
-    RepositoryCache getRepositoryCache();
 
     File getUserToolchainsFile();
 

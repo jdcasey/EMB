@@ -91,8 +91,7 @@ public class XavenCLIManager
                                         .create( CLIManager.NON_RECURSIVE ) );
 
         options.addOption( OptionBuilder.withLongOpt( "update-snapshots" )
-                                        .withDescription(
-                                                          "Forces a check for updated releases and snapshots on remote repositories" )
+                                        .withDescription( "Forces a check for updated releases and snapshots on remote repositories" )
                                         .create( CLIManager.UPDATE_SNAPSHOTS ) );
 
         options.addOption( OptionBuilder.withLongOpt( "activate-profiles" )
@@ -103,18 +102,6 @@ public class XavenCLIManager
         options.addOption( OptionBuilder.withLongOpt( "batch-mode" )
                                         .withDescription( "Run in non-interactive (batch) mode" )
                                         .create( CLIManager.BATCH_MODE ) );
-
-        options.addOption( OptionBuilder.withLongOpt( "check-plugin-updates" )
-                                        .withDescription( "Force upToDate check for any relevant registered plugins" )
-                                        .create( CLIManager.FORCE_PLUGIN_UPDATES ) );
-
-        options.addOption( OptionBuilder.withLongOpt( "update-plugins" )
-                                        .withDescription( "Synonym for " + CLIManager.FORCE_PLUGIN_UPDATES )
-                                        .create( CLIManager.FORCE_PLUGIN_UPDATES2 ) );
-
-        options.addOption( OptionBuilder.withLongOpt( "no-plugin-updates" )
-                                        .withDescription( "Suppress upToDate check for any relevant registered plugins" )
-                                        .create( CLIManager.SUPPRESS_PLUGIN_UPDATES ) );
 
         options.addOption( OptionBuilder.withLongOpt( "no-snapshot-updates" )
                                         .withDescription( "Supress SNAPSHOT updates" )
@@ -148,8 +135,7 @@ public class XavenCLIManager
                                         .create( CLIManager.FAIL_FAST ) );
 
         options.addOption( OptionBuilder.withLongOpt( "fail-at-end" )
-                                        .withDescription(
-                                                          "Only fail the build afterwards; allow all non-impacted builds to continue" )
+                                        .withDescription( "Only fail the build afterwards; allow all non-impacted builds to continue" )
                                         .create( CLIManager.FAIL_AT_END ) );
 
         options.addOption( OptionBuilder.withLongOpt( "fail-never" )
@@ -162,19 +148,16 @@ public class XavenCLIManager
                                         .create( CLIManager.RESUME_FROM ) );
 
         options.addOption( OptionBuilder.withLongOpt( "projects" )
-                                        .withDescription(
-                                                          "Build specified reactor projects instead of all projects. A project can be specified by [groupId]:artifactId or by its relative path." )
+                                        .withDescription( "Build specified reactor projects instead of all projects. A project can be specified by [groupId]:artifactId or by its relative path." )
                                         .hasArg()
                                         .create( CLIManager.PROJECT_LIST ) );
 
         options.addOption( OptionBuilder.withLongOpt( "also-make" )
-                                        .withDescription(
-                                                          "If project list is specified, also build projects required by the list" )
+                                        .withDescription( "If project list is specified, also build projects required by the list" )
                                         .create( CLIManager.ALSO_MAKE ) );
 
         options.addOption( OptionBuilder.withLongOpt( "also-make-dependents" )
-                                        .withDescription(
-                                                          "If project list is specified, also build projects that depend on projects on the list" )
+                                        .withDescription( "If project list is specified, also build projects that depend on projects on the list" )
                                         .create( CLIManager.ALSO_MAKE_DEPENDENTS ) );
 
         options.addOption( OptionBuilder.withLongOpt( "log-file" )
