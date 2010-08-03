@@ -23,24 +23,54 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.aether.DefaultArtifact;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.VersionRangeRequest;
+import org.sonatype.aether.VersionRangeResolutionException;
+import org.sonatype.aether.VersionRangeResult;
 
 import java.util.List;
 
 @Component( role = VersionFinder.class )
 public class VersionFinder
 {
-    
-    private static final String PLUGIN = "maven-plugin";
-    
+
+    private static final String POM = "pom";
+
     @Requirement
     RepositorySystem repoSystem;
-    
-    public List<String> findPluginVersions( String groupId, String artifactId, VersionRange range )
+
+    public VersionRangeResult findVersions( final String groupId, final String artifactId, final VersionRange range,
+                                            final AetherWrapperSession session )
+        throws VersionFindException
     {
-        VersionRangeRequest req = new VersionRangeRequest();
-        req.setArtifact( new DefaultArtifact( groupId, artifactId, PLUGIN, null ) );
-        req.setRepositories( Collection )
-        
+        return findVersions( groupId, artifactId, range, POM, session );
+    }
+
+    public VersionRangeResult findVersions( final String groupId, final String artifactId, final VersionRange range,
+                                            final String extension, final AetherWrapperSession session )
+        throws VersionFindException
+    {
+        final VersionRangeRequest req = new VersionRangeRequest();
+        req.setArtifact( new DefaultArtifact( groupId, artifactId, extension, null ) );
+        req.setRepositories( session.getRemoteRepositories() );
+
+        VersionRangeResult result;
+        try
+        {
+            result = repoSystem.resolveVersionRange( session.getRepositorySystemSession(), req );
+        }
+        catch ( final VersionRangeResolutionException e )
+        {
+            throw new VersionFindException( "Failed to resolve version range for plugin: %s:%s:%s\nReason: %s", e,
+                                            groupId, artifactId, range, e.getMessage() );
+        }
+
+        final List<Exception> exceptions = result.getExceptions();
+        if ( exceptions != null && !exceptions.isEmpty() )
+        {
+            throw new VersionFindException( "Failed to resolve version range for plugin: %s:%s:%s", exceptions,
+                                            groupId, artifactId, range );
+        }
+
+        return result;
     }
 
 }
