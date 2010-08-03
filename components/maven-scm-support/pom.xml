@@ -3,10 +3,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-accessories</artifactId>
-    <groupId>org.commonjava.xaven.accessories</groupId>
+    <artifactId>xaven-components</artifactId>
+    <groupId>org.commonjava.xaven.components</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
+  
   <artifactId>maven-scm-support</artifactId>
   
   <name>Xaven Service Export for Maven-SCM</name>

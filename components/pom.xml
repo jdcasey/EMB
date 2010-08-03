@@ -11,9 +11,30 @@
   <artifactId>xaven-components</artifactId>
   <packaging>pom</packaging>
   
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven</artifactId>
+        <version>${mavenVersion}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.xaven.bom</groupId>
+        <artifactId>xaven-maven3-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
   <modules>
     <!-- <module>xaven-recording-resolver</module>
     <module>xaven-resolve-decorators</module>
     <module>xaven-redirector-resolver</module> -->
+    <module>aether-wrapper</module>
+    <module>maven-scm-support</module>
   </modules>
 </project>

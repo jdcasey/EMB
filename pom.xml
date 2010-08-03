@@ -21,7 +21,6 @@
     <module>distro</module>
     <module>api</module>
     <module>events</module>
-    <module>accessories</module>
     <module>assembly-descriptors</module>
   </modules>
   
