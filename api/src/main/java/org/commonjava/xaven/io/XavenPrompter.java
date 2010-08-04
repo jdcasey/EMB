@@ -80,8 +80,8 @@ public class XavenPrompter
         }
     }
 
-    @SuppressWarnings( "unchecked" )
-    public String prompt( final String message, final List possibleValues, final String defaultReply )
+    public String prompt( final String message, @SuppressWarnings( "rawtypes" ) final List possibleValues,
+                          final String defaultReply )
         throws PrompterException
     {
         final String formattedMessage = formatMessage( message, possibleValues, defaultReply );
@@ -128,8 +128,7 @@ public class XavenPrompter
         xavenConfig.getStandardOut().println( message );
     }
 
-    @SuppressWarnings( "unchecked" )
-    public String prompt( final String message, final List possibleValues )
+    public String prompt( final String message, @SuppressWarnings( "rawtypes" ) final List possibleValues )
         throws PrompterException
     {
         return prompt( message, possibleValues, null );
@@ -159,8 +158,8 @@ public class XavenPrompter
         }
     }
 
-    @SuppressWarnings( "unchecked" )
-    private String formatMessage( final String message, final List possibleValues, final String defaultReply )
+    private String formatMessage( final String message, @SuppressWarnings( "rawtypes" ) final List possibleValues,
+                                  final String defaultReply )
     {
         final StringBuffer formatted = new StringBuffer( message.length() * 2 );
 
@@ -170,7 +169,8 @@ public class XavenPrompter
         {
             formatted.append( " (" );
 
-            for ( final Iterator it = possibleValues.iterator(); it.hasNext(); )
+            for ( @SuppressWarnings( "rawtypes" )
+            final Iterator it = possibleValues.iterator(); it.hasNext(); )
             {
                 final String possibleValue = (String) it.next();
 

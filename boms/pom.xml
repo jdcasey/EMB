@@ -29,6 +29,12 @@
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.commonjava.xaven.event</groupId>
+        <artifactId>xaven-resolver-events</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
     
       <!-- NOTE: These MUST be provided by xaven infrastructure! -->
       <dependency>

@@ -20,7 +20,6 @@ package org.commonjava.xaven.example.resolution.logger;
 import static org.codehaus.plexus.util.IOUtil.close;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -30,7 +29,6 @@ import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.event.XavenAsyncEventListener;
 import org.commonjava.xaven.event.XavenEvent;
-import org.commonjava.xaven.event.resolver.PluginResolutionEvent;
 import org.commonjava.xaven.event.resolver.ProjectDependencyResolutionEvent;
 import org.commonjava.xaven.event.resolver.ResolutionEvent;
 import org.commonjava.xaven.event.resolver.ResolutionEventType;
@@ -39,18 +37,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
-@Component( role = XavenAsyncEventListener.class, hint = "simple-resolution-listener" )
-public class SimpleResolutionListener
+@Component( role = XavenAsyncEventListener.class, hint = "simple-project-resolution-listener" )
+public class SimpleProjectResolutionListener
     implements XavenAsyncEventListener, Initializable
 {
 
     @Requirement
     private XavenConfiguration xavenConfiguration;
 
-    @Requirement( hint = "sample-resolution-logger" )
+    @Requirement( hint = "example-resolution-logger" )
     private XavenLibrary library;
 
     private File dataDir;
@@ -61,49 +58,30 @@ public class SimpleResolutionListener
             && ( (ResolutionEvent) event ).getType() == ResolutionEventType.SUCCESS;
     }
 
-    public void handle( final XavenEvent event )
+    public void handle( final XavenEvent evt )
     {
-        if ( event instanceof ProjectDependencyResolutionEvent )
+        if ( evt instanceof ProjectDependencyResolutionEvent )
         {
-            logProjectResolution( (ProjectDependencyResolutionEvent) event );
-        }
-        else if ( event instanceof PluginResolutionEvent )
-        {
-            logPluginResolution( (PluginResolutionEvent) event );
-        }
-    }
+            final ProjectDependencyResolutionEvent event = (ProjectDependencyResolutionEvent) evt;
 
-    private void logPluginResolution( final PluginResolutionEvent event )
-    {
-        final Plugin plugin = event.getPlugin();
-        final List<Artifact> resolvedArtifacts = event.getResolvedArtifacts();
+            final Collection<? extends MavenProject> projects = event.getProjects();
+            final Set<org.apache.maven.artifact.Artifact> resolvedArtifacts = event.getResolvedArtifacts();
 
-        final StringBuilder sb = new StringBuilder();
-        sb.append( "Plugin: " ).append( plugin.getId() ).append( "\n\n" );
+            final StringBuilder sb = new StringBuilder();
+            sb.append( "Projects Resolved:\n---------------------\n\n" );
+            for ( final MavenProject mavenProject : projects )
+            {
+                sb.append( "  " ).append( mavenProject.getId() ).append( "\n" );
+            }
 
-        appendArtifactInfo( resolvedArtifacts, sb );
+            appendArtifactInfo( resolvedArtifacts, sb );
 
-        writeFile( sb, new File( dataDir, "plugin-" + plugin.getId().replace( ':', '_' ) + ".resolver.log" ) );
-    }
-
-    private void logProjectResolution( final ProjectDependencyResolutionEvent event )
-    {
-        final Collection<? extends MavenProject> projects = event.getProjects();
-        final Set<Artifact> resolvedArtifacts = event.getResolvedArtifacts();
-
-        final StringBuilder sb = new StringBuilder();
-        sb.append( "Projects Resolved:\n---------------------\n\n" );
-        for ( final MavenProject mavenProject : projects )
-        {
-            sb.append( "  " ).append( mavenProject.getId() ).append( "\n" );
-        }
-
-        appendArtifactInfo( resolvedArtifacts, sb );
-
-        for ( final MavenProject project : projects )
-        {
-            writeFile( sb, new File( project.getBuild().getDirectory(), "project-" + project.getId().replace( ':', '_' )
-                + ".resolver.log" ) );
+            for ( final MavenProject project : projects )
+            {
+                writeFile( sb,
+                           new File( project.getBuild().getDirectory(), "project-" + project.getId().replace( ':', '_' )
+                               + ".resolver.log" ) );
+            }
         }
     }
 
@@ -124,23 +102,32 @@ public class SimpleResolutionListener
         dataDir.mkdirs();
     }
 
-    private void appendArtifactInfo( final Collection<Artifact> resolvedArtifacts, final StringBuilder sb )
+    private void appendArtifactInfo( final Set<Artifact> resolvedArtifacts, final StringBuilder sb )
     {
         sb.append( "Artifacts Resolved:\n---------------------\n\n" );
-        for ( final Artifact artifact : resolvedArtifacts )
-        {
-            if ( artifact == null )
-            {
-                continue;
-            }
 
-            sb.append( "  " )
-              .append( artifact.getId() )
-              .append( "\n    File: " )
-              .append( artifact.getFile() )
-              .append( "\n    Repository: " )
-              .append( artifact.getRepository() == null ? "-UNKNOWN-" : artifact.getRepository().getUrl() )
-              .append( "\n\n" );
+        if ( resolvedArtifacts != null && !resolvedArtifacts.isEmpty() )
+        {
+            for ( final Artifact artifact : resolvedArtifacts )
+            {
+                sb.append( "  " )
+                  .append( artifact.getId() )
+                  .append( "\n    File: " )
+                  .append( artifact.getFile() )
+                  .append( "\n    Repository: " );
+                if ( artifact.getRepository() == null )
+                {
+                    sb.append( "-UNKNOWN-" );
+                }
+                else
+                {
+                    sb.append( artifact.getRepository().getId() )
+                      .append( ": " )
+                      .append( artifact.getRepository().getUrl() );
+                }
+
+                sb.append( "\n\n" );
+            }
         }
     }
 

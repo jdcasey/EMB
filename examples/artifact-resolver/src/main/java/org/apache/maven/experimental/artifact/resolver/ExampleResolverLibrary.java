@@ -17,22 +17,21 @@
 
 package org.apache.maven.experimental.artifact.resolver;
 
-import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.DependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.ProjectDependenciesResolver;
-import org.codehaus.plexus.component.annotations.Component;
+import org.commonjava.atservice.annotation.Service;
+import org.commonjava.xaven.conf.AbstractXavenLibrary;
+import org.commonjava.xaven.conf.MavenPomVersionProvider;
+import org.commonjava.xaven.conf.XavenLibrary;
+import org.commonjava.xaven.plexus.ComponentSelector;
 
-@Component( role = ProjectDependenciesResolver.class, hint = "dummy" )
-public class DummyArtifactResolver
-    implements ProjectDependenciesResolver
+@Service( XavenLibrary.class )
+public class ExampleResolverLibrary
+    extends AbstractXavenLibrary
 {
-
-    @Override
-    public DependencyResolutionResult resolve( final DependencyResolutionRequest request )
-        throws DependencyResolutionException
+    public ExampleResolverLibrary()
     {
-        throw new UnsupportedOperationException( "Not Implemented." );
+        super( "example-artifact-resolver", "Xaven-Example-Artifact-Resolver",
+               new MavenPomVersionProvider( "org.commonjava.xaven.examples", "example-artifact-resolver" ), "resolver",
+               new ComponentSelector().setSelection( ProjectDependenciesResolver.class, "dummy" ) );
     }
-
 }

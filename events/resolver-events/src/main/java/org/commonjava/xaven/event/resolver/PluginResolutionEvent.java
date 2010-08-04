@@ -145,7 +145,7 @@ public class PluginResolutionEvent
         return dependencyFilter;
     }
 
-    public DependencyNode getResolvedArtifacts()
+    public DependencyNode getResolvedNode()
     {
         return resolvedNode;
     }

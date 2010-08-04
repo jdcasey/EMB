@@ -33,7 +33,7 @@
     </dependency>
     <dependency>
       <groupId>org.commonjava.xaven.event</groupId>
-      <artifactId>xaven-m3-resolver-events</artifactId>
+      <artifactId>xaven-resolver-events</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

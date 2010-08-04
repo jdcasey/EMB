@@ -28,7 +28,8 @@ public class ExampleResolutionLoggerLibrary
 {
     public ExampleResolutionLoggerLibrary()
     {
-        super( "sample-resolution-logger", "Xaven-Example-Resolution-Logger",
-               new MavenPomVersionProvider( "org.commonjava.xaven.examples", "xaven-resolution-logger" ), "resolution" );
+        super( "example-resolution-logger", "Xaven-Example-Resolution-Logger",
+               new MavenPomVersionProvider( "org.commonjava.xaven.examples", "example-resolution-logger" ),
+               "resolution" );
     }
 }
