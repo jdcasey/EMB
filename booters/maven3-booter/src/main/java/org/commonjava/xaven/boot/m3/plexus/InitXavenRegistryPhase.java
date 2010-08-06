@@ -53,7 +53,7 @@ public class InitXavenRegistryPhase
         final LifecycleHandlerManager lifecycleHandlerManager = getLifecycleHandlerManager( context );
 
         final ComponentRegistry componentRegistry =
-            new XavenComponentRegistry( context.getContainer(), repository, lifecycleHandlerManager, config,
+            new XavenBeanModule( context.getContainer(), repository, lifecycleHandlerManager, config,
                                         instanceRegistry );
 
         componentRegistry.registerComponentManagerFactory( new PerLookupComponentManagerFactory() );

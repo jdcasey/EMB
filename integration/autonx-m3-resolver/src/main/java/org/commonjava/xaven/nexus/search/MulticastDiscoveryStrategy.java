@@ -1,6 +1,9 @@
 package org.commonjava.xaven.nexus.search;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.nexus.AutoNXException;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +36,9 @@ public class MulticastDiscoveryStrategy
 
     public static final int PORT = Integer.getInteger( "nexus.autonx.udp", 33849 );
 
+    @Requirement( hint = "autonx" )
+    private XavenLibrary library;
+
     public LinkedHashSet<String> findNexusCandidates()
         throws AutoNXException
     {
@@ -43,13 +49,29 @@ public class MulticastDiscoveryStrategy
         {
             socket = new DatagramSocket( PORT + 1 );
             final DatagramPacket ping = new DatagramPacket( new byte[] {}, 0, MULTICAST, PORT );
+            socket.setSoTimeout( 5000 );
+
+            final Logger logger = library.getLogger();
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "Sending UDP PING..." );
+            }
 
             socket.send( ping );
 
             final byte[] buf = new byte[2048];
 
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "Waiting for PONG..." );
+            }
             final DatagramPacket pong = new DatagramPacket( buf, buf.length );
             socket.receive( pong );
+
+            if ( logger.isDebugEnabled() )
+            {
+                logger.debug( "Received response from: " + pong.getAddress().getCanonicalHostName() );
+            }
 
             final ByteArrayInputStream bain = new ByteArrayInputStream( buf );
             final Properties props = new Properties();
