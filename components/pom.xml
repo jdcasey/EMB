@@ -34,7 +34,6 @@
     <!-- <module>xaven-recording-resolver</module>
     <module>xaven-resolve-decorators</module>
     <module>xaven-redirector-resolver</module> -->
-    <module>aether-wrapper</module>
     <module>maven-scm-support</module>
   </modules>
 </project>
