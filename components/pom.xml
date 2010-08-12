@@ -30,10 +30,23 @@
     </dependencies>
   </dependencyManagement>
   
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.xaven</groupId>
+      <artifactId>xaven-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+  
   <modules>
-    <!-- <module>xaven-recording-resolver</module>
-    <module>xaven-resolve-decorators</module>
+    <module>xaven-recording-resolver</module>
+    <!-- <module>xaven-resolve-decorators</module>
     <module>xaven-redirector-resolver</module> -->
     <module>maven-scm-support</module>
+    <module>version-scheme-injector</module>
+    <module>pixml-model</module>
   </modules>
 </project>

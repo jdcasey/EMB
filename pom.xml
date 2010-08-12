@@ -106,11 +106,6 @@
               <configuration>
                 <createDependencyReducedPom>false</createDependencyReducedPom>
                 <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
-                <!-- <transformers>
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                    <resource>META-INF/services/com.redhat.tools.nexus.guice.PluginPrivateModule</resource>
-                  </transformer>
-                </transformers> -->
               </configuration>
             </execution>
           </executions>
@@ -134,9 +129,9 @@
           <configuration>
             <source>1.6</source>
             <target>1.6</target>
-            <!-- <annotationProcessors>
+            <annotationProcessors>
               <annotationProcessor>org.commonjava.atservice.processor.ServiceAnnotationProcessor</annotationProcessor>
-            </annotationProcessors> -->
+            </annotationProcessors>
           </configuration>
         </plugin>
         <plugin>
@@ -196,6 +191,10 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-remote-resources-plugin</artifactId>
         <executions>
@@ -203,6 +202,7 @@
             <goals>
               <goal>process</goal>
             </goals>
+            <phase>generate-resources</phase>
             <configuration>
               <resourceBundles>
                 <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
