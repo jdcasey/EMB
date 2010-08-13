@@ -12,32 +12,31 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-container-default</artifactId>
-      <version>1.5.4</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
     <dependency>
     	<groupId>org.codehaus.plexus</groupId>
     	<artifactId>plexus-component-annotations</artifactId>
-    	<version>1.5.4</version>
     </dependency>
     <dependency>
     	<groupId>org.commonjava.xaven</groupId>
     	<artifactId>xaven-api</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>log4j</groupId>
+    	<artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.sonatype.spice.inject</groupId>
+    	<artifactId>guice-plexus-shim</artifactId>
+    	<type>jar</type>
+    	<scope>compile</scope>
+    </dependency>
   </dependencies>
   
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

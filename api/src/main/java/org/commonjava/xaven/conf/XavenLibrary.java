@@ -34,7 +34,7 @@ public interface XavenLibrary
 
     ComponentSelector getComponentSelector();
 
-    Set<ComponentKey> getExportedComponents();
+    Set<ComponentKey<?>> getExportedComponents();
 
     String getLabel();
 

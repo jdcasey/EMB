@@ -47,7 +47,7 @@ public abstract class AbstractXavenLibrary
 
     private final ComponentSelector selector;
 
-    private final Set<ComponentKey> exportedComponents = new HashSet<ComponentKey>();
+    private final Set<ComponentKey<?>> exportedComponents = new HashSet<ComponentKey<?>>();
 
     protected AbstractXavenLibrary( final String id, final String name, final VersionProvider versionProvider,
                                     final ExtensionConfigurationLoader configLoader )
@@ -153,14 +153,14 @@ public abstract class AbstractXavenLibrary
         return versionProvider.getVersion();
     }
 
-    protected AbstractXavenLibrary withExportedComponent( final ComponentKey key )
+    protected AbstractXavenLibrary withExportedComponent( final ComponentKey<?> key )
     {
         exportedComponents.add( key );
         return this;
     }
 
     @Override
-    public Set<ComponentKey> getExportedComponents()
+    public Set<ComponentKey<?>> getExportedComponents()
     {
         return exportedComponents;
     }

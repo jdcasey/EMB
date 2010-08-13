@@ -10,15 +10,15 @@ import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.settings.building.SettingsBuilder;
 import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.commonjava.xaven.boot.m3.plexus.XavenContainerConfiguration;
 import org.commonjava.xaven.boot.m3.services.XavenServiceManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
+import org.commonjava.xaven.internal.plexus.XavenPlexusContainer;
 import org.commonjava.xaven.plexus.ComponentSelector;
 import org.commonjava.xaven.plexus.InstanceRegistry;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -407,13 +407,12 @@ public class XavenEmbedderBuilder
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration(), selector(), instanceRegistry() ).setClassWorld( classWorld() )
-                                                                                                       .setName( "maven" );
+                new DefaultContainerConfiguration().setClassWorld( classWorld() ).setName( "maven" );
 
-            DefaultPlexusContainer c;
+            XavenPlexusContainer c;
             try
             {
-                c = new DefaultPlexusContainer( cc );
+                c = new XavenPlexusContainer( cc, selector(), instanceRegistry() );
             }
             catch ( final PlexusContainerException e )
             {

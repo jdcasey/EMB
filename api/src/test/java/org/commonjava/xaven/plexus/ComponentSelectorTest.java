@@ -1,7 +1,8 @@
-package org.commonjava.xaven.boot.m3.plexus;
+package org.commonjava.xaven.plexus;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -10,13 +11,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.apache.log4j.spi.Configurator;
 import org.apache.log4j.spi.LoggerRepository;
-import org.commonjava.xaven.plexus.ComponentSelector;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -58,48 +59,44 @@ public class ComponentSelectorTest
         log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
     }
 
+    @SuppressWarnings( "rawtypes" )
     @Test
     public void componentSubstitutionWhenTargetHasRoleHint()
     {
         final Properties selectors = new Properties();
         selectors.setProperty( "role#hint", "other-hint" );
 
-        final ComponentSelector selector = new ComponentSelector( selectors );
+        final ComponentSelector selector = new ComponentSelector().setSelection( String.class, "hint", "other-hint" );
 
-        assertEquals( "other-hint", selector.selectRoleHint( "role", "hint" ) );
+        final Set<ComponentKey<?>> overridden = selector.getKeysOverriddenBy( String.class, "other-hint" );
+        assertEquals( 1, overridden.size() );
+
+        final ComponentKey ok = overridden.iterator().next();
+        assertEquals( "hint", ok.getHint() );
+        assertEquals( String.class, ok.getRoleClass() );
+        assertFalse( selector.hasOverride( String.class, "other-hint" ) );
+        assertTrue( selector.hasOverride( String.class, "hint" ) );
     }
 
+    @SuppressWarnings( "rawtypes" )
     @Test
     public void componentSubstitutionWhenTargetRoleHintIsMissing()
     {
         final Properties selectors = new Properties();
         selectors.setProperty( "role", "other-hint" );
 
-        final ComponentSelector selector = new ComponentSelector( selectors );
+        final ComponentSelector selector = new ComponentSelector().setSelection( String.class, "other-hint" );
 
-        assertEquals( "other-hint", selector.selectRoleHint( "role", null ) );
-    }
+        final Set<ComponentKey<?>> overridden = selector.getKeysOverriddenBy( String.class, "other-hint" );
+        assertEquals( 1, overridden.size() );
 
-    @Test
-    public void componentSubstitutionWhenTargetRoleHintIsBlankPlaceholder()
-    {
-        final Properties selectors = new Properties();
-        selectors.setProperty( "role", "other-hint" );
+        final ComponentKey ok = overridden.iterator().next();
 
-        final ComponentSelector selector = new ComponentSelector( selectors );
+        assertEquals( ComponentKey.DEFAULT_HINT, ok.getHint() );
 
-        assertNull( selector.selectRoleHint( "role", "#" ) );
-    }
-
-    @Test
-    public void componentSubstitutionWhenTargetRoleHintIsLiteral()
-    {
-        final Properties selectors = new Properties();
-        selectors.setProperty( "role#hint", "other-hint" );
-
-        final ComponentSelector selector = new ComponentSelector( selectors );
-
-        assertEquals( "hint", selector.selectRoleHint( "role", "_hint_" ) );
+        assertEquals( String.class, ok.getRoleClass() );
+        assertFalse( selector.hasOverride( String.class, "other-hint" ) );
+        assertTrue( selector.hasOverride( String.class ) );
     }
 
 }

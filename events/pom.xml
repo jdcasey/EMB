@@ -13,7 +13,7 @@
   
   <modules>
     <module>api</module>
-    <module>resolver-events</module>
+    <!-- <module>resolver-events</module> -->
   </modules>
   
   <dependencyManagement>
@@ -30,6 +30,13 @@
         <groupId>org.commonjava.xaven.event</groupId>
         <artifactId>xaven-event-api</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+      	<groupId>org.commonjava.xaven.bom</groupId>
+      	<artifactId>xaven-maven3-bom</artifactId>
+      	<version>${project.version}</version>
+      	<type>pom</type>
+      	<scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

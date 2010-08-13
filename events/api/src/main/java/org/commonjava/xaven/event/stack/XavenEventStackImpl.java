@@ -19,8 +19,6 @@ package org.commonjava.xaven.event.stack;
 
 import org.commonjava.xaven.event.XavenEvent;
 
-import com.google.common.collect.Iterators;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -137,7 +135,28 @@ public final class XavenEventStackImpl
 
         public Iterator<XavenEvent> iterator()
         {
-            return Iterators.unmodifiableIterator( impl.iterator() );
+            final Iterator<XavenEvent> iter = impl.iterator();
+            return new Iterator<XavenEvent>()
+            {
+
+                @Override
+                public boolean hasNext()
+                {
+                    return iter.hasNext();
+                }
+
+                @Override
+                public XavenEvent next()
+                {
+                    return iter.next();
+                }
+
+                @Override
+                public void remove()
+                {
+                    throw new UnsupportedOperationException( "Not Implemented." );
+                }
+            };
         }
 
     }

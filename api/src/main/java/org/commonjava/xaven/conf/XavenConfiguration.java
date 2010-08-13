@@ -163,17 +163,17 @@ public class XavenConfiguration
         return componentSelector;
     }
 
-    public synchronized XavenConfiguration withComponentSelection( final ComponentKey key, final String newHint )
+    public synchronized XavenConfiguration withComponentSelection( final ComponentKey<?> key, final String newHint )
     {
         getComponentSelector().setSelection( key, newHint );
         return this;
     }
 
-    public synchronized XavenConfiguration withComponentSelections( final Map<ComponentKey, String> selections )
+    public synchronized XavenConfiguration withComponentSelections( final Map<ComponentKey<?>, String> selections )
     {
         if ( selections != null )
         {
-            for ( final Map.Entry<ComponentKey, String> entry : selections.entrySet() )
+            for ( final Map.Entry<ComponentKey<?>, String> entry : selections.entrySet() )
             {
                 if ( entry == null || entry.getKey() == null || entry.getValue() == null )
                 {
@@ -228,22 +228,26 @@ public class XavenConfiguration
         return this;
     }
 
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public XavenConfiguration withLibrary( final XavenLibrary library )
     {
         getLibraries().put( library.getId(), library );
         withComponentSelector( library.getComponentSelector() );
-        withComponentInstance( new ComponentKey( XavenLibrary.class, library.getId() ), library );
+        withComponentInstance( new ComponentKey<XavenLibrary>( XavenLibrary.class, library.getId() ), library );
 
         final ExtensionConfiguration configuration = library.getConfiguration();
         if ( configuration != null )
         {
+            withComponentInstance( new ComponentKey<ExtensionConfiguration>( ExtensionConfiguration.class,
+                                                                             library.getId() ), configuration );
+
             withComponentInstance( new ComponentKey( configuration.getClass() ), configuration );
         }
 
         return this;
     }
 
-    public synchronized XavenConfiguration withComponentInstance( final ComponentKey key, final Object instance )
+    public synchronized <T> XavenConfiguration withComponentInstance( final ComponentKey<T> key, final T instance )
     {
         getInstanceRegistry().add( key, instance );
 
@@ -267,17 +271,19 @@ public class XavenConfiguration
             instanceRegistry = new InstanceRegistry();
         }
 
-        final Set<ComponentKey> keys = new HashSet<ComponentKey>();
+        final Set<ComponentKey<?>> keys = new HashSet<ComponentKey<?>>();
         for ( final XavenLibrary lib : getLibraries().values() )
         {
-            final Set<ComponentKey> exports = lib.getExportedComponents();
+            final Set<ComponentKey<?>> exports = lib.getExportedComponents();
             if ( exports != null && !exports.isEmpty() )
             {
                 keys.addAll( exports );
             }
         }
 
-        instanceRegistry.add( new ComponentKey( ServiceAuthorizer.class ), new ServiceAuthorizer( keys ) );
+        instanceRegistry.add( new ComponentKey<ServiceAuthorizer>( ServiceAuthorizer.class ),
+                              new ServiceAuthorizer( keys ) );
+        instanceRegistry.add( XavenConfiguration.class, this );
 
         return instanceRegistry;
     }

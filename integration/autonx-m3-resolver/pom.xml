@@ -65,10 +65,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
-      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <configuration>
           <artifactSet>
@@ -77,9 +73,6 @@
               <include>commons-logging:*</include>
               <include>commons-codec:*</include>
             </includes>
-            <!-- <excludes>
-              <exclude>org.codehaus.plexus:plexus-utils</exclude>
-            </excludes> -->
           </artifactSet>
         </configuration>
       </plugin>
