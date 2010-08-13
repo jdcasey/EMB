@@ -46,7 +46,7 @@ public class PIXMLModelPreprocessor
     implements ModelReader
 {
 
-    @Requirement( hint = "#" )
+    @Requirement( hint = "default_" )
     private ModelReader embedded;
 
     @Requirement

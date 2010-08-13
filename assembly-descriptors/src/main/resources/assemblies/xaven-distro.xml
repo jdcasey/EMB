@@ -47,6 +47,7 @@ under the License.
       <outputDirectory>lib</outputDirectory>
       <excludes>
         <exclude>org.commonjava.xaven.*</exclude>
+        <exclude>org.codehaus.plexus:plexus-container-default</exclude>
         <exclude>org.codehaus.plexus:plexus-classworlds</exclude>
         <exclude>junit:junit</exclude>
         <exclude>commons-logging:commons-logging-api</exclude>
