@@ -67,7 +67,7 @@ public class ComparableVersion
 
     private ListItem items;
 
-    private interface Item
+    protected interface Item
     {
         final int INTEGER_ITEM = 0;
 
@@ -85,7 +85,7 @@ public class ComparableVersion
     /**
      * Represents a numeric item in the version item list.
      */
-    private static class IntegerItem
+    protected static class IntegerItem
         implements Item
     {
         private static final BigInteger BigInteger_ZERO = new BigInteger( "0" );
@@ -147,7 +147,7 @@ public class ComparableVersion
     /**
      * Represents a string in the version item list, usually a qualifier.
      */
-    private static class StringItem
+    protected static class StringItem
         implements Item
     {
         private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
@@ -255,7 +255,7 @@ public class ComparableVersion
      * Represents a version list item. This class is used both for the global item list and for sub-lists (which start
      * with '-(number)' in the version specification).
      */
-    private static class ListItem
+    protected static class ListItem
         extends ArrayList<Item>
         implements Item
     {
