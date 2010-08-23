@@ -43,7 +43,7 @@ public class XavenConfiguration
 
     private InstanceRegistry instanceRegistry;
 
-    private Map<String, XavenLibrary> extensions;
+    private Map<String, XavenLibrary> libraries;
 
     private File configurationDirectory = DEFAULT_CONFIGURATION_DIRECTORY;
 
@@ -138,19 +138,19 @@ public class XavenConfiguration
         return this;
     }
 
-    public XavenLibrary getExtension( final String extId )
+    public XavenLibrary getLibrary( final String id )
     {
-        return extensions.get( extId );
+        return libraries.get( id );
     }
 
     public Map<String, XavenLibrary> getLibraries()
     {
-        if ( extensions == null )
+        if ( libraries == null )
         {
-            extensions = new HashMap<String, XavenLibrary>();
+            libraries = new HashMap<String, XavenLibrary>();
         }
 
-        return extensions;
+        return libraries;
     }
 
     public ComponentSelector getComponentSelector()

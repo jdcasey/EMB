@@ -16,6 +16,11 @@ public class XavenAdvisor
     @Requirement( hint = "core" )
     private XavenLibrary library;
 
+    public void clearAdvice()
+    {
+        advice.clear();
+    }
+
     public XavenAdvisor advise( final String key, final Object value, final boolean override )
     {
         if ( override || !advice.containsKey( key ) )

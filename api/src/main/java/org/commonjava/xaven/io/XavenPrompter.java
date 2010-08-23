@@ -80,7 +80,7 @@ public class XavenPrompter
         }
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public String prompt( final String message, final List possibleValues, final String defaultReply )
         throws PrompterException
     {
@@ -128,7 +128,7 @@ public class XavenPrompter
         xavenConfig.getStandardOut().println( message );
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public String prompt( final String message, final List possibleValues )
         throws PrompterException
     {
@@ -159,7 +159,7 @@ public class XavenPrompter
         }
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     private String formatMessage( final String message, final List possibleValues, final String defaultReply )
     {
         final StringBuffer formatted = new StringBuffer( message.length() * 2 );

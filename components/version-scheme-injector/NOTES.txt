@@ -1,0 +1,10 @@
+Class Override Points:
+--------------------------------
+org.apache.maven.artifact.versioning.ComparableVersion
+
+- Implements rules of comparison for various version strings.
+
+org.apache.maven.artifact.versioning.DefaultArtifactVersion
+
+- Hard-coded to construct instances of ComparableVersion
+

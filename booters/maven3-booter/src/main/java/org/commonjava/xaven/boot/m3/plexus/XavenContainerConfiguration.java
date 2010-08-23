@@ -81,10 +81,10 @@ public class XavenContainerConfiguration
 
     private SelectorComponentRepository componentRepository;
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     private final List<Class> componentDiscoverers = new ArrayList<Class>();
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     private final List<Class> componentDiscoveryListeners = new ArrayList<Class>();
 
     private final XavenConfiguration xavenConfig;
@@ -187,8 +187,7 @@ public class XavenContainerConfiguration
 
     // Component discoverer
 
-    public ContainerConfiguration addComponentDiscoveryListener(
-                                                                 final ComponentDiscoveryListener componentDiscoveryListener )
+    public ContainerConfiguration addComponentDiscoveryListener( final ComponentDiscoveryListener componentDiscoveryListener )
     {
         getComponentDiscovererManager().registerComponentDiscoveryListener( componentDiscoveryListener );
 
@@ -214,20 +213,19 @@ public class XavenContainerConfiguration
         return this;
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public List<Class> getComponentDiscoverers()
     {
         return componentDiscoverers;
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public List<Class> getComponentDiscoveryListeners()
     {
         return componentDiscoveryListeners;
     }
 
-    public ContainerConfiguration setComponentDiscovererManager(
-                                                                 final ComponentDiscovererManager componentDiscovererManager )
+    public ContainerConfiguration setComponentDiscovererManager( final ComponentDiscovererManager componentDiscovererManager )
     {
         this.componentDiscovererManager = componentDiscovererManager;
 

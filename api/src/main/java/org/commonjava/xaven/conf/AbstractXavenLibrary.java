@@ -7,7 +7,9 @@ import org.commonjava.xaven.conf.ext.ExtensionConfigurationLoader;
 import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /*
@@ -48,6 +50,8 @@ public abstract class AbstractXavenLibrary
     private final ComponentSelector selector;
 
     private final Set<ComponentKey> exportedComponents = new HashSet<ComponentKey>();
+
+    private final Map<Class<?>, Set<ComponentKey>> managementComponents = new HashMap<Class<?>, Set<ComponentKey>>();
 
     protected AbstractXavenLibrary( final String id, final String name, final VersionProvider versionProvider,
                                     final ExtensionConfigurationLoader configLoader )
@@ -163,6 +167,35 @@ public abstract class AbstractXavenLibrary
     public Set<ComponentKey> getExportedComponents()
     {
         return exportedComponents;
+    }
+
+    public Map<Class<?>, Set<ComponentKey>> getManagementComponents()
+    {
+        return managementComponents;
+    }
+
+    public AbstractXavenLibrary withManagementComponent( final ComponentKey key, final Class<?>... managementTypes )
+    {
+        if ( managementTypes != null )
+        {
+            for ( final Class<?> managementType : managementTypes )
+            {
+                Set<ComponentKey> keys = managementComponents.get( managementType );
+                if ( keys == null )
+                {
+                    keys = new HashSet<ComponentKey>();
+                    managementComponents.put( managementType, keys );
+                }
+                keys.add( key );
+            }
+        }
+
+        return this;
+    }
+
+    public Set<ComponentKey> getManagementComponents( final Class<?> managementType )
+    {
+        return managementComponents.get( managementType );
     }
 
 }

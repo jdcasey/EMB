@@ -41,12 +41,30 @@
     </dependency>
   </dependencies>
   
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  
   <modules>
     <module>xaven-recording-resolver</module>
     <!-- <module>xaven-resolve-decorators</module>
     <module>xaven-redirector-resolver</module> -->
     <module>maven-scm-support</module>
-    <module>version-scheme-injector</module>
-    <module>pixml-model</module>
   </modules>
+  
+  <profiles>
+    <profile>
+      <id>experimental</id>
+      
+      <modules>
+        <module>pixml-model</module>
+        <module>version-scheme-injector</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

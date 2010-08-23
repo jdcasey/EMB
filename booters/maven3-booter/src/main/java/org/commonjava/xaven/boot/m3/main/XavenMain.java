@@ -324,8 +324,6 @@ public class XavenMain
             cliRequest.builder.xavenConfiguration().nonInteractive();
         }
 
-        final boolean pluginUpdateOverride = false;
-
         boolean noSnapshotUpdates = false;
         if ( commandLine.hasOption( CLIManager.SUPRESS_SNAPSHOT_UPDATES ) )
         {

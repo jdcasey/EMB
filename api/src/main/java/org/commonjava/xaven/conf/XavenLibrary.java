@@ -6,6 +6,7 @@ import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
 import org.commonjava.xaven.plexus.ComponentKey;
 import org.commonjava.xaven.plexus.ComponentSelector;
 
+import java.util.Map;
 import java.util.Set;
 
 /*
@@ -35,6 +36,10 @@ public interface XavenLibrary
     ComponentSelector getComponentSelector();
 
     Set<ComponentKey> getExportedComponents();
+
+    Set<ComponentKey> getManagementComponents( Class<?> managementType );
+
+    Map<Class<?>, Set<ComponentKey>> getManagementComponents();
 
     String getLabel();
 

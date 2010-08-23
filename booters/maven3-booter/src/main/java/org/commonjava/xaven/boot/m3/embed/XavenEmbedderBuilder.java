@@ -170,8 +170,7 @@ public class XavenEmbedderBuilder
         return serviceManager;
     }
 
-    public synchronized XavenEmbedderBuilder withExecutionRequestPopulator(
-                                                                            final MavenExecutionRequestPopulator executionRequestPopulator )
+    public synchronized XavenEmbedderBuilder withExecutionRequestPopulator( final MavenExecutionRequestPopulator executionRequestPopulator )
     {
         this.executionRequestPopulator = executionRequestPopulator;
         executionRequestPopulatorProvided = true;
@@ -407,10 +406,8 @@ public class XavenEmbedderBuilder
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new XavenContainerConfiguration( xavenConfiguration(), selector(), instanceRegistry() ).setClassWorld(
-                                                                                                                       classWorld() )
-                                                                                                       .setName(
-                                                                                                                 "maven" );
+                new XavenContainerConfiguration( xavenConfiguration(), selector(), instanceRegistry() ).setClassWorld( classWorld() )
+                                                                                                       .setName( "maven" );
 
             DefaultPlexusContainer c;
             try
@@ -487,7 +484,7 @@ public class XavenEmbedderBuilder
             catch ( final IOException e )
             {
                 logger.error( "Failed to query context classloader for component-overrides files. Reason: "
-                    + e.getMessage(), e );
+                                  + e.getMessage(), e );
             }
 
             xavenConfigurationProvided = false;

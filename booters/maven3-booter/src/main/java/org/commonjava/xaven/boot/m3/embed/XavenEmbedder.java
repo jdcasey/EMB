@@ -22,6 +22,9 @@ import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
 import org.apache.maven.settings.building.SettingsProblem;
 import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.PlexusConstants;
+import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.xaven.XavenExecutionRequest;
@@ -30,6 +33,11 @@ import org.commonjava.xaven.boot.m3.main.XavenMain;
 import org.commonjava.xaven.boot.m3.services.XavenServiceManager;
 import org.commonjava.xaven.conf.XavenConfiguration;
 import org.commonjava.xaven.conf.XavenLibrary;
+import org.commonjava.xaven.conf.mgmt.LoadOnFinish;
+import org.commonjava.xaven.conf.mgmt.LoadOnStart;
+import org.commonjava.xaven.conf.mgmt.XavenManagementException;
+import org.commonjava.xaven.conf.mgmt.XavenManagementView;
+import org.commonjava.xaven.plexus.ComponentKey;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -42,6 +50,7 @@ import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -122,12 +131,15 @@ public class XavenEmbedder
                 System.setOut( standardOut );
             }
 
+            doExecutionStarting();
+
             injectEnvironment( request );
             printInfo( request );
             return maven.execute( request.asMavenExecutionRequest() );
         }
         finally
         {
+            doExecutionFinished();
             System.setOut( oldOut );
         }
     }
@@ -201,6 +213,58 @@ public class XavenEmbedder
         catch ( final SecDispatcherException e )
         {
             throw new XavenEmbeddingException( "Failed to encrypt password: {0}", e, e.getMessage() );
+        }
+    }
+
+    protected void doExecutionStarting()
+        throws XavenEmbeddingException
+    {
+        for ( final XavenLibrary library : xavenConfiguration.getLibraries().values() )
+        {
+            final Set<ComponentKey> components = library.getManagementComponents( LoadOnStart.class );
+            if ( components != null && !components.isEmpty() )
+            {
+                final XavenManagementView mgmtView = new EmbedderManagementView( container, xavenConfiguration );
+                for ( final ComponentKey key : components )
+                {
+                    try
+                    {
+                        final LoadOnStart los = (LoadOnStart) container.lookup( key.getRole(), key.getHint() );
+                        los.executionStarting( mgmtView );
+                    }
+                    catch ( final ComponentLookupException e )
+                    {
+                        throw new XavenEmbeddingException(
+                                                           "Failed to lookup load-on-start component for initialization: %s.\nReason: %s",
+                                                           e, key, e.getMessage() );
+                    }
+                }
+            }
+        }
+    }
+
+    protected void doExecutionFinished()
+    {
+        for ( final XavenLibrary library : xavenConfiguration.getLibraries().values() )
+        {
+            final Set<ComponentKey> components = library.getManagementComponents( LoadOnFinish.class );
+            if ( components != null && !components.isEmpty() )
+            {
+                final XavenManagementView mgmtView = new EmbedderManagementView( container, xavenConfiguration );
+                for ( final ComponentKey key : components )
+                {
+                    try
+                    {
+                        final LoadOnFinish lof = (LoadOnFinish) container.lookup( key.getRole(), key.getHint() );
+                        lof.executionFinished( mgmtView );
+                    }
+                    catch ( final ComponentLookupException e )
+                    {
+                        logger.error( String.format( "Failed to lookup load-on-start component for initialization: %s.\nReason: %s",
+                                                     key, e.getMessage() ), e );
+                    }
+                }
+            }
         }
     }
 
@@ -417,9 +481,6 @@ public class XavenEmbedder
             logger.info( "Error stacktraces are turned on." );
         }
 
-        //
-        // TODO: move checksum policies to 
-        //
         if ( MavenExecutionRequest.CHECKSUM_POLICY_WARN.equals( request.getGlobalChecksumPolicy() ) )
         {
             logger.info( "Disabling strict checksum verification on all artifact downloads." );
@@ -543,6 +604,60 @@ public class XavenEmbedder
         {
             logSummary( child, references, indent, showErrors );
         }
+    }
+
+    private static final class EmbedderManagementView
+        implements XavenManagementView
+    {
+
+        private final PlexusContainer container;
+
+        private final XavenConfiguration configuration;
+
+        EmbedderManagementView( final PlexusContainer container, final XavenConfiguration configuration )
+        {
+            this.container = container;
+            this.configuration = configuration;
+        }
+
+        @Override
+        public <T> T lookup( final Class<T> role, final String hint )
+            throws XavenManagementException
+        {
+            try
+            {
+                return container.lookup( role, hint );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new XavenManagementException(
+                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: \nReason: %s",
+                                                    e, role, hint, e.getMessage() );
+            }
+        }
+
+        @Override
+        public <T> T lookup( final Class<T> role )
+            throws XavenManagementException
+        {
+            try
+            {
+                return container.lookup( role );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new XavenManagementException(
+                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: \nReason: %s",
+                                                    e, role, PlexusConstants.PLEXUS_DEFAULT_HINT, e.getMessage() );
+            }
+        }
+
+        @Override
+        public XavenConfiguration getConfiguration()
+        {
+            return configuration;
+        }
+
     }
 
 }
