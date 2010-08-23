@@ -176,8 +176,7 @@ public class XavenMain
         cliRequest.builder.withVersion( cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) );
         if ( cliRequest.commandLine.hasOption( XavenCLIManager.XAVEN_DEBUG_LOG_HANDLES ) )
         {
-            cliRequest.builder.withDebugLogHandles( cliRequest.commandLine.getOptionValue(
-                                                                                           XavenCLIManager.XAVEN_DEBUG_LOG_HANDLES )
+            cliRequest.builder.withDebugLogHandles( cliRequest.commandLine.getOptionValue( XavenCLIManager.XAVEN_DEBUG_LOG_HANDLES )
                                                                           .split( "\\s*,\\s*" ) );
         }
 
@@ -325,17 +324,7 @@ public class XavenMain
             cliRequest.builder.xavenConfiguration().nonInteractive();
         }
 
-        boolean pluginUpdateOverride = false;
-
-        if ( commandLine.hasOption( CLIManager.FORCE_PLUGIN_UPDATES )
-            || commandLine.hasOption( CLIManager.FORCE_PLUGIN_UPDATES2 ) )
-        {
-            pluginUpdateOverride = true;
-        }
-        else if ( commandLine.hasOption( CLIManager.SUPPRESS_PLUGIN_UPDATES ) )
-        {
-            pluginUpdateOverride = false;
-        }
+        final boolean pluginUpdateOverride = false;
 
         boolean noSnapshotUpdates = false;
         if ( commandLine.hasOption( CLIManager.SUPRESS_SNAPSHOT_UPDATES ) )
@@ -493,8 +482,6 @@ public class XavenMain
                .setRecursive( recursive )
                // default: true
                .setShowErrors( showErrors )
-               // default: false
-               .setUsePluginUpdateOverride( pluginUpdateOverride )
                .addActiveProfiles( activeProfiles )
                // optional
                .addInactiveProfiles( inactiveProfiles )

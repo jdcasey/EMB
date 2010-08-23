@@ -78,7 +78,6 @@ public class DefaultXavenExecutionRequest
                                                  .setServers( getServers() )
                                                  .setMirrors( getMirrors() )
                                                  .setPluginGroups( getPluginGroups() )
-                                                 .setUsePluginUpdateOverride( isUsePluginUpdateOverride() )
                                                  .setProjectPresent( isProjectPresent() )
                                                  .setUserSettingsFile( getUserSettingsFile() )
                                                  .setGlobalSettingsFile( getGlobalSettingsFile() )
@@ -388,11 +387,6 @@ public class DefaultXavenExecutionRequest
         return embedded.isUpdateSnapshots();
     }
 
-    public boolean isUsePluginUpdateOverride()
-    {
-        return embedded.isUsePluginUpdateOverride();
-    }
-
     public DefaultXavenExecutionRequest setActiveProfiles( final List<String> activeProfiles )
     {
         embedded.setActiveProfiles( activeProfiles );
@@ -495,8 +489,7 @@ public class DefaultXavenExecutionRequest
         return this;
     }
 
-    public DefaultXavenExecutionRequest setPluginArtifactRepositories(
-                                                                       final List<ArtifactRepository> pluginArtifactRepositories )
+    public DefaultXavenExecutionRequest setPluginArtifactRepositories( final List<ArtifactRepository> pluginArtifactRepositories )
     {
         embedded.setPluginArtifactRepositories( pluginArtifactRepositories );
         return this;
@@ -612,12 +605,6 @@ public class DefaultXavenExecutionRequest
     public DefaultXavenExecutionRequest setUpdateSnapshots( final boolean updateSnapshots )
     {
         embedded.setUpdateSnapshots( updateSnapshots );
-        return this;
-    }
-
-    public DefaultXavenExecutionRequest setUsePluginUpdateOverride( final boolean usePluginUpdateOverride )
-    {
-        embedded.setUsePluginUpdateOverride( usePluginUpdateOverride );
         return this;
     }
 

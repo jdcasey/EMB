@@ -249,10 +249,6 @@ public interface XavenExecutionRequest
 
     XavenExecutionRequest addPluginGroups( List<String> pluginGroups );
 
-    boolean isUsePluginUpdateOverride();
-
-    XavenExecutionRequest setUsePluginUpdateOverride( boolean usePluginUpdateOverride );
-
     boolean isProjectPresent();
 
     XavenExecutionRequest setProjectPresent( boolean isProjectPresent );
