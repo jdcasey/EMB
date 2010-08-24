@@ -19,7 +19,9 @@ package org.commonjava.xaven.component.vscheme;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.xaven.XavenAdvisor;
+import org.commonjava.xaven.conf.XavenLibrary;
 import org.commonjava.xaven.conf.mgmt.LoadOnFinish;
 import org.commonjava.xaven.conf.mgmt.LoadOnStart;
 import org.commonjava.xaven.conf.mgmt.XavenManagementView;
@@ -39,6 +41,9 @@ public class VersionSchemeSelector
 
     @Requirement( hint = "default" )
     private VersionScheme defaultVersionScheme;
+
+    @Requirement( hint = "vscheme" )
+    private XavenLibrary library;
 
     @Requirement
     private XavenAdvisor advisor;
@@ -64,14 +69,16 @@ public class VersionSchemeSelector
     public void executionStarting( final XavenManagementView managementView )
     {
         instance.set( this );
+        if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( "Version schemes available: "
+                                           + StringUtils.join( schemes.keySet().iterator(), "\n\t" ) );
+        }
     }
 
     public VersionScheme getVersionScheme()
     {
         final String key = (String) advisor.getRawAdvice( VersionScheme.VERSION_SCHEME_ADVICE );
-
-        final VersionScheme scheme = schemes == null ? null : schemes.get( key );
-        return scheme == null ? defaultVersionScheme : scheme;
+        return schemes == null ? defaultVersionScheme : schemes.get( key );
     }
-
 }

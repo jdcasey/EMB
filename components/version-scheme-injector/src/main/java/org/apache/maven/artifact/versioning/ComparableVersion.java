@@ -22,11 +22,13 @@ package org.apache.maven.artifact.versioning;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -61,6 +63,25 @@ import java.util.Stack;
 public class ComparableVersion
     implements Comparable<ComparableVersion>
 {
+
+    private static final List<String> _QUALIFIERS;
+
+    private static final Map<String, String> ALIASES;
+
+    static
+    {
+        final List<String> quals =
+            Arrays.asList( new String[] { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" } );
+        _QUALIFIERS = Collections.unmodifiableList( quals );
+
+        final Map<String, String> aliases = new HashMap<String, String>();
+        aliases.put( "ga", "" );
+        aliases.put( "final", "" );
+        aliases.put( "cr", "rc" );
+
+        ALIASES = Collections.unmodifiableMap( aliases );
+    }
+
     private String value;
 
     private String canonical;
@@ -150,28 +171,17 @@ public class ComparableVersion
     protected static class StringItem
         implements Item
     {
-        private static final String[] QUALIFIERS = { "alpha", "beta", "milestone", "rc", "snapshot", "", "sp" };
-
-        private static final List<String> _QUALIFIERS = Arrays.asList( QUALIFIERS );
-
-        private static final Properties ALIASES = new Properties();
-        static
-        {
-            ALIASES.put( "ga", "" );
-            ALIASES.put( "final", "" );
-            ALIASES.put( "cr", "rc" );
-        }
-
-        /**
-         * A comparable value for the empty-string qualifier. This one is used to determine if a given qualifier makes
-         * the version older than one without a qualifier, or more recent.
-         */
-        private static final String RELEASE_VERSION_INDEX = String.valueOf( _QUALIFIERS.indexOf( "" ) );
-
         private final String value;
 
-        public StringItem( String value, final boolean followedByDigit )
+        private final List<String> stringQualifiers;
+
+        private final String releaseVersionIndex;
+
+        public StringItem( String value, final boolean followedByDigit, final List<String> stringQualifiers,
+                           final Map<String, String> stringAliases )
         {
+            this.stringQualifiers = stringQualifiers;
+
             if ( followedByDigit && value.length() == 1 )
             {
                 // a1 = alpha-1, b1 = beta-1, m1 = milestone-1
@@ -188,7 +198,11 @@ public class ComparableVersion
                         break;
                 }
             }
-            this.value = ALIASES.getProperty( value, value );
+
+            final String val = stringAliases.get( value );
+            this.value = val == null ? value : val;
+
+            releaseVersionIndex = String.valueOf( stringQualifiers.indexOf( "" ) );
         }
 
         public int getType()
@@ -198,7 +212,7 @@ public class ComparableVersion
 
         public boolean isNull()
         {
-            return ( comparableQualifier( value ).compareTo( RELEASE_VERSION_INDEX ) == 0 );
+            return ( comparableQualifier( value ).compareTo( releaseVersionIndex ) == 0 );
         }
 
         /**
@@ -214,11 +228,11 @@ public class ComparableVersion
          * @param qualifier
          * @return an equivalent value that can be used with lexical comparison
          */
-        public static String comparableQualifier( final String qualifier )
+        public String comparableQualifier( final String qualifier )
         {
-            final int i = _QUALIFIERS.indexOf( qualifier );
+            final int i = stringQualifiers.indexOf( qualifier );
 
-            return i == -1 ? _QUALIFIERS.size() + "-" + qualifier : String.valueOf( i );
+            return i == -1 ? stringQualifiers.size() + "-" + qualifier : String.valueOf( i );
         }
 
         public int compareTo( final Item item )
@@ -226,7 +240,7 @@ public class ComparableVersion
             if ( item == null )
             {
                 // 1-rc < 1, 1-ga > 1
-                return comparableQualifier( value ).compareTo( RELEASE_VERSION_INDEX );
+                return comparableQualifier( value ).compareTo( releaseVersionIndex );
             }
             switch ( item.getType() )
             {
@@ -348,6 +362,10 @@ public class ComparableVersion
         }
     }
 
+    protected ComparableVersion()
+    {
+    }
+
     public ComparableVersion( final String version )
     {
         parseVersion( version );
@@ -416,7 +434,8 @@ public class ComparableVersion
             {
                 if ( !isDigit && i > startIndex )
                 {
-                    list.add( new StringItem( version.substring( startIndex, i ), true ) );
+                    list.add( new StringItem( version.substring( startIndex, i ), true, getStringQualifiers(),
+                                              getStringAliases() ) );
                     startIndex = i;
                 }
 
@@ -448,9 +467,10 @@ public class ComparableVersion
         canonical = items.toString();
     }
 
-    private static Item parseItem( final boolean isDigit, final String buf )
+    private Item parseItem( final boolean isDigit, final String buf )
     {
-        return isDigit ? new IntegerItem( buf ) : new StringItem( buf, false );
+        return isDigit ? new IntegerItem( buf )
+                        : new StringItem( buf, false, getStringQualifiers(), getStringAliases() );
     }
 
     public int compareTo( final ComparableVersion o )
@@ -474,5 +494,25 @@ public class ComparableVersion
     public int hashCode()
     {
         return canonical.hashCode();
+    }
+
+    protected Map<String, String> getStringAliases()
+    {
+        return getBaseAliases();
+    }
+
+    protected List<String> getStringQualifiers()
+    {
+        return getBaseQualifiers();
+    }
+
+    protected static Map<String, String> getBaseAliases()
+    {
+        return ALIASES;
+    }
+
+    protected static List<String> getBaseQualifiers()
+    {
+        return _QUALIFIERS;
     }
 }

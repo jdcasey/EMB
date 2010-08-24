@@ -7,7 +7,7 @@
     <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>version-scheme-injector</artifactId>
+  <artifactId>xaven-version-scheme-injector</artifactId>
 
   <name>Xaven Version-Scheme Injector</name>
   <description>Injector to provide support for alternative versioning schemes in Xaven.</description>

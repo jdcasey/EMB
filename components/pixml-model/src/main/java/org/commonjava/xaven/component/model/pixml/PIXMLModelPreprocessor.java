@@ -78,7 +78,7 @@ public class PIXMLModelPreprocessor
     private void preProcess( final XMLStreamReader reader )
         throws IOException
     {
-        advisor.clearAdvice();
+        //        advisor.clearAdvice();
 
         try
         {

@@ -18,6 +18,10 @@ public class XavenAdvisor
 
     public void clearAdvice()
     {
+        if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( this + ": CLEAR ADVICE" );
+        }
         advice.clear();
     }
 
@@ -25,7 +29,10 @@ public class XavenAdvisor
     {
         if ( override || !advice.containsKey( key ) )
         {
-            library.getLogger().debug( "NEW ADVICE: " + key + " = " + value );
+            if ( library.getLogger().isDebugEnabled() )
+            {
+                library.getLogger().debug( this + ": NEW ADVICE: " + key + " = " + value );
+            }
             advice.put( key, value );
         }
 
@@ -34,6 +41,10 @@ public class XavenAdvisor
 
     public Object getRawAdvice( final String key )
     {
+        if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( this + ": GET ADVICE: " + key + " = " + advice.get( key ) );
+        }
         return advice.get( key );
     }
 

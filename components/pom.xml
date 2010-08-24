@@ -54,6 +54,8 @@
     <module>xaven-recording-resolver</module>
     <!-- <module>xaven-resolve-decorators</module>
     <module>xaven-redirector-resolver</module> -->
+    <module>pixml-model</module>
+    <module>version-scheme-injector</module>
     <module>maven-scm-support</module>
   </modules>
   
@@ -62,8 +64,7 @@
       <id>experimental</id>
       
       <modules>
-        <module>pixml-model</module>
-        <module>version-scheme-injector</module>
+        <module>version-finder</module>
       </modules>
     </profile>
   </profiles>

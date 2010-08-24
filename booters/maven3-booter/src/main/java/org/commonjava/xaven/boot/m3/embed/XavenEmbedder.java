@@ -47,7 +47,10 @@ import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -631,7 +634,7 @@ public class XavenEmbedder
             catch ( final ComponentLookupException e )
             {
                 throw new XavenManagementException(
-                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: \nReason: %s",
+                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
                                                     e, role, hint, e.getMessage() );
             }
         }
@@ -647,7 +650,7 @@ public class XavenEmbedder
             catch ( final ComponentLookupException e )
             {
                 throw new XavenManagementException(
-                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: \nReason: %s",
+                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
                                                     e, role, PlexusConstants.PLEXUS_DEFAULT_HINT, e.getMessage() );
             }
         }
@@ -656,6 +659,38 @@ public class XavenEmbedder
         public XavenConfiguration getConfiguration()
         {
             return configuration;
+        }
+
+        @Override
+        public <T> Map<String, T> lookupMap( final Class<T> role, final String... hints )
+            throws XavenManagementException
+        {
+            try
+            {
+                return container.lookupMap( role, hints == null ? new ArrayList<String>() : Arrays.asList( hints ) );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new XavenManagementException(
+                                                    "Failed to lookup component-map for managed component.\nRole: %s\nHints: %s\nReason: %s",
+                                                    e, role, StringUtils.join( hints, "," ), e.getMessage() );
+            }
+        }
+
+        @Override
+        public <T> List<T> lookupList( final Class<T> role, final String... hints )
+            throws XavenManagementException
+        {
+            try
+            {
+                return container.lookupList( role, hints == null ? new ArrayList<String>() : Arrays.asList( hints ) );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new XavenManagementException(
+                                                    "Failed to lookup component-list for managed component.\nRole: %s\nHints: %s\nReason: %s",
+                                                    e, role, StringUtils.join( hints, "," ), e.getMessage() );
+            }
         }
 
     }
