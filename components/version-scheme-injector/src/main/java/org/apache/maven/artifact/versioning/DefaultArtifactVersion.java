@@ -19,10 +19,7 @@ package org.apache.maven.artifact.versioning;
  * under the License.
  */
 
-import org.commonjava.xaven.component.vscheme.VersionScheme;
-import org.commonjava.xaven.component.vscheme.VersionSchemeSelector;
-
-import java.util.StringTokenizer;
+import org.commonjava.xaven.component.vscheme.SchemeAwareArtifactVersion;
 
 /**
  * Default implementation of artifact versioning.
@@ -35,213 +32,65 @@ import java.util.StringTokenizer;
 public class DefaultArtifactVersion
     implements ArtifactVersion
 {
-    private Integer majorVersion;
 
-    private Integer minorVersion;
-
-    private Integer incrementalVersion;
-
-    private Integer buildNumber;
-
-    private String qualifier;
-
-    private ComparableVersion comparable;
+    private final SchemeAwareArtifactVersion version;
 
     public DefaultArtifactVersion( final String version )
     {
-        parseVersion( version );
+        this.version = new SchemeAwareArtifactVersion( version );
     }
 
     @Override
     public int hashCode()
     {
-        return 11 + comparable.hashCode();
+        return version.hashCode();
     }
 
     @Override
     public boolean equals( final Object other )
     {
-        if ( this == other )
-        {
-            return true;
-        }
-
-        if ( !( other instanceof ArtifactVersion ) )
-        {
-            return false;
-        }
-
-        return compareTo( other ) == 0;
+        return version.equals( other );
     }
 
     public int compareTo( final Object o )
     {
-        final DefaultArtifactVersion otherVersion = (DefaultArtifactVersion) o;
-        return comparable.compareTo( otherVersion.comparable );
+        return version.compareTo( o );
     }
 
     public int getMajorVersion()
     {
-        return majorVersion != null ? majorVersion : 0;
+        return version.getMajorVersion();
     }
 
     public int getMinorVersion()
     {
-        return minorVersion != null ? minorVersion : 0;
+        return version.getMinorVersion();
     }
 
     public int getIncrementalVersion()
     {
-        return incrementalVersion != null ? incrementalVersion : 0;
+        return version.getIncrementalVersion();
     }
 
     public int getBuildNumber()
     {
-        return buildNumber != null ? buildNumber : 0;
+        return version.getBuildNumber();
     }
 
     public String getQualifier()
     {
-        return qualifier;
+        return version.getQualifier();
     }
 
     public final void parseVersion( final String version )
     {
-        final VersionScheme scheme = VersionSchemeSelector.getCurrentVersionScheme();
-        comparable = scheme.getVersionComparator( version );
-
-        final int index = version.indexOf( "-" );
-
-        String part1;
-        String part2 = null;
-
-        if ( index < 0 )
-        {
-            part1 = version;
-        }
-        else
-        {
-            part1 = version.substring( 0, index );
-            part2 = version.substring( index + 1 );
-        }
-
-        if ( part2 != null )
-        {
-            try
-            {
-                if ( ( part2.length() == 1 ) || !part2.startsWith( "0" ) )
-                {
-                    buildNumber = Integer.valueOf( part2 );
-                }
-                else
-                {
-                    qualifier = part2;
-                }
-            }
-            catch ( final NumberFormatException e )
-            {
-                qualifier = part2;
-            }
-        }
-
-        if ( ( part1.indexOf( "." ) < 0 ) && !part1.startsWith( "0" ) )
-        {
-            try
-            {
-                majorVersion = Integer.valueOf( part1 );
-            }
-            catch ( final NumberFormatException e )
-            {
-                // qualifier is the whole version, including "-"
-                qualifier = version;
-                buildNumber = null;
-            }
-        }
-        else
-        {
-            boolean fallback = false;
-
-            final StringTokenizer tok = new StringTokenizer( part1, "." );
-            try
-            {
-                majorVersion = getNextIntegerToken( tok );
-                if ( tok.hasMoreTokens() )
-                {
-                    minorVersion = getNextIntegerToken( tok );
-                }
-                if ( tok.hasMoreTokens() )
-                {
-                    incrementalVersion = getNextIntegerToken( tok );
-                }
-                if ( tok.hasMoreTokens() )
-                {
-                    fallback = true;
-                }
-
-                // string tokenzier won't detect these and ignores them
-                if ( part1.indexOf( ".." ) >= 0 || part1.startsWith( "." ) || part1.endsWith( "." ) )
-                {
-                    fallback = true;
-                }
-            }
-            catch ( final NumberFormatException e )
-            {
-                fallback = true;
-            }
-
-            if ( fallback )
-            {
-                // qualifier is the whole version, including "-"
-                qualifier = version;
-                majorVersion = null;
-                minorVersion = null;
-                incrementalVersion = null;
-                buildNumber = null;
-            }
-        }
-    }
-
-    private static Integer getNextIntegerToken( final StringTokenizer tok )
-    {
-        final String s = tok.nextToken();
-        if ( ( s.length() > 1 ) && s.startsWith( "0" ) )
-        {
-            throw new NumberFormatException( "Number part has a leading 0: '" + s + "'" );
-        }
-        return Integer.valueOf( s );
+        this.version.parseVersion( version );
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder buf = new StringBuilder();
-        if ( majorVersion != null )
-        {
-            buf.append( majorVersion );
-        }
-        if ( minorVersion != null )
-        {
-            buf.append( "." );
-            buf.append( minorVersion );
-        }
-        if ( incrementalVersion != null )
-        {
-            buf.append( "." );
-            buf.append( incrementalVersion );
-        }
-        if ( buildNumber != null )
-        {
-            buf.append( "-" );
-            buf.append( buildNumber );
-        }
-        else if ( qualifier != null )
-        {
-            if ( buf.length() > 0 )
-            {
-                buf.append( "-" );
-            }
-            buf.append( qualifier );
-        }
-        return buf.toString();
+        return version.toString();
     }
+
 }

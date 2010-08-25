@@ -17,20 +17,32 @@
 
 package org.commonjava.xaven.component.vscheme;
 
-import java.util.Comparator;
+import org.commonjava.xaven.XavenException;
 
-public interface VersionScheme
+public class XavenArtifactVersionException
+    extends XavenException
 {
 
-    String VERSION_SCHEME_ADVICE = "version-scheme";
+    private static final long serialVersionUID = 1L;
 
-    String DEFAULT_KEY = "default";
+    public XavenArtifactVersionException( final String message, final Object... params )
+    {
+        super( message, params );
+    }
 
-    VersionComparison getComparableVersion( String version );
+    public XavenArtifactVersionException( final String message, final Throwable cause, final Object... params )
+    {
+        super( message, cause, params );
+    }
 
-    Comparator<String> getVersionStringComparator();
+    public XavenArtifactVersionException( final String message, final Throwable cause )
+    {
+        super( message, cause );
+    }
 
-    SchemeAwareVersionRange createRange( String versionRange )
-        throws XavenArtifactVersionException;
+    public XavenArtifactVersionException( final String message )
+    {
+        super( message );
+    }
 
 }

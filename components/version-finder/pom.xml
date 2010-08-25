@@ -65,6 +65,11 @@
       <version>0.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+    	<groupId>${project.groupId}</groupId>
+    	<artifactId>xaven-version-scheme-injector</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
   </dependencies>
   
   <build>

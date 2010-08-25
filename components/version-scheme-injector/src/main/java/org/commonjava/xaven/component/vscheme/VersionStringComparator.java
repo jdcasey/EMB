@@ -17,20 +17,26 @@
 
 package org.commonjava.xaven.component.vscheme;
 
+
 import java.util.Comparator;
 
-public interface VersionScheme
+public class VersionStringComparator
+    implements Comparator<String>
 {
 
-    String VERSION_SCHEME_ADVICE = "version-scheme";
+    private final VersionScheme scheme;
 
-    String DEFAULT_KEY = "default";
+    public VersionStringComparator( final VersionScheme scheme )
+    {
+        this.scheme = scheme;
+    }
 
-    VersionComparison getComparableVersion( String version );
-
-    Comparator<String> getVersionStringComparator();
-
-    SchemeAwareVersionRange createRange( String versionRange )
-        throws XavenArtifactVersionException;
+    @Override
+    public int compare( final String one, final String two )
+    {
+        final VersionComparison first = scheme.getComparableVersion( one );
+        final VersionComparison second = scheme.getComparableVersion( two );
+        return first.compareTo( second );
+    }
 
 }

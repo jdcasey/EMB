@@ -1,4 +1,4 @@
-package org.apache.maven.artifact.versioning;
+package org.commonjava.xaven.component.vscheme;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -60,8 +60,8 @@ import java.util.Stack;
  * 
  * Forked from maven 3.0-beta-2
  */
-public class ComparableVersion
-    implements Comparable<ComparableVersion>
+public class VersionComparison
+    implements Comparable<VersionComparison>
 {
 
     private static final List<String> _QUALIFIERS;
@@ -362,11 +362,11 @@ public class ComparableVersion
         }
     }
 
-    protected ComparableVersion()
+    protected VersionComparison()
     {
     }
 
-    public ComparableVersion( final String version )
+    public VersionComparison( final String version )
     {
         parseVersion( version );
     }
@@ -473,7 +473,7 @@ public class ComparableVersion
                         : new StringItem( buf, false, getStringQualifiers(), getStringAliases() );
     }
 
-    public int compareTo( final ComparableVersion o )
+    public int compareTo( final VersionComparison o )
     {
         return items.compareTo( o.items );
     }
@@ -487,7 +487,7 @@ public class ComparableVersion
     @Override
     public boolean equals( final Object o )
     {
-        return ( o instanceof ComparableVersion ) && canonical.equals( ( (ComparableVersion) o ).canonical );
+        return ( o instanceof VersionComparison ) && canonical.equals( ( (VersionComparison) o ).canonical );
     }
 
     @Override

@@ -39,7 +39,7 @@ public class VersionSchemeSelector
     @Requirement( role = VersionScheme.class )
     private Map<String, VersionScheme> schemes;
 
-    @Requirement( hint = "default" )
+    @Requirement( hint = VersionScheme.DEFAULT_KEY )
     private VersionScheme defaultVersionScheme;
 
     @Requirement( hint = "vscheme" )
@@ -48,7 +48,12 @@ public class VersionSchemeSelector
     @Requirement
     private XavenAdvisor advisor;
 
-    public static VersionScheme getCurrentVersionScheme()
+    public static VersionScheme getTLCurrentVersionScheme()
+    {
+        return selector().getCurrentVersionScheme();
+    }
+
+    private static VersionSchemeSelector selector()
     {
         final VersionSchemeSelector sel = instance.get();
         if ( sel == null )
@@ -56,7 +61,12 @@ public class VersionSchemeSelector
             throw new IllegalStateException( "VersionSchemeSelector is only available during Xaven builds." );
         }
 
-        return sel.getVersionScheme();
+        return sel;
+    }
+
+    public static VersionScheme getTLVersionScheme( final String versionScheme )
+    {
+        return selector().getVersionScheme( versionScheme );
     }
 
     @Override
@@ -76,9 +86,37 @@ public class VersionSchemeSelector
         }
     }
 
-    public VersionScheme getVersionScheme()
+    public VersionScheme getCurrentVersionScheme()
     {
         final String key = (String) advisor.getRawAdvice( VersionScheme.VERSION_SCHEME_ADVICE );
-        return schemes == null ? defaultVersionScheme : schemes.get( key );
+
+        return getVersionScheme( key );
     }
+
+    public VersionScheme getVersionScheme( final String key )
+    {
+        VersionScheme scheme = null;
+        if ( key != null )
+        {
+            if ( schemes == null || !schemes.containsKey( key ) )
+            {
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().debug( "Version-scheme map is missing or doesn't contain key: " + key
+                                                   + ". Using default." );
+                }
+            }
+            else
+            {
+                scheme = schemes.get( key );
+            }
+        }
+        else if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( "No version scheme has been selected. Using default." );
+        }
+
+        return scheme == null ? defaultVersionScheme : scheme;
+    }
+
 }

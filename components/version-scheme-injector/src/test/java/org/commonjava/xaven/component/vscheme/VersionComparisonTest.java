@@ -1,4 +1,4 @@
-package org.apache.maven.artifact.versioning;
+package org.commonjava.xaven.component.vscheme;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -35,12 +35,12 @@ import java.util.Locale;
  * Forked from maven 3.0-beta-2
  */
 @SuppressWarnings( "unchecked" )
-public class ComparableVersionTest
+public class VersionComparisonTest
 {
     @SuppressWarnings( "rawtypes" )
     private Comparable newComparable( final String version )
     {
-        return new ComparableVersion( version );
+        return new VersionComparison( version );
     }
 
     private static final String[] VERSIONS_QUALIFIER = { "1-alpha2snapshot", "1-alpha2", "1-alpha-123", "1-beta-2",
@@ -207,10 +207,11 @@ public class ComparableVersionTest
         }
     }
 
+    @SuppressWarnings( "rawtypes" )
     @Test
     public void testReuse()
     {
-        final ComparableVersion c1 = new ComparableVersion( "1" );
+        final VersionComparison c1 = new VersionComparison( "1" );
         c1.parseVersion( "2" );
 
         final Comparable c2 = newComparable( "2" );

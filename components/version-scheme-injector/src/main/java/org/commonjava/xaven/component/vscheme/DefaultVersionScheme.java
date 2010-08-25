@@ -17,18 +17,48 @@
 
 package org.commonjava.xaven.component.vscheme;
 
-import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.codehaus.plexus.component.annotations.Component;
 
-@Component( role = VersionScheme.class, hint = "default" )
+import java.util.Comparator;
+
+@Component( role = VersionScheme.class, hint = VersionScheme.DEFAULT_KEY )
 public class DefaultVersionScheme
     implements VersionScheme
 {
 
     @Override
-    public ComparableVersion getVersionComparator( final String version )
+    public VersionComparison getComparableVersion( final String version )
     {
-        return new ComparableVersion( version );
+        return new VersionComparison( version );
+    }
+
+    @Override
+    public Comparator<String> getVersionStringComparator()
+    {
+        return new VersionStringComparator( this );
+    }
+
+    @Override
+    public SchemeAwareVersionRange createRange( final String version )
+        throws XavenArtifactVersionException
+    {
+        if ( SchemeAwareVersionRange.isRange( version ) )
+        {
+            try
+            {
+                return SchemeAwareVersionRange.createFromVersionSpec( version, this );
+            }
+            catch ( final InvalidVersionSpecificationException e )
+            {
+                throw new XavenArtifactVersionException( "Failed to create range from specification: %s. Reason: %s",
+                                                         e, version, e.getMessage() );
+            }
+        }
+        else
+        {
+            return SchemeAwareVersionRange.createFromVersion( version, this );
+        }
     }
 
 }

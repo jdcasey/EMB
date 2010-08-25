@@ -11,11 +11,14 @@ import org.commonjava.xaven.plexus.ComponentKey;
 public class VersionFinderLibrary
     extends AbstractXavenLibrary
 {
+
+    public static final String KEY = "vfind";
+
     // Requires an empty constructor for ServiceLoader to work!
     public VersionFinderLibrary()
     {
-        super( "vfind", "Version-Finder", new MavenPomVersionProvider( "org.commonjava.xaven.components",
-                                                                       "xaven-version-finder" ) );
+        super( KEY, "Version-Finder", new MavenPomVersionProvider( "org.commonjava.xaven.components",
+                                                                   "xaven-version-finder" ) );
         withExportedComponent( new ComponentKey( VersionFinder.class ) );
     }
 }
