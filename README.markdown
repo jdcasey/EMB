@@ -43,6 +43,7 @@ You can use allowed Maven components via the ServiceManager. For instance, to re
 Or, to build a set of MavenProject instances from POM files:
 
     EMBEmbeder emb = new EMBEmbedderBuilder().build();
+    
     ProjectBuildingRequest req = new DefaultProjectBuildingRequest()
                                       .setSystemProperties( System.getProperties() )
                                       .setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL )
@@ -54,4 +55,10 @@ Or, to build a set of MavenProject instances from POM files:
                                                               .createLocalRepository( new File( workDir, "local-repository" ) ) );
                              
     List<ProjectBuildingResult> results = emb.serviceManager().projectBuilder().build( pomFiles, useReactor, req );
+    
+    List<MavenProject> projects = new ArrayList<MavenProject>( pomFiles.size() );
+    for ( final ProjectBuildingResult result : results )
+    {
+        projects.add( result.getProject() );
+    }
 
