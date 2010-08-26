@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven</artifactId>
-    <groupId>org.commonjava.xaven</groupId>
+    <artifactId>emb</artifactId>
+    <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.xaven.bom</groupId>
-  <artifactId>xaven-boms</artifactId>
+  <groupId>org.commonjava.emb.bom</groupId>
+  <artifactId>emb-boms</artifactId>
   <packaging>pom</packaging>
   
   <modules>
@@ -18,19 +18,19 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.xaven.event</groupId>
-        <artifactId>xaven-event-api</artifactId>
+        <groupId>org.commonjava.emb.event</groupId>
+        <artifactId>emb-event-api</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.xaven</groupId>
-        <artifactId>xaven-api</artifactId>
+        <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-api</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
     
-      <!-- NOTE: These MUST be provided by xaven infrastructure! -->
+      <!-- NOTE: These MUST be provided by emb infrastructure! -->
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>

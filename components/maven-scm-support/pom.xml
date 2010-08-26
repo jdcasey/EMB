@@ -3,21 +3,21 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-components</artifactId>
-    <groupId>org.commonjava.xaven.components</groupId>
+    <artifactId>emb-components</artifactId>
+    <groupId>org.commonjava.emb.components</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
   <artifactId>maven-scm-support</artifactId>
   
-  <name>Xaven Service Export for Maven-SCM</name>
+  <name>EMB Service Export for Maven-SCM</name>
   
   <description>Exports provider, manager, and other related components from maven-scm.</description>
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.xaven</groupId>
-        <artifactId>xaven-api</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-api</artifactId>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

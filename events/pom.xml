@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven</artifactId>
-    <groupId>org.commonjava.xaven</groupId>
+    <artifactId>emb</artifactId>
+    <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.xaven.event</groupId>
-  <artifactId>xaven-events</artifactId>
+  <groupId>org.commonjava.emb.event</groupId>
+  <artifactId>emb-events</artifactId>
   <packaging>pom</packaging>
   
   <modules>
@@ -19,16 +19,16 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-boms</artifactId>
+        <groupId>org.commonjava.emb.bom</groupId>
+        <artifactId>emb-boms</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       
       <dependency>
-        <groupId>org.commonjava.xaven.event</groupId>
-        <artifactId>xaven-event-api</artifactId>
+        <groupId>org.commonjava.emb.event</groupId>
+        <artifactId>emb-event-api</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-events</artifactId>
-    <groupId>org.commonjava.xaven.event</groupId>
+    <artifactId>emb-events</artifactId>
+    <groupId>org.commonjava.emb.event</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>xaven-resolver-events</artifactId>
-  <name>Xaven Artifact Resolver Event Source</name>
+  <artifactId>emb-resolver-events</artifactId>
+  <name>EMB Artifact Resolver Event Source</name>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-maven3-bom</artifactId>
+        <groupId>org.commonjava.emb.bom</groupId>
+        <artifactId>emb-maven3-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -25,7 +25,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>xaven-event-api</artifactId>
+      <artifactId>emb-event-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -36,8 +36,8 @@
       <artifactId>junit</artifactId>
     </dependency>
     <dependency>
-    	<groupId>org.commonjava.xaven</groupId>
-    	<artifactId>xaven-api</artifactId>
+    	<groupId>org.commonjava.emb</groupId>
+    	<artifactId>emb-api</artifactId>
     </dependency>
   </dependencies>
   

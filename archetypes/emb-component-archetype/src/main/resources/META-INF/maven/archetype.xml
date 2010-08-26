@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><archetype>
+  <id>emb-component-proto-archetype</id>
+  <sources>
+    <source>src/main/java/AppMirrorSelector.java</source>
+    <source>src/main/java/conf/AppIntegrationConfigLoader.java</source>
+    <source>src/main/java/conf/AppIntegrationConfiguration.java</source>
+    <source>src/main/java/conf/AppIntegrationLibrary.java</source>
+  </sources>
+</archetype>

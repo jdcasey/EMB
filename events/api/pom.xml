@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-events</artifactId>
-    <groupId>org.commonjava.xaven.event</groupId>
+    <artifactId>emb-events</artifactId>
+    <groupId>org.commonjava.emb.event</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>xaven-event-api</artifactId>
-  <name>Xaven Event API</name>
+  <artifactId>emb-event-api</artifactId>
+  <name>EMB Event API</name>
   
   <dependencies>
     <dependency>
@@ -27,8 +27,8 @@
     	<version>1.5.4</version>
     </dependency>
     <dependency>
-    	<groupId>org.commonjava.xaven</groupId>
-    	<artifactId>xaven-api</artifactId>
+    	<groupId>org.commonjava.emb</groupId>
+    	<artifactId>emb-api</artifactId>
     </dependency>
   </dependencies>
   

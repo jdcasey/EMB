@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-components</artifactId>
-    <groupId>org.commonjava.xaven.components</groupId>
+    <artifactId>emb-components</artifactId>
+    <groupId>org.commonjava.emb.components</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>xaven-version-scheme-injector</artifactId>
+  <artifactId>emb-version-scheme-injector</artifactId>
 
-  <name>Xaven Version-Scheme Injector</name>
-  <description>Injector to provide support for alternative versioning schemes in Xaven.</description>
+  <name>EMB Version-Scheme Injector</name>
+  <description>Injector to provide support for alternative versioning schemes in EMB.</description>
 
   <dependencies>
     <dependency>

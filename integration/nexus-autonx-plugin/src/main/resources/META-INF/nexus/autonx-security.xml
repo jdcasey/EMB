@@ -14,7 +14,7 @@
       <id>autonx-mirrors</id>
       <type>method</type>
       <name>AutoNX: mirror-access</name>
-      <description>Access to proxied URLs for auto-configuring mirrors in Xaven.</description>
+      <description>Access to proxied URLs for auto-configuring mirrors in EMB.</description>
       <properties>
         <property>
           <key>method</key>

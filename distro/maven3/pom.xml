@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>xaven-distro</artifactId>
-    <groupId>org.commonjava.xaven</groupId>
+    <artifactId>emb-distro</artifactId>
+    <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
-  <artifactId>xaven-maven3</artifactId>
+  <artifactId>emb-maven3</artifactId>
   <packaging>pom</packaging>
   
-  <name>Xaven Maven-3 Distribution</name>
+  <name>EMB Maven-3 Distribution</name>
   
   <dependencyManagement>
     <dependencies>
@@ -25,8 +25,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.xaven</groupId>
-      <artifactId>xaven-distro-commons</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-distro-commons</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -83,7 +83,7 @@
               <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-              <includeArtifactIds>xaven-distro-commons</includeArtifactIds>
+              <includeArtifactIds>emb-distro-commons</includeArtifactIds>
               <outputDirectory>${project.build.directory}/commons</outputDirectory>
             </configuration>
           </execution>
@@ -94,8 +94,8 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <dependencies>
           <dependency>
-            <groupId>org.commonjava.xaven</groupId>
-            <artifactId>xaven-assembly-descriptors</artifactId>
+            <groupId>org.commonjava.emb</groupId>
+            <artifactId>emb-assembly-descriptors</artifactId>
             <version>${project.version}</version>
           </dependency>
         </dependencies>
@@ -108,7 +108,7 @@
             </goals>
             <configuration>
               <descriptorRefs>
-                <descriptorRef>xaven-distro</descriptorRef>
+                <descriptorRef>emb-distro</descriptorRef>
               </descriptorRefs>
             </configuration>
           </execution>

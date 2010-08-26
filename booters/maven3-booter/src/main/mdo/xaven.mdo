@@ -21,28 +21,28 @@
 
 <model xmlns="http://modello.codehaus.org/MODELLO/1.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://modello.codehaus.org/MODELLO/1.2.0 http://modello.codehaus.org/xsd/modello-1.2.0.xsd"
-  xml.namespace="http://xaven.org/CONFIG/${version}"
-  xml.schemaLocation="http://xaven.org/xsd/xaven-${version}.xsd">
-  <id>xaven</id>
-  <name>Xaven</name>
+  xml.namespace="http://emb.org/CONFIG/${version}"
+  xml.schemaLocation="http://emb.org/xsd/emb-${version}.xsd">
+  <id>emb</id>
+  <name>EMB</name>
   <description>
     <![CDATA[
-    <p>This is a reference for the Xaven configuration descriptor used to extend Maven.</p>
-    <p>An XSD is available at: <a href="http://xaven.org/xsd/xaven-1.0.0.xsd">http://xaven.org/xsd/xaven-1.0.0.xsd</a>
+    <p>This is a reference for the EMB configuration descriptor used to extend Maven.</p>
+    <p>An XSD is available at: <a href="http://emb.org/xsd/emb-1.0.0.xsd">http://emb.org/xsd/emb-1.0.0.xsd</a>
     ]]>
   </description>
   <defaults>
     <default>
       <key>package</key>
-      <value>org.commonjava.xaven.config.model</value>
+      <value>org.commonjava.emb.config.model</value>
     </default>
   </defaults>
   <classes>
-    <class rootElement="true" xml.tagName="xaven" java.clone.hook="cloneHook">
-      <name>XavenModel</name>
+    <class rootElement="true" xml.tagName="emb" java.clone.hook="cloneHook">
+      <name>EMBModel</name>
       <description>
         <![CDATA[
-        The <code>&lt;xaven&gt;</code> element is the root of the descriptor.
+        The <code>&lt;emb&gt;</code> element is the root of the descriptor.
         The following table lists all of the possible child elements.
         ]]>
       </description>
@@ -54,7 +54,7 @@
           <version>4.0.0</version>
           <description>
             <![CDATA[
-            Series of mappings that allows Xaven to select components to substitute in place of the defaults used in Maven.
+            Series of mappings that allows EMB to select components to substitute in place of the defaults used in Maven.
             Formats supported include:
             <ul>
               <li><code>component.Role#hint=new-hint</code></li>

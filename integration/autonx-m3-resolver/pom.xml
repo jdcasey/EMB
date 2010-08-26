@@ -2,21 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.commonjava.xaven.integration</groupId>
-    <artifactId>xaven-integration</artifactId>
+    <groupId>org.commonjava.emb.integration</groupId>
+    <artifactId>emb-integration</artifactId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>xaven-autonx-m3-resolver</artifactId>
-  <name>Xaven AutoNX Resolver for Maven3</name>
+  <artifactId>emb-autonx-m3-resolver</artifactId>
+  <name>EMB AutoNX Resolver for Maven3</name>
   
   <description>Auto-detect and auto-configure Maven to work with a Nexus instance.</description>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-maven3-bom</artifactId>
+        <groupId>org.commonjava.emb.bom</groupId>
+        <artifactId>emb-maven3-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -26,8 +26,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.xaven</groupId>
-      <artifactId>xaven-api</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-api</artifactId>
     </dependency>
     <dependency>
     	<groupId>org.apache.maven</groupId>

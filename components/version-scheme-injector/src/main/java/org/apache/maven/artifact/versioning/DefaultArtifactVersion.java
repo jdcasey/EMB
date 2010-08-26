@@ -19,7 +19,7 @@ package org.apache.maven.artifact.versioning;
  * under the License.
  */
 
-import org.commonjava.xaven.component.vscheme.SchemeAwareArtifactVersion;
+import org.commonjava.emb.component.vscheme.SchemeAwareArtifactVersion;
 
 /**
  * Default implementation of artifact versioning.
