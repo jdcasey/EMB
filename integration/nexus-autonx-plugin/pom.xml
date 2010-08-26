@@ -4,8 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.commonjava.xaven.integration</groupId>
-    <artifactId>xaven-integration</artifactId>
+    <groupId>org.commonjava.emb.integration</groupId>
+    <artifactId>emb-integration</artifactId>
     <version>0.3-b2-SNAPSHOT</version>
   </parent>
   
@@ -13,7 +13,7 @@
 
   <packaging>nexus-plugin</packaging>
 
-  <name>Xaven Auto-Configure Nexus Plugin</name>
+  <name>EMB Auto-Configure Nexus Plugin</name>
 
   <properties>
     <nexus-version>1.7.0</nexus-version>

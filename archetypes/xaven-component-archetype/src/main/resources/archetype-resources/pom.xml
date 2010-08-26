@@ -10,7 +10,7 @@
 
   <properties>
     <mavenVersion>@mavenVersion@</mavenVersion>
-    <xavenVersion>@project.version@</xavenVersion>
+    <embVersion>@project.version@</embVersion>
   </properties>
 
   <dependencyManagement>
@@ -23,9 +23,9 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-maven3-bom</artifactId>
-        <version>${xavenVersion}</version>
+        <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-bom</artifactId>
+        <version>${embVersion}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -34,8 +34,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.xaven</groupId>
-      <artifactId>xaven-api</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

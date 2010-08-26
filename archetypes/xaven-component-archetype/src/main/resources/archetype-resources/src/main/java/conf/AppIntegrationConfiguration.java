@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${package}.conf;
 
-import org.commonjava.xaven.conf.ext.ExtensionConfiguration;
+import org.commonjava.emb.conf.ext.ExtensionConfiguration;
 
 public class AppIntegrationConfiguration
     implements ExtensionConfiguration

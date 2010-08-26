@@ -19,19 +19,19 @@ package org.apache.maven.experimental.artifact.resolver;
 
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.commonjava.atservice.annotation.Service;
-import org.commonjava.xaven.conf.AbstractXavenLibrary;
-import org.commonjava.xaven.conf.MavenPomVersionProvider;
-import org.commonjava.xaven.conf.XavenLibrary;
-import org.commonjava.xaven.plexus.ComponentSelector;
+import org.commonjava.emb.conf.AbstractEMBLibrary;
+import org.commonjava.emb.conf.MavenPomVersionProvider;
+import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.plexus.ComponentSelector;
 
-@Service( XavenLibrary.class )
+@Service( EMBLibrary.class )
 public class ExampleResolverLibrary
-    extends AbstractXavenLibrary
+    extends AbstractEMBLibrary
 {
     public ExampleResolverLibrary()
     {
-        super( "example-artifact-resolver", "Xaven-Example-Artifact-Resolver",
-               new MavenPomVersionProvider( "org.commonjava.xaven.examples", "example-artifact-resolver" ), "resolver",
+        super( "example-artifact-resolver", "EMB-Example-Artifact-Resolver",
+               new MavenPomVersionProvider( "org.commonjava.emb.examples", "example-artifact-resolver" ), "resolver",
                new ComponentSelector().setSelection( ProjectDependenciesResolver.class, "dummy" ) );
     }
 }

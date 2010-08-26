@@ -13,11 +13,11 @@ OLD_VERSIONS = ['1.0-SNAPSHOT']
                    
 VERSION_REFERENCES = ['~/bin/xvn', '~/bin/xvnDebug']
                    
-TARGET = File.expand_path( "~/apps/xaven" )
+TARGET = File.expand_path( "~/apps/emb" )
 MAIN = 'distro/maven3'
 LIBS = ['events/api', 'events/m3-resolver-events', 'integration/autonx-m3-resolver', 'examples/resolution-logger']
 
-class XavenInstaller
+class EMBInstaller
   
   def install( modules=[] )
     build( modules )
@@ -101,6 +101,6 @@ class XavenInstaller
     end
   end #read_artifact_id
   
-end #XavenInstaller
+end #EMBInstaller
 
-XavenInstaller.new.install( ARGV )
+EMBInstaller.new.install( ARGV )

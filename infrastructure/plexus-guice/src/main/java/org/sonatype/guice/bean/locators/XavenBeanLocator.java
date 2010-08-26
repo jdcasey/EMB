@@ -31,7 +31,7 @@ import java.util.Set;
  * Default {@link BeanLocator} that locates qualified beans across a dynamic group of {@link Injector}s.
  */
 @Singleton
-public final class XavenBeanLocator
+public final class EMBBeanLocator
     implements MutableBeanLocator
 {
     // ----------------------------------------------------------------------

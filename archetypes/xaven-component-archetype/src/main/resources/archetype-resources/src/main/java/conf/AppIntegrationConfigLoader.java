@@ -6,9 +6,9 @@ package ${package}.conf;
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
 
-import org.commonjava.xaven.conf.XavenConfiguration;
-import org.commonjava.xaven.conf.ext.ExtensionConfigurationException;
-import org.commonjava.xaven.conf.ext.ExtensionConfigurationLoader;
+import org.commonjava.emb.conf.EMBConfiguration;
+import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
+import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,10 +35,10 @@ public class AppIntegrationConfigLoader
         return AppIntegrationConfiguration.class;
     }
 
-    public AppIntegrationConfiguration loadConfiguration( final XavenConfiguration xavenConfig )
+    public AppIntegrationConfiguration loadConfiguration( final EMBConfiguration embConfig )
         throws ExtensionConfigurationException
     {
-        final File configFile = new File( xavenConfig.getConfigurationDirectory(), CONFIG_FILENAME );
+        final File configFile = new File( embConfig.getConfigurationDirectory(), CONFIG_FILENAME );
         final AppIntegrationConfiguration config = new AppIntegrationConfiguration();
 
         if ( configFile.exists() )
@@ -63,7 +63,7 @@ public class AppIntegrationConfigLoader
             catch ( final IOException e )
             {
                 throw new ExtensionConfigurationException( "Failed to read properties: '{0}' from: {1}${symbol_escape}nReason: {2}",
-                                                           e, CONFIG_FILENAME, xavenConfig.getConfigurationDirectory(),
+                                                           e, CONFIG_FILENAME, embConfig.getConfigurationDirectory(),
                                                            e.getMessage() );
             }
             finally

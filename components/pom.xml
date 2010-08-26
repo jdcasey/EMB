@@ -2,13 +2,13 @@
 <project xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd' xmlns='http://maven.apache.org/POM/4.0.0'>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-      <artifactId>xaven</artifactId>
-      <groupId>org.commonjava.xaven</groupId>
+      <artifactId>emb</artifactId>
+      <groupId>org.commonjava.emb</groupId>
       <version>0.3-b2-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.xaven.components</groupId>
-  <artifactId>xaven-components</artifactId>
+  <groupId>org.commonjava.emb.components</groupId>
+  <artifactId>emb-components</artifactId>
   <packaging>pom</packaging>
   
   <dependencyManagement>
@@ -21,8 +21,8 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.xaven.bom</groupId>
-        <artifactId>xaven-maven3-bom</artifactId>
+        <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -32,8 +32,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.xaven</groupId>
-      <artifactId>xaven-api</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-api</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -42,9 +42,9 @@
   </dependencies>
   
   <modules>
-    <module>xaven-recording-resolver</module>
-    <!-- <module>xaven-resolve-decorators</module>
-    <module>xaven-redirector-resolver</module> -->
+    <module>emb-recording-resolver</module>
+    <!-- <module>emb-resolve-decorators</module>
+    <module>emb-redirector-resolver</module> -->
     <module>maven-scm-support</module>
     <module>version-scheme-injector</module>
     <module>pixml-model</module>

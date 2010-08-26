@@ -1,5 +1,5 @@
-# Xaven - eXtensible Maven #
+# EMB - eXtensible Maven #
 
-Xaven is a build tool that wraps and extends Apache Maven.
+EMB is a build tool that wraps and extends Apache Maven.
 
 

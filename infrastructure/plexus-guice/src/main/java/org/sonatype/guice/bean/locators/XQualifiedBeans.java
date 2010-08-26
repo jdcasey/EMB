@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import org.commonjava.xaven.plexus.ComponentKey;
+import org.commonjava.emb.plexus.ComponentKey;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;

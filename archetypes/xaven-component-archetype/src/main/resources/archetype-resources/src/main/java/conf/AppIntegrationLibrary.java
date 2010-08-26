@@ -5,18 +5,18 @@ package ${package}.conf;
 
 import org.apache.maven.repository.MirrorSelector;
 import org.commonjava.atservice.annotation.Service;
-import org.commonjava.xaven.conf.AbstractXavenLibrary;
-import org.commonjava.xaven.conf.MavenPomVersionProvider;
-import org.commonjava.xaven.conf.XavenLibrary;
-import org.commonjava.xaven.plexus.ComponentSelector;
+import org.commonjava.emb.conf.AbstractEMBLibrary;
+import org.commonjava.emb.conf.MavenPomVersionProvider;
+import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.plexus.ComponentSelector;
 
 /**
- * Xaven library that injects a custom {@link MirrorSelector} implementation, which uses a custom
+ * EMB library that injects a custom {@link MirrorSelector} implementation, which uses a custom
  * configuration loaded by {@link AppIntegrationConfigLoader}.
  */
-@Service( XavenLibrary.class )
+@Service( EMBLibrary.class )
 public class AppIntegrationLibrary
-    extends AbstractXavenLibrary
+    extends AbstractEMBLibrary
 {
     // Requires an empty constructor for ServiceLoader to work!
     public AppIntegrationLibrary()

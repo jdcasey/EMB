@@ -29,7 +29,7 @@ import javax.inject.Singleton;
  * {@link PlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
  */
 @Singleton
-public final class XavenPlexusBeanLocator
+public final class EMBPlexusBeanLocator
     implements PlexusBeanLocator
 {
     // ----------------------------------------------------------------------
@@ -43,7 +43,7 @@ public final class XavenPlexusBeanLocator
     // ----------------------------------------------------------------------
 
     @Inject
-    public XavenPlexusBeanLocator( final BeanLocator beanLocator )
+    public EMBPlexusBeanLocator( final BeanLocator beanLocator )
     {
         this.beanLocator = beanLocator;
     }

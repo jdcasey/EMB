@@ -11,8 +11,8 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import ${package}.conf.AppIntegrationConfiguration;
-import org.commonjava.xaven.conf.XavenConfiguration;
-import org.commonjava.xaven.conf.XavenLibrary;
+import org.commonjava.emb.conf.EMBConfiguration;
+import org.commonjava.emb.conf.EMBLibrary;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class AppMirrorSelector
 
     @SuppressWarnings( "unused" )
     @Requirement( hint = "${artifactId}" )
-    private XavenLibrary library;
+    private EMBLibrary library;
 
     @SuppressWarnings( "unused" )
     @Requirement
@@ -35,13 +35,13 @@ public class AppMirrorSelector
 
     @SuppressWarnings( "unused" )
     @Requirement
-    private XavenConfiguration xavenConfig;
+    private EMBConfiguration embConfig;
 
     @Override
     public void initialize()
         throws InitializationException
     {
-        // Normally, this is where you might initialize the mirrors available to Xaven.
+        // Normally, this is where you might initialize the mirrors available to EMB.
         throw new UnsupportedOperationException( "Not Implemented." );
     }
 

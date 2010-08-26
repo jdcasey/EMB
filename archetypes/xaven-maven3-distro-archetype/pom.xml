@@ -2,15 +2,15 @@
 <project xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd' xmlns='http://maven.apache.org/POM/4.0.0'>
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.commonjava.xaven.archetypes</groupId>
-    <artifactId>xaven-archetypes</artifactId>
+    <groupId>org.commonjava.emb.archetypes</groupId>
+    <artifactId>emb-archetypes</artifactId>
     <version>0.3-b2-SNAPSHOT</version>
   </parent>
   
-  <artifactId>xaven-maven3-distro-archetype</artifactId>
+  <artifactId>emb-maven3-distro-archetype</artifactId>
   <packaging>maven-archetype</packaging>
   
-  <name>Xaven Maven-3 Disribution Archetype</name>
+  <name>EMB Maven-3 Disribution Archetype</name>
   
   <build>
     <extensions>
