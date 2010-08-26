@@ -16,8 +16,8 @@
     <module>integration</module>
     <module>components</module>
     <module>examples</module>
-    <module>boms</module>
-    <module>booters</module>
+    <module>bom</module>
+    <module>booter</module>
     <module>distro</module>
     <module>api</module>
     <module>events</module>

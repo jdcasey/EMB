@@ -2,19 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>emb-boms</artifactId>
-    <groupId>org.commonjava.emb.bom</groupId>
+    <artifactId>emb</artifactId>
+    <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <artifactId>emb-maven3-bom</artifactId>
+  <groupId>org.commonjava.emb.bom</groupId>
+  <artifactId>emb-bom</artifactId>
   <packaging>pom</packaging>
   
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb.event</groupId>
-        <artifactId>emb-m3-resolver-events</artifactId>
+        <artifactId>emb-event-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    
+      <dependency>
+        <groupId>org.commonjava.emb.event</groupId>
+        <artifactId>emb-resolver-events</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -87,6 +101,22 @@
         <artifactId>plexus-container-default</artifactId>
         <version>${plexusVersion}</version>
         <scope>provided</scope>
+      </dependency>
+      
+      <!-- NOTE: These MUST be provided by emb infrastructure! -->
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.12</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- /END infra requirements -->
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.5</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

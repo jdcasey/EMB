@@ -12,7 +12,7 @@
   
   <modules>
     <module>distro-commons</module>
-    <module>maven3</module>
+    <module>vanilla</module>
     <!-- <module>maven2</module> -->
   </modules>
 </project>

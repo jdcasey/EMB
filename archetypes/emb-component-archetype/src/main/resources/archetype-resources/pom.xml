@@ -24,7 +24,7 @@
       </dependency>
       <dependency>
         <groupId>org.commonjava.emb.bom</groupId>
-        <artifactId>emb-maven3-bom</artifactId>
+        <artifactId>emb-bom</artifactId>
         <version>${embVersion}</version>
         <type>pom</type>
         <scope>import</scope>

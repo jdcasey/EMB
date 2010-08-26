@@ -14,7 +14,7 @@
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb.bom</groupId>
-        <artifactId>emb-boms</artifactId>
+        <artifactId>emb-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>emb-booters</artifactId>
-    <groupId>org.commonjava.emb.boot</groupId>
+    <artifactId>emb</artifactId>
+    <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>emb-maven3-booter</artifactId>
-  <name>EMB Maven-3 Booter</name>
+  <artifactId>emb-booter</artifactId>
+  <name>EMB Booter</name>
   
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb.bom</groupId>
-        <artifactId>emb-maven3-bom</artifactId>
+        <artifactId>emb-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

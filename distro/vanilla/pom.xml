@@ -6,10 +6,10 @@
     <groupId>org.commonjava.emb</groupId>
     <version>0.3-SNAPSHOT</version>
   </parent>
-  <artifactId>emb-maven3</artifactId>
+  <artifactId>emb-vanilla</artifactId>
   <packaging>pom</packaging>
   
-  <name>EMB Maven-3 Distribution</name>
+  <name>EMB Vanilla Distribution</name>
   
   <dependencyManagement>
     <dependencies>

@@ -25,8 +25,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.emb.boot</groupId>
-      <artifactId>emb-maven3-booter</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-booter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

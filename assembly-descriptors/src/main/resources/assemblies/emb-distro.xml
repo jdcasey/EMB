@@ -18,7 +18,7 @@ under the License.
 -->
 
 <assembly>
-  <id>bin</id>
+  <id>distro</id>
   <formats>
     <format>zip</format>
     <format>tar.gz</format>
@@ -89,10 +89,10 @@ under the License.
       <directory>target/commons/bin</directory>
       <outputDirectory>bin</outputDirectory>
       <includes>
-        <include>xvn</include>
-        <include>xvnDebug</include>
+        <include>build</include>
+        <include>buildDebug</include>
         <!-- This is so that CI systems can periodically run the profiler -->
-        <include>xvnyjp</include>
+        <include>build-yjp</include>
         
         <include>m2</include>
         <include>mvn</include>
