@@ -11,6 +11,8 @@
   <artifactId>emb-components</artifactId>
   <packaging>pom</packaging>
   
+  <name>EMB Add-On Components</name>
+  
   <dependencyManagement>
     <dependencies>
       <dependency>

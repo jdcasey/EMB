@@ -7,8 +7,9 @@
     <version>0.3-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.emb.bom</groupId>
   <artifactId>emb-bom</artifactId>
+  <name>EMB Bill-Of-Materials</name>
+  
   <packaging>pom</packaging>
   
   <dependencyManagement>

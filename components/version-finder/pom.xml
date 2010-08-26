@@ -11,7 +11,7 @@
   <artifactId>emb-version-finder</artifactId>
   <version>0.3-SNAPSHOT</version>
 
-  <name>emb-version-finder</name>
+  <name>EMB Version-Finder API</name>
 
   <properties>
   	<mavenVersion>3.0-beta-2</mavenVersion>
@@ -86,18 +86,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <configuration>
-          <artifactSet>
-            <includes>
-              <include>org.apache.httpcomponents:*</include>
-              <include>commons-logging:*</include>
-              <include>commons-codec:*</include>
-            </includes>
-          </artifactSet>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-remote-resources-plugin</artifactId>

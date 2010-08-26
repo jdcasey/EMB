@@ -9,7 +9,9 @@
   </parent>
 
   <artifactId>emb-recording-resolver</artifactId>
-  <name>Simply record all network activity.</name>
+  <name>EMB Recording Artifact Resolver</name>
+  
+  <description>Simply record all network activity.</description>
   
   <dependencies>
     <dependency>
