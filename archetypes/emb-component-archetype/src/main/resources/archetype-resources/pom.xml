@@ -23,7 +23,7 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.emb.bom</groupId>
+        <groupId>org.commonjava.emb</groupId>
         <artifactId>emb-bom</artifactId>
         <version>${embVersion}</version>
         <type>pom</type>
