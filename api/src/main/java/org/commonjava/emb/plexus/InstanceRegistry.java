@@ -21,7 +21,7 @@ import java.util.Map;
 public class InstanceRegistry
 {
 
-    private final Map<ComponentKey, Object> instances = new HashMap<ComponentKey, Object>();
+    private final Map<ComponentKey<?>, Object> instances = new HashMap<ComponentKey<?>, Object>();
 
     public InstanceRegistry()
     {
@@ -38,7 +38,7 @@ public class InstanceRegistry
         }
     }
 
-    public boolean has( final ComponentKey key )
+    public boolean has( final ComponentKey<?> key )
     {
         if ( key == null )
         {
@@ -48,41 +48,28 @@ public class InstanceRegistry
         return instances.containsKey( key );
     }
 
-    public boolean has( final Class<?> role, final String hint )
+    public <T> boolean has( final Class<T> role, final String hint )
     {
-        return has( new ComponentKey( role, hint ) );
+        return has( new ComponentKey<T>( role, hint ) );
     }
 
-    public boolean has( final String role, final String hint )
+    public <T> T get( final ComponentKey<T> key )
     {
-        return has( new ComponentKey( role, hint ) );
+        return key.castValue( instances.get( key ) );
     }
 
-    @SuppressWarnings( "unchecked" )
-    public <T> T get( final ComponentKey key )
-    {
-        return (T) instances.get( key );
-    }
-
-    @SuppressWarnings( "unchecked" )
     public <T> T get( final Class<T> role, final String hint )
     {
-        return (T) get( new ComponentKey( role, hint ) );
+        return get( new ComponentKey<T>( role, hint ) );
     }
 
-    @SuppressWarnings( "unchecked" )
-    public <T> T get( final String role, final String hint )
-    {
-        return (T) get( new ComponentKey( role, hint ) );
-    }
-
-    public InstanceRegistry add( final ComponentKey key, final Object instance )
+    public <T> InstanceRegistry add( final ComponentKey<T> key, final T instance )
     {
         instances.put( key, instance );
         return this;
     }
 
-    public InstanceRegistry add( final Class<?> role, final String hint, final Object instance )
+    public <T> InstanceRegistry add( final Class<T> role, final String hint, final T instance )
     {
         if ( role == null )
         {
@@ -100,15 +87,10 @@ public class InstanceRegistry
                 + " is not assignable to role: " + role.getClass() );
         }
 
-        return add( new ComponentKey( role, hint ), instance );
+        return add( new ComponentKey<T>( role, hint ), instance );
     }
 
-    public InstanceRegistry add( final String role, final String hint, final Object instance )
-    {
-        return add( new ComponentKey( role, hint ), instance );
-    }
-
-    public InstanceRegistry add( final Class<?> role, final Object instance )
+    public <T> InstanceRegistry add( final Class<T> role, final T instance )
     {
         if ( role == null )
         {
@@ -126,18 +108,22 @@ public class InstanceRegistry
                 + " is not assignable to role: " + role.getClass() );
         }
 
-        return add( new ComponentKey( role ), instance );
-    }
-
-    public InstanceRegistry add( final String role, final Object instance )
-    {
-        return add( new ComponentKey( role ), instance );
+        return add( new ComponentKey<T>( role ), instance );
     }
 
     public InstanceRegistry overrideMerge( final InstanceRegistry instanceRegistry )
     {
-        instances.putAll( instanceRegistry.instances );
+        if ( !instanceRegistry.instances.isEmpty() )
+        {
+            instances.putAll( instanceRegistry.instances );
+        }
+
         return this;
+    }
+
+    public Map<ComponentKey<?>, Object> getInstances()
+    {
+        return instances;
     }
 
 }

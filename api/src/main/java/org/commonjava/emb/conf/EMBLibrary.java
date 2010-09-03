@@ -35,7 +35,7 @@ public interface EMBLibrary
 
     ComponentSelector getComponentSelector();
 
-    Set<ComponentKey> getExportedComponents();
+    Set<ComponentKey<?>> getExportedComponents();
 
     Set<ComponentKey> getManagementComponents( Class<?> managementType );
 

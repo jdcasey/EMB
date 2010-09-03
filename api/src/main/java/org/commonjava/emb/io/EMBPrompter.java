@@ -170,7 +170,8 @@ public class EMBPrompter
         {
             formatted.append( " (" );
 
-            for ( final Iterator it = possibleValues.iterator(); it.hasNext(); )
+            for ( @SuppressWarnings( "rawtypes" )
+            final Iterator it = possibleValues.iterator(); it.hasNext(); )
             {
                 final String possibleValue = (String) it.next();
 

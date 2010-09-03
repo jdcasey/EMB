@@ -224,11 +224,11 @@ public class EMBEmbedder
     {
         for ( final EMBLibrary library : embConfiguration.getLibraries().values() )
         {
-            final Set<ComponentKey> components = library.getManagementComponents( LoadOnStart.class );
+            final Set<ComponentKey<?>> components = library.getManagementComponents( LoadOnStart.class );
             if ( components != null && !components.isEmpty() )
             {
                 final EMBManagementView mgmtView = new EmbedderManagementView( container, embConfiguration );
-                for ( final ComponentKey key : components )
+                for ( final ComponentKey<?> key : components )
                 {
                     try
                     {
@@ -250,11 +250,11 @@ public class EMBEmbedder
     {
         for ( final EMBLibrary library : embConfiguration.getLibraries().values() )
         {
-            final Set<ComponentKey> components = library.getManagementComponents( LoadOnFinish.class );
+            final Set<ComponentKey<?>> components = library.getManagementComponents( LoadOnFinish.class );
             if ( components != null && !components.isEmpty() )
             {
                 final EMBManagementView mgmtView = new EmbedderManagementView( container, embConfiguration );
-                for ( final ComponentKey key : components )
+                for ( final ComponentKey<?> key : components )
                 {
                     try
                     {

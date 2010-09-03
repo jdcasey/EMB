@@ -17,118 +17,22 @@
 
 package org.commonjava.emb.artifact.resolver;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.ArtifactResolutionResult;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
-import org.apache.maven.artifact.resolver.ResolutionListener;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
-import org.apache.maven.wagon.events.TransferListener;
+import org.apache.maven.project.DependencyResolutionException;
+import org.apache.maven.project.DependencyResolutionRequest;
+import org.apache.maven.project.DependencyResolutionResult;
+import org.apache.maven.project.ProjectDependenciesResolver;
+import org.codehaus.plexus.component.annotations.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-@SuppressWarnings( "deprecation" )
+@Component( role = ProjectDependenciesResolver.class, hint = "dummy" )
 public class DummyArtifactResolver
-    implements ArtifactResolver
+    implements ProjectDependenciesResolver
 {
 
-    public ArtifactResolutionResult resolve( final ArtifactResolutionRequest request )
+    @Override
+    public DependencyResolutionResult resolve( final DependencyResolutionRequest request )
+        throws DependencyResolutionException
     {
         throw new UnsupportedOperationException( "Not Implemented." );
     }
 
-    public void resolve( final Artifact artifact, final List<ArtifactRepository> remoteRepositories,
-                         final ArtifactRepository localRepository )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    public void resolve( final Artifact artifact, final List<ArtifactRepository> remoteRepositories,
-                         final ArtifactRepository localRepository, final TransferListener downloadMonitor )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    public void resolveAlways( final Artifact artifact, final List<ArtifactRepository> remoteRepositories,
-                               final ArtifactRepository localRepository )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactRepository localRepository,
-                                                         final ArtifactMetadataSource source )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact,
-                                                         final ArtifactRepository localRepository,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactMetadataSource source,
-                                                         final ArtifactFilter filter )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact, final Map managedVersions,
-                                                         final ArtifactRepository localRepository,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactMetadataSource source )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactRepository localRepository,
-                                                         final ArtifactMetadataSource source,
-                                                         final List<ResolutionListener> listeners )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact, final Map managedVersions,
-                                                         final ArtifactRepository localRepository,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactMetadataSource source,
-                                                         final ArtifactFilter filter )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public ArtifactResolutionResult resolveTransitively( final Set<Artifact> artifacts,
-                                                         final Artifact originatingArtifact, final Map managedVersions,
-                                                         final ArtifactRepository localRepository,
-                                                         final List<ArtifactRepository> remoteRepositories,
-                                                         final ArtifactMetadataSource source,
-                                                         final ArtifactFilter filter,
-                                                         final List<ResolutionListener> listeners )
-        throws ArtifactResolutionException, ArtifactNotFoundException
-    {
-        throw new UnsupportedOperationException( "Not Implemented." );
-    }
 }

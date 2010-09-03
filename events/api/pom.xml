@@ -1,23 +1,16 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version='1.0'?>
+<project xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd' xmlns='http://maven.apache.org/POM/4.0.0'>
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>emb-events</artifactId>
     <groupId>org.commonjava.emb.event</groupId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.4-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-event-api</artifactId>
-  <version>0.4-SNAPSHOT</version>
   <name>EMB Event API</name>
   
   <dependencies>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-container-default</artifactId>
-      <version>1.5.4</version>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -25,20 +18,23 @@
     <dependency>
     	<groupId>org.codehaus.plexus</groupId>
     	<artifactId>plexus-component-annotations</artifactId>
-    	<version>1.5.4</version>
     </dependency>
     <dependency>
     	<groupId>org.commonjava.emb</groupId>
     	<artifactId>emb-api</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>log4j</groupId>
+    	<artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.sonatype.spice.inject</groupId>
+    	<artifactId>guice-plexus-shim</artifactId>
+    </dependency>
   </dependencies>
   
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

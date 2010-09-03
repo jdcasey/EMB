@@ -16,23 +16,11 @@ public class EMBAdvisor
     @Requirement( hint = "core" )
     private EMBLibrary library;
 
-    public void clearAdvice()
-    {
-        if ( library.getLogger().isDebugEnabled() )
-        {
-            library.getLogger().debug( this + ": CLEAR ADVICE" );
-        }
-        advice.clear();
-    }
-
     public EMBAdvisor advise( final String key, final Object value, final boolean override )
     {
         if ( override || !advice.containsKey( key ) )
         {
-            if ( library.getLogger().isDebugEnabled() )
-            {
-                library.getLogger().debug( this + ": NEW ADVICE: " + key + " = " + value );
-            }
+            library.getLogger().debug( "NEW ADVICE: " + key + " = " + value );
             advice.put( key, value );
         }
 
@@ -41,10 +29,6 @@ public class EMBAdvisor
 
     public Object getRawAdvice( final String key )
     {
-        if ( library.getLogger().isDebugEnabled() )
-        {
-            library.getLogger().debug( this + ": GET ADVICE: " + key + " = " + advice.get( key ) );
-        }
         return advice.get( key );
     }
 

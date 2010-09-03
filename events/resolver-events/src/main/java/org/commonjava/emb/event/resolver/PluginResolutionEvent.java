@@ -17,14 +17,15 @@
 
 package org.commonjava.emb.event.resolver;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.PluginResolutionException;
 import org.commonjava.emb.event.EMBEvent;
+import org.sonatype.aether.Artifact;
+import org.sonatype.aether.DependencyFilter;
+import org.sonatype.aether.DependencyNode;
+import org.sonatype.aether.RemoteRepository;
+import org.sonatype.aether.RepositorySystemSession;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PluginResolutionEvent
@@ -34,11 +35,7 @@ public class PluginResolutionEvent
 
     private final Plugin plugin;
 
-    private final ArtifactFilter dependencyFilter;
-
-    private final ArtifactResolutionRequest request;
-
-    private final List<Artifact> resolvedArtifacts;
+    private final DependencyFilter dependencyFilter;
 
     private final ResolutionEventType type;
 
@@ -46,82 +43,91 @@ public class PluginResolutionEvent
 
     private final Artifact pluginArtifact;
 
-    public PluginResolutionEvent( final Plugin plugin, final ArtifactResolutionRequest request )
+    private final List<RemoteRepository> repositories;
+
+    private final RepositorySystemSession session;
+
+    private final DependencyNode resolvedNode;
+
+    public PluginResolutionEvent( final Plugin plugin, final List<RemoteRepository> repositories,
+                                  final RepositorySystemSession session )
     {
         this.plugin = plugin;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
         type = ResolutionEventType.START;
         dependencyFilter = null;
-        resolvedArtifacts = null;
+        resolvedNode = null;
         error = null;
         pluginArtifact = null;
     }
 
-    public PluginResolutionEvent( final Plugin plugin, final ArtifactResolutionRequest request,
-                                  final Artifact pluginArtifact )
+    public PluginResolutionEvent( final Plugin plugin, final List<RemoteRepository> repositories,
+                                  final RepositorySystemSession session, final Artifact pluginArtifact )
     {
         this.plugin = plugin;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
+        this.pluginArtifact = pluginArtifact;
         type = ResolutionEventType.SUCCESS;
-        resolvedArtifacts = Collections.singletonList( pluginArtifact );
         dependencyFilter = null;
         error = null;
-        this.pluginArtifact = null;
+        resolvedNode = null;
     }
 
-    public PluginResolutionEvent( final Plugin plugin, final ArtifactResolutionRequest request,
-                                  final PluginResolutionException error )
+    public PluginResolutionEvent( final Plugin plugin, final List<RemoteRepository> repositories,
+                                  final RepositorySystemSession session, final PluginResolutionException error )
     {
         this.plugin = plugin;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
         this.error = error;
         type = ResolutionEventType.FAIL;
-        resolvedArtifacts = null;
+        resolvedNode = null;
         dependencyFilter = null;
         pluginArtifact = null;
     }
 
     public PluginResolutionEvent( final Plugin plugin, final Artifact pluginArtifact,
-                                  final ArtifactResolutionRequest request, final ArtifactFilter dependencyFilter )
+                                  final List<RemoteRepository> repositories, final RepositorySystemSession session,
+                                  final DependencyFilter dependencyFilter )
     {
         this.plugin = plugin;
         this.pluginArtifact = pluginArtifact;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
         type = ResolutionEventType.START;
         this.dependencyFilter = dependencyFilter;
-        resolvedArtifacts = null;
+        resolvedNode = null;
         error = null;
     }
 
     public PluginResolutionEvent( final Plugin plugin, final Artifact pluginArtifact,
-                                  final ArtifactResolutionRequest request, final ArtifactFilter dependencyFilter,
-                                  final List<Artifact> pluginArtifacts )
+                                  final List<RemoteRepository> repositories, final RepositorySystemSession session,
+                                  final DependencyFilter dependencyFilter, final DependencyNode result )
     {
         this.plugin = plugin;
         this.pluginArtifact = pluginArtifact;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
+        resolvedNode = result;
         type = ResolutionEventType.SUCCESS;
         this.dependencyFilter = dependencyFilter;
-        resolvedArtifacts = pluginArtifacts;
         error = null;
     }
 
     public PluginResolutionEvent( final Plugin plugin, final Artifact pluginArtifact,
-                                  final ArtifactResolutionRequest request, final ArtifactFilter dependencyFilter,
-                                  final PluginResolutionException error )
+                                  final List<RemoteRepository> repositories, final RepositorySystemSession session,
+                                  final DependencyFilter dependencyFilter, final PluginResolutionException error )
     {
         this.plugin = plugin;
         this.pluginArtifact = pluginArtifact;
-        this.request = request;
+        this.repositories = repositories;
+        this.session = session;
         this.error = error;
         type = ResolutionEventType.FAIL;
         this.dependencyFilter = dependencyFilter;
-        resolvedArtifacts = null;
-    }
-
-    public ArtifactResolutionRequest getRequest()
-    {
-        return request;
+        resolvedNode = null;
     }
 
     public ResolutionEventType getType()
@@ -134,14 +140,14 @@ public class PluginResolutionEvent
         return plugin;
     }
 
-    public ArtifactFilter getDependencyFilter()
+    public DependencyFilter getDependencyFilter()
     {
         return dependencyFilter;
     }
 
-    public List<Artifact> getResolvedArtifacts()
+    public DependencyNode getResolvedNode()
     {
-        return resolvedArtifacts;
+        return resolvedNode;
     }
 
     public PluginResolutionException getError()
@@ -152,6 +158,16 @@ public class PluginResolutionEvent
     public Artifact getPluginArtifact()
     {
         return pluginArtifact;
+    }
+
+    public List<RemoteRepository> getRepositories()
+    {
+        return repositories;
+    }
+
+    public RepositorySystemSession getSession()
+    {
+        return session;
     }
 
 }

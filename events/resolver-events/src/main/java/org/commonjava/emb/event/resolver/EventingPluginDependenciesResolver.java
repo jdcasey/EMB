@@ -17,15 +17,17 @@
 
 package org.commonjava.emb.event.resolver;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.PluginResolutionException;
 import org.apache.maven.plugin.internal.PluginDependenciesResolver;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.event.EMBEventManager;
+import org.sonatype.aether.Artifact;
+import org.sonatype.aether.DependencyFilter;
+import org.sonatype.aether.DependencyNode;
+import org.sonatype.aether.RemoteRepository;
+import org.sonatype.aether.RepositorySystemSession;
 
 import java.util.List;
 
@@ -40,45 +42,50 @@ public class EventingPluginDependenciesResolver
     @Requirement( hint = "#" )
     protected PluginDependenciesResolver delegate;
 
-    public Artifact resolve( final Plugin plugin, final ArtifactResolutionRequest request )
+    public Artifact resolve( final Plugin plugin, final List<RemoteRepository> repositories,
+                             final RepositorySystemSession session )
         throws PluginResolutionException
     {
-        eventManager.fireEvent( new PluginResolutionEvent( plugin, request ) );
+        eventManager.fireEvent( new PluginResolutionEvent( plugin, repositories, session ) );
 
         try
         {
-            final Artifact pluginArtifact = delegate.resolve( plugin, request );
+            final Artifact pluginArtifact = delegate.resolve( plugin, repositories, session );
 
-            eventManager.fireEvent( new PluginResolutionEvent( plugin, request, pluginArtifact ) );
+            eventManager.fireEvent( new PluginResolutionEvent( plugin, repositories, session, pluginArtifact ) );
 
             return pluginArtifact;
         }
         catch ( final PluginResolutionException e )
         {
-            eventManager.fireEvent( new PluginResolutionEvent( plugin, request, e ) );
+            eventManager.fireEvent( new PluginResolutionEvent( plugin, repositories, session, e ) );
             throw e;
         }
     }
 
-    public List<Artifact> resolve( final Plugin plugin, final Artifact pluginArtifact,
-                                   final ArtifactResolutionRequest request, final ArtifactFilter dependencyFilter )
+    @Override
+    public DependencyNode resolve( final Plugin plugin, final Artifact pluginArtifact,
+                                   final DependencyFilter dependencyFilter, final List<RemoteRepository> repositories,
+                                   final RepositorySystemSession session )
         throws PluginResolutionException
     {
-        eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, request, dependencyFilter ) );
+        eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, repositories, session,
+                                                           dependencyFilter ) );
 
         try
         {
-            final List<Artifact> pluginArtifacts = delegate.resolve( plugin, pluginArtifact, request, dependencyFilter );
+            final DependencyNode result =
+                delegate.resolve( plugin, pluginArtifact, dependencyFilter, repositories, session );
 
-            eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, request,
-                                                                          dependencyFilter, pluginArtifacts ) );
+            eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, repositories, session,
+                                                               dependencyFilter, result ) );
 
-            return pluginArtifacts;
+            return result;
         }
         catch ( final PluginResolutionException e )
         {
-            eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, request,
-                                                                          dependencyFilter, e ) );
+            eventManager.fireEvent( new PluginResolutionEvent( plugin, pluginArtifact, repositories, session,
+                                                               dependencyFilter, e ) );
             throw e;
         }
     }

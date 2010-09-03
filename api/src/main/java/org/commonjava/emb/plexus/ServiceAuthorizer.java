@@ -20,21 +20,21 @@ import java.util.Set;
 public class ServiceAuthorizer
 {
 
-    private final Set<ComponentKey> authorizedKeys;
+    private final Set<ComponentKey<?>> authorizedKeys;
 
-    public ServiceAuthorizer( final Set<ComponentKey> authorizedKeys )
+    public ServiceAuthorizer( final Set<ComponentKey<?>> authorizedKeys )
     {
         this.authorizedKeys = authorizedKeys;
     }
 
-    public boolean isAvailable( final Class<?> serviceType )
+    public <T> boolean isAvailable( final Class<T> serviceType )
     {
-        return authorizedKeys.contains( new ComponentKey( serviceType ) );
+        return authorizedKeys.contains( new ComponentKey<T>( serviceType ) );
     }
 
-    public boolean isAvailable( final Class<?> serviceType, final String hint )
+    public <T> boolean isAvailable( final Class<T> serviceType, final String hint )
     {
-        return authorizedKeys.contains( new ComponentKey( serviceType, hint ) );
+        return authorizedKeys.contains( new ComponentKey<T>( serviceType, hint ) );
     }
 
 }

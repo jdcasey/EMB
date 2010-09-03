@@ -1,13 +1,11 @@
 package org.commonjava.emb;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.repository.RepositoryCache;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.ExecutionListener;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.repository.ArtifactTransferListener;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
@@ -61,7 +59,6 @@ public class DefaultEMBExecutionRequest
                                                  .setRecursive( isRecursive() )
                                                  .setPom( getPom() )
                                                  .setShowErrors( isShowErrors() )
-                                                 .setTransferListener( getTransferListener() )
                                                  .setLoggingLevel( getLoggingLevel() )
                                                  .setUpdateSnapshots( isUpdateSnapshots() )
                                                  .setNoSnapshotUpdates( isNoSnapshotUpdates() )
@@ -83,7 +80,6 @@ public class DefaultEMBExecutionRequest
                                                  .setGlobalSettingsFile( getGlobalSettingsFile() )
                                                  .setRemoteRepositories( getRemoteRepositories() )
                                                  .setPluginArtifactRepositories( getPluginArtifactRepositories() )
-                                                 .setRepositoryCache( getRepositoryCache() )
                                                  .setUserToolchainsFile( getUserToolchainsFile() )
                                                  .setExecutionListener( getExecutionListener() );
     }
@@ -287,11 +283,6 @@ public class DefaultEMBExecutionRequest
         return embedded.getRemoteRepositories();
     }
 
-    public RepositoryCache getRepositoryCache()
-    {
-        return embedded.getRepositoryCache();
-    }
-
     public String getResumeFrom()
     {
         return embedded.getResumeFrom();
@@ -320,11 +311,6 @@ public class DefaultEMBExecutionRequest
     public String getThreadCount()
     {
         return embedded.getThreadCount();
-    }
-
-    public ArtifactTransferListener getTransferListener()
-    {
-        return embedded.getTransferListener();
     }
 
     public Properties getUserProperties()
@@ -548,12 +534,6 @@ public class DefaultEMBExecutionRequest
         return this;
     }
 
-    public DefaultEMBExecutionRequest setRepositoryCache( final RepositoryCache repositoryCache )
-    {
-        embedded.setRepositoryCache( repositoryCache );
-        return this;
-    }
-
     public DefaultEMBExecutionRequest setResumeFrom( final String project )
     {
         embedded.setResumeFrom( project );
@@ -593,12 +573,6 @@ public class DefaultEMBExecutionRequest
     public DefaultEMBExecutionRequest setThreadCount( final String threadCount )
     {
         embedded.setThreadCount( threadCount );
-        return this;
-    }
-
-    public DefaultEMBExecutionRequest setTransferListener( final ArtifactTransferListener transferListener )
-    {
-        embedded.setTransferListener( transferListener );
         return this;
     }
 

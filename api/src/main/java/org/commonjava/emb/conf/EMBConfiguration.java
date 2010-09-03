@@ -163,17 +163,17 @@ public class EMBConfiguration
         return componentSelector;
     }
 
-    public synchronized EMBConfiguration withComponentSelection( final ComponentKey key, final String newHint )
+    public synchronized EMBConfiguration withComponentSelection( final ComponentKey<?> key, final String newHint )
     {
         getComponentSelector().setSelection( key, newHint );
         return this;
     }
 
-    public synchronized EMBConfiguration withComponentSelections( final Map<ComponentKey, String> selections )
+    public synchronized EMBConfiguration withComponentSelections( final Map<ComponentKey<?>, String> selections )
     {
         if ( selections != null )
         {
-            for ( final Map.Entry<ComponentKey, String> entry : selections.entrySet() )
+            for ( final Map.Entry<ComponentKey<?>, String> entry : selections.entrySet() )
             {
                 if ( entry == null || entry.getKey() == null || entry.getValue() == null )
                 {
@@ -228,22 +228,26 @@ public class EMBConfiguration
         return this;
     }
 
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public EMBConfiguration withLibrary( final EMBLibrary library )
     {
         getLibraries().put( library.getId(), library );
         withComponentSelector( library.getComponentSelector() );
-        withComponentInstance( new ComponentKey( EMBLibrary.class, library.getId() ), library );
+        withComponentInstance( new ComponentKey<EMBLibrary>( EMBLibrary.class, library.getId() ), library );
 
         final ExtensionConfiguration configuration = library.getConfiguration();
         if ( configuration != null )
         {
+            withComponentInstance( new ComponentKey<ExtensionConfiguration>( ExtensionConfiguration.class,
+                                                                             library.getId() ), configuration );
+
             withComponentInstance( new ComponentKey( configuration.getClass() ), configuration );
         }
 
         return this;
     }
 
-    public synchronized EMBConfiguration withComponentInstance( final ComponentKey key, final Object instance )
+    public synchronized <T> EMBConfiguration withComponentInstance( final ComponentKey<T> key, final T instance )
     {
         getInstanceRegistry().add( key, instance );
 
@@ -267,17 +271,19 @@ public class EMBConfiguration
             instanceRegistry = new InstanceRegistry();
         }
 
-        final Set<ComponentKey> keys = new HashSet<ComponentKey>();
+        final Set<ComponentKey<?>> keys = new HashSet<ComponentKey<?>>();
         for ( final EMBLibrary lib : getLibraries().values() )
         {
-            final Set<ComponentKey> exports = lib.getExportedComponents();
+            final Set<ComponentKey<?>> exports = lib.getExportedComponents();
             if ( exports != null && !exports.isEmpty() )
             {
                 keys.addAll( exports );
             }
         }
 
-        instanceRegistry.add( new ComponentKey( ServiceAuthorizer.class ), new ServiceAuthorizer( keys ) );
+        instanceRegistry.add( new ComponentKey<ServiceAuthorizer>( ServiceAuthorizer.class ),
+                              new ServiceAuthorizer( keys ) );
+        instanceRegistry.add( EMBConfiguration.class, this );
 
         return instanceRegistry;
     }

@@ -485,8 +485,6 @@ public class EMBMain
                .addInactiveProfiles( inactiveProfiles )
                // optional
                .setLoggingLevel( loggingLevel )
-               // default: info
-               .setTransferListener( transferListener )
                // default: batch mode which goes along with interactive
                .setUpdateSnapshots( updateSnapshots )
                // default: false

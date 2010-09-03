@@ -74,7 +74,7 @@ public class MulticastResponder
     public void start()
         throws StartingException
     {
-        logger.info( "Starting multicast responder..." );
+        logger.info( "Starting multicast responder on: " + MULTICAST.getHostAddress() + ":" + PORT );
         try
         {
             socket = new MulticastSocket( PORT );
@@ -228,19 +228,19 @@ public class MulticastResponder
 
                     socket.receive( recv );
 
-                    if ( logger.isDebugEnabled() )
+                    //                    if ( logger.isDebugEnabled() )
+                    //                    {
+                    logger.info( "\n\n\n\nGot request from: " + recv.getSocketAddress() );
+                    try
                     {
-                        logger.debug( "\n\n\n\nGot request from: " + recv.getSocketAddress() );
-                        try
-                        {
-                            logger.debug( new String( baos.toByteArray(), "UTF-8" ) );
-                        }
-                        catch ( final UnsupportedEncodingException e )
-                        {
-                            logger.debug( new String( baos.toByteArray() ) );
-                        }
-                        logger.debug( "\n\n\n\n" );
+                        logger.info( new String( baos.toByteArray(), "UTF-8" ) );
                     }
+                    catch ( final UnsupportedEncodingException e )
+                    {
+                        logger.info( new String( baos.toByteArray() ) );
+                    }
+                    logger.info( "\n\n\n\n" );
+                    //                    }
 
                     final DatagramPacket send =
                         new DatagramPacket( baos.toByteArray(), baos.size(), recv.getSocketAddress() );

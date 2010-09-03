@@ -10,15 +10,15 @@ import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.settings.building.SettingsBuilder;
 import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.DefaultPlexusContainer;
+import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
-import org.commonjava.emb.boot.plexus.EMBContainerConfiguration;
 import org.commonjava.emb.boot.services.EMBServiceManager;
 import org.commonjava.emb.conf.EMBConfiguration;
+import org.commonjava.emb.internal.plexus.EMBPlexusContainer;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
@@ -403,16 +403,16 @@ public class EMBEmbedderBuilder
     public synchronized MutablePlexusContainer container()
         throws EMBEmbeddingException
     {
+        // Need to switch to using: org.codehaus.plexus.MutablePlexusContainer.addPlexusInjector(List<PlexusBeanModule>, Module...)
         if ( container == null )
         {
             final ContainerConfiguration cc =
-                new EMBContainerConfiguration( embConfiguration(), selector(), instanceRegistry() ).setClassWorld( classWorld() )
-                                                                                                       .setName( "maven" );
+                new DefaultContainerConfiguration().setClassWorld( classWorld() ).setName( "maven" );
 
-            DefaultPlexusContainer c;
+            EMBPlexusContainer c;
             try
             {
-                c = new DefaultPlexusContainer( cc );
+                c = new EMBPlexusContainer( cc, selector(), instanceRegistry() );
             }
             catch ( final PlexusContainerException e )
             {

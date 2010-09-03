@@ -49,9 +49,9 @@ public abstract class AbstractEMBLibrary
 
     private final ComponentSelector selector;
 
-    private final Set<ComponentKey> exportedComponents = new HashSet<ComponentKey>();
+    private final Set<ComponentKey<?>> exportedComponents = new HashSet<ComponentKey<?>>();
 
-    private final Map<Class<?>, Set<ComponentKey>> managementComponents = new HashMap<Class<?>, Set<ComponentKey>>();
+    private final Map<Class<?>, Set<ComponentKey<?>>> managementComponents = new HashMap<Class<?>, Set<ComponentKey<?>>>();
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
                                     final ExtensionConfigurationLoader configLoader )
@@ -157,33 +157,33 @@ public abstract class AbstractEMBLibrary
         return versionProvider.getVersion();
     }
 
-    protected AbstractEMBLibrary withExportedComponent( final ComponentKey key )
+    protected AbstractEMBLibrary withExportedComponent( final ComponentKey<?> key )
     {
         exportedComponents.add( key );
         return this;
     }
 
     @Override
-    public Set<ComponentKey> getExportedComponents()
+    public Set<ComponentKey<?>> getExportedComponents()
     {
         return exportedComponents;
     }
 
-    public Map<Class<?>, Set<ComponentKey>> getManagementComponents()
+    public Map<Class<?>, Set<ComponentKey<?>>> getManagementComponents()
     {
         return managementComponents;
     }
 
-    public AbstractEMBLibrary withManagementComponent( final ComponentKey key, final Class<?>... managementTypes )
+    public AbstractEMBLibrary withManagementComponent( final ComponentKey<?> key, final Class<?>... managementTypes )
     {
         if ( managementTypes != null )
         {
             for ( final Class<?> managementType : managementTypes )
             {
-                Set<ComponentKey> keys = managementComponents.get( managementType );
+                Set<ComponentKey<?>> keys = managementComponents.get( managementType );
                 if ( keys == null )
                 {
-                    keys = new HashSet<ComponentKey>();
+                    keys = new HashSet<ComponentKey<?>>();
                     managementComponents.put( managementType, keys );
                 }
                 keys.add( key );
@@ -193,7 +193,7 @@ public abstract class AbstractEMBLibrary
         return this;
     }
 
-    public Set<ComponentKey> getManagementComponents( final Class<?> managementType )
+    public Set<ComponentKey<?>> getManagementComponents( final Class<?> managementType )
     {
         return managementComponents.get( managementType );
     }

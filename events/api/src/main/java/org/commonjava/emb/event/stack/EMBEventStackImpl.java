@@ -19,8 +19,6 @@ package org.commonjava.emb.event.stack;
 
 import org.commonjava.emb.event.EMBEvent;
 
-import com.google.common.collect.Iterators;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -137,7 +135,28 @@ public final class EMBEventStackImpl
 
         public Iterator<EMBEvent> iterator()
         {
-            return Iterators.unmodifiableIterator( impl.iterator() );
+            final Iterator<EMBEvent> iter = impl.iterator();
+            return new Iterator<EMBEvent>()
+            {
+
+                @Override
+                public boolean hasNext()
+                {
+                    return iter.hasNext();
+                }
+
+                @Override
+                public EMBEvent next()
+                {
+                    return iter.next();
+                }
+
+                @Override
+                public void remove()
+                {
+                    throw new UnsupportedOperationException( "Not Implemented." );
+                }
+            };
         }
 
     }

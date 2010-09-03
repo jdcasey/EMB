@@ -8,20 +8,29 @@
   <packaging>pom</packaging>
   
   <properties>
+<<<<<<< HEAD
     <mavenVersion>3.0-beta-2</mavenVersion>
     <plexusVersion>1.5.4</plexusVersion>
+=======
+    <mavenVersion>3.0-beta-3</mavenVersion>
+>>>>>>> maven-3-guice
   </properties>
   
   <modules>
     <module>integration</module>
     <module>components</module>
+<<<<<<< HEAD
     <module>examples</module>
+=======
+    <!-- <module>examples</module> -->
+>>>>>>> maven-3-guice
     <module>bom</module>
     <module>booter</module>
     <module>distro</module>
     <module>api</module>
     <module>events</module>
     <module>assembly-descriptors</module>
+    <module>infrastructure</module>
   </modules>
   
   <scm>
@@ -111,19 +120,6 @@
           </executions>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.plexus</groupId>
-          <artifactId>plexus-component-metadata</artifactId>
-          <version>${plexusVersion}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>generate-metadata</goal>
-                <goal>generate-test-metadata</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>2.3</version>
           <configuration>
@@ -190,10 +186,6 @@
       </plugins>
     </pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-remote-resources-plugin</artifactId>

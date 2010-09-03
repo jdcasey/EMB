@@ -67,7 +67,7 @@ public class NexusAutoMirrorSelector
     //    @Requirement
     //    private LegacySupport legacySupport;
 
-    @Requirement( hint = "#" )
+    @Requirement( hint = "default_" )
     private MirrorSelector delegateSelector;
 
     @Requirement( hint = "autonx" )
@@ -261,8 +261,7 @@ public class NexusAutoMirrorSelector
 
                                                 if ( library.getLogger().isDebugEnabled() )
                                                 {
-                                                    library.getLogger().debug(
-                                                                               "Mirroring: " + repoUrl + "\n\t==> "
+                                                    library.getLogger().debug( "Mirroring: " + repoUrl + "\n\t==> "
                                                                                    + mirrorUrl );
                                                 }
 
@@ -280,8 +279,7 @@ public class NexusAutoMirrorSelector
                             }
                             else if ( library.getLogger().isDebugEnabled() )
                             {
-                                library.getLogger().debug(
-                                                           "Response: " + response.getStatusLine().getStatusCode()
+                                library.getLogger().debug( "Response: " + response.getStatusLine().getStatusCode()
                                                                + " " + response.getStatusLine().getReasonPhrase() );
                             }
 
@@ -298,8 +296,7 @@ public class NexusAutoMirrorSelector
                 {
                     if ( library.getLogger().isDebugEnabled() )
                     {
-                        library.getLogger().debug(
-                                                   "Failed to read proxied repositories from: '" + builder.toString()
+                        library.getLogger().debug( "Failed to read proxied repositories from: '" + builder.toString()
                                                        + "'. Reason: " + e.getMessage(), e );
                     }
                 }
@@ -307,8 +304,7 @@ public class NexusAutoMirrorSelector
                 {
                     if ( library.getLogger().isDebugEnabled() )
                     {
-                        library.getLogger().debug(
-                                                   "Failed to read proxied repositories from: '" + builder.toString()
+                        library.getLogger().debug( "Failed to read proxied repositories from: '" + builder.toString()
                                                        + "'. Reason: " + e.getMessage(), e );
                     }
                 }
