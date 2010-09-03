@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>emb-version-scheme-injector</artifactId>
+  <version>0.3</version>
 
   <name>EMB Version-Scheme Injector</name>
   <description>Injector to provide support for alternative versioning schemes in EMB.</description>

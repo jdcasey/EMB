@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>emb-resolver-events</artifactId>
+  <version>0.3</version>
   <name>EMB Artifact Resolver Event Source</name>
 
   <dependencyManagement>

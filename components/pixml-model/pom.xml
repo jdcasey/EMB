@@ -8,6 +8,7 @@
   </parent>
 
   <artifactId>emb-pixml-model</artifactId>
+  <version>0.3</version>
 
   <name>EMB Processing-Instruction Model Reader</name>
   <description>PI-aware POM.xml model reader</description>

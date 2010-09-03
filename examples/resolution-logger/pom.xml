@@ -4,7 +4,7 @@
   <parent>
     <artifactId>emb-examples</artifactId>
     <groupId>org.commonjava.emb.examples</groupId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
   </parent>
   
   <artifactId>example-resolution-logger</artifactId>
