@@ -29,6 +29,12 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.commonjava.emb.infra</groupId>
+      <artifactId>emb-plexus-guice</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <scope>compile</scope>
