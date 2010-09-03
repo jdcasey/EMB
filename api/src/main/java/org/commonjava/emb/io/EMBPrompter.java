@@ -149,9 +149,8 @@ public class EMBPrompter
 
         try
         {
-            return new ConsoleReader( embConfig.getStandardIn(),
-                                      new OutputStreamWriter( embConfig.getStandardOut() ) ).readLine( new Character(
-                                                                                                                        '*' ) );
+            return new ConsoleReader( embConfig.getStandardIn(), new OutputStreamWriter( embConfig.getStandardOut() ) ).readLine( new Character(
+                                                                                                                                                 '*' ) );
         }
         catch ( final IOException e )
         {
@@ -170,8 +169,7 @@ public class EMBPrompter
         {
             formatted.append( " (" );
 
-            for ( @SuppressWarnings( "rawtypes" )
-            final Iterator it = possibleValues.iterator(); it.hasNext(); )
+            for ( final Iterator it = possibleValues.iterator(); it.hasNext(); )
             {
                 final String possibleValue = (String) it.next();
 

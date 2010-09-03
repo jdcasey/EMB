@@ -33,10 +33,18 @@ public final class EMBPlexusBeanLocator
     implements PlexusBeanLocator
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String REALM_VISIBILITY = "realm";
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final BeanLocator beanLocator;
+
+    private final String visibility;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -45,16 +53,31 @@ public final class EMBPlexusBeanLocator
     @Inject
     public EMBPlexusBeanLocator( final BeanLocator beanLocator )
     {
+        this( beanLocator, REALM_VISIBILITY );
+    }
+
+    public EMBPlexusBeanLocator( final BeanLocator beanLocator, String visibility )
+    {
         this.beanLocator = beanLocator;
+        this.visibility = visibility;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
+    public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        final PlexusBeans<T> plexusBeans = new PlexusBeans<T>( role, hints );
+        final PlexusBeans<T> plexusBeans;
+        if ( REALM_VISIBILITY.equalsIgnoreCase( visibility ) )
+        {
+            plexusBeans = new RealmPlexusBeans<T>( role, hints );
+        }
+        else
+        {
+            plexusBeans = new GlobalPlexusBeans<T>( role, hints );
+        }
+
         if ( hints.length == 1 )
         {
             plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Names.named( hints[0] ) ), plexusBeans ) );

@@ -14,10 +14,10 @@ public interface EMBManagementView
     <T> T lookup( Class<T> role )
         throws EMBManagementException;
 
-    <T> Map<String, T> lookupMap( Class<T> role, String... hints )
+    <T> Map<String, T> lookupMap( Class<T> role )
         throws EMBManagementException;
 
-    <T> List<T> lookupList( Class<T> role, String... hints )
+    <T> List<T> lookupList( Class<T> role )
         throws EMBManagementException;
 
     EMBConfiguration getConfiguration();

@@ -33,10 +33,10 @@ import org.commonjava.emb.boot.main.EMBMain;
 import org.commonjava.emb.boot.services.EMBServiceManager;
 import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.conf.EMBLibrary;
-import org.commonjava.emb.conf.mgmt.LoadOnFinish;
-import org.commonjava.emb.conf.mgmt.LoadOnStart;
 import org.commonjava.emb.conf.mgmt.EMBManagementException;
 import org.commonjava.emb.conf.mgmt.EMBManagementView;
+import org.commonjava.emb.conf.mgmt.LoadOnFinish;
+import org.commonjava.emb.conf.mgmt.LoadOnStart;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
@@ -47,8 +47,6 @@ import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,12 +95,11 @@ public class EMBEmbedder
 
     private transient final EMBServiceManager serviceManager;
 
-    EMBEmbedder( final Maven maven, final EMBConfiguration embConfiguration,
-                   final MutablePlexusContainer container, final SettingsBuilder settingsBuilder,
-                   final MavenExecutionRequestPopulator executionRequestPopulator,
-                   final DefaultSecDispatcher securityDispatcher, final EMBServiceManager serviceManager,
-                   final PrintStream standardOut, final Logger logger, final boolean shouldShowErrors,
-                   final boolean showVersion )
+    EMBEmbedder( final Maven maven, final EMBConfiguration embConfiguration, final MutablePlexusContainer container,
+                 final SettingsBuilder settingsBuilder, final MavenExecutionRequestPopulator executionRequestPopulator,
+                 final DefaultSecDispatcher securityDispatcher, final EMBServiceManager serviceManager,
+                 final PrintStream standardOut, final Logger logger, final boolean shouldShowErrors,
+                 final boolean showVersion )
     {
         this.maven = maven;
         this.embConfiguration = embConfiguration;
@@ -238,8 +235,8 @@ public class EMBEmbedder
                     catch ( final ComponentLookupException e )
                     {
                         throw new EMBEmbeddingException(
-                                                           "Failed to lookup load-on-start component for initialization: %s.\nReason: %s",
-                                                           e, key, e.getMessage() );
+                                                         "Failed to lookup load-on-start component for initialization: %s.\nReason: %s",
+                                                         e, key, e.getMessage() );
                     }
                 }
             }
@@ -400,9 +397,9 @@ public class EMBEmbedder
             catch ( final SettingsBuildingException e )
             {
                 throw new EMBEmbeddingException(
-                                                   "Failed to build settings; {0}\nGlobal settings: {1}\nUser settings: {2}",
-                                                   e, e.getMessage(), request.getGlobalSettingsFile(),
-                                                   request.getUserSettingsFile() );
+                                                 "Failed to build settings; {0}\nGlobal settings: {1}\nUser settings: {2}",
+                                                 e, e.getMessage(), request.getGlobalSettingsFile(),
+                                                 request.getUserSettingsFile() );
             }
 
             settings = settingsResult.getEffectiveSettings();
@@ -634,8 +631,8 @@ public class EMBEmbedder
             catch ( final ComponentLookupException e )
             {
                 throw new EMBManagementException(
-                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
-                                                    e, role, hint, e.getMessage() );
+                                                  "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
+                                                  e, role, hint, e.getMessage() );
             }
         }
 
@@ -650,8 +647,8 @@ public class EMBEmbedder
             catch ( final ComponentLookupException e )
             {
                 throw new EMBManagementException(
-                                                    "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
-                                                    e, role, PlexusConstants.PLEXUS_DEFAULT_HINT, e.getMessage() );
+                                                  "Failed to lookup component for managed component.\nRole: %s\nHint: %s\nReason: %s",
+                                                  e, role, PlexusConstants.PLEXUS_DEFAULT_HINT, e.getMessage() );
             }
         }
 
@@ -661,35 +658,33 @@ public class EMBEmbedder
             return configuration;
         }
 
-        @Override
-        public <T> Map<String, T> lookupMap( final Class<T> role, final String... hints )
+        public <T> Map<String, T> lookupMap( final Class<T> role )
             throws EMBManagementException
         {
             try
             {
-                return container.lookupMap( role, hints == null ? new ArrayList<String>() : Arrays.asList( hints ) );
+                return container.lookupMap( role );
             }
             catch ( final ComponentLookupException e )
             {
                 throw new EMBManagementException(
-                                                    "Failed to lookup component-map for managed component.\nRole: %s\nHints: %s\nReason: %s",
-                                                    e, role, StringUtils.join( hints, "," ), e.getMessage() );
+                                                  "Failed to lookup component-map for managed component.\nRole: %s\nReason: %s",
+                                                  e, role, e.getMessage() );
             }
         }
 
-        @Override
-        public <T> List<T> lookupList( final Class<T> role, final String... hints )
+        public <T> List<T> lookupList( final Class<T> role )
             throws EMBManagementException
         {
             try
             {
-                return container.lookupList( role, hints == null ? new ArrayList<String>() : Arrays.asList( hints ) );
+                return container.lookupList( role );
             }
             catch ( final ComponentLookupException e )
             {
                 throw new EMBManagementException(
-                                                    "Failed to lookup component-list for managed component.\nRole: %s\nHints: %s\nReason: %s",
-                                                    e, role, StringUtils.join( hints, "," ), e.getMessage() );
+                                                  "Failed to lookup component-list for managed component.\nRole: %s\nReason: %s",
+                                                  e, role, e.getMessage() );
             }
         }
 

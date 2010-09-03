@@ -20,6 +20,7 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -36,13 +37,17 @@ import org.commonjava.emb.internal.plexus.guice.XPlexusXmlBeanModule;
 import org.commonjava.emb.internal.plexus.lifecycle.XPlexusLifecycleManager;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
+import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.EMBBeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
-import org.sonatype.guice.bean.locators.EMBBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanModule;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -55,6 +60,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 import org.sonatype.guice.plexus.locators.EMBPlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
@@ -62,17 +68,20 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +94,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class EMBPlexusContainer
     implements MutablePlexusContainer
 {
+    static
+    {
+        System.setProperty( "guice.disable.misplaced.annotation.check", "true" );
+    }
+
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
@@ -114,18 +128,25 @@ public final class EMBPlexusContainer
 
     final XPlexusLifecycleManager lifecycleManager;
 
-    private ContainerSecurityManager securityManager;
+    private final PlexusBeanLocator plexusBeanLocator;
 
-    private final SetupModule setupModule = new SetupModule();
+    private final String componentVisibility;
+
+    private final boolean isClassPathScanningEnabled;
+
+    private final Module bootModule = new BootModule();
+
+    private final Module setupModule = new SetupModule();
+
+    private final Module loggerModule = new LoggerModule();
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
     private Logger logger;
 
-    @Inject
-    private PlexusBeanLocator plexusBeanLocator;
-
     private final ComponentSelector componentSelector;
+
+    private boolean disposing;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -137,41 +158,54 @@ public final class EMBPlexusContainer
         this( new DefaultContainerConfiguration(), componentSelector, instanceRegistry );
     }
 
+    @SuppressWarnings( "finally" )
     public EMBPlexusContainer( final ContainerConfiguration configuration, final ComponentSelector componentSelector,
-                                 final InstanceRegistry instanceRegistry )
+                               final InstanceRegistry instanceRegistry )
         throws PlexusContainerException
     {
         this.componentSelector = componentSelector;
         final URL plexusXml = lookupPlexusXml( configuration );
 
-        final Map<Object, Object> ctxMap = configuration.getContext();
-        context = ctxMap == null ? new DefaultContext() : new DefaultContext( ctxMap );
+        context = new DefaultContext( configuration.getContext() );
 
         context.put( PlexusConstants.PLEXUS_KEY, this );
         variables = (Map) new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new XPlexusLifecycleManager( this, context );
+        componentVisibility = configuration.getComponentVisibility();
 
-        try
-        {
-            // optional approach to finding role class loader
-            securityManager = new ContainerSecurityManager();
-        }
-        catch ( final SecurityException e )
-        {
-            securityManager = null;
-        }
+        plexusBeanLocator = new EMBPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
 
         realmIds.add( containerRealm.getId() );
+        setLookupRealm( containerRealm );
 
         final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         beanModules.add( new XPlexusXmlBeanModule( componentSelector, space, variables, plexusXml ) );
-        beanModules.add( new XPlexusAnnotatedBeanModule( componentSelector, space, variables ) );
 
-        addPlexusInjector( beanModules, new InstanceRegistryModule( instanceRegistry ) );
+        isClassPathScanningEnabled = configuration.getClassPathScanning();
+        if ( isClassPathScanningEnabled )
+        {
+            beanModules.add( new XPlexusAnnotatedBeanModule( componentSelector, space, variables ) );
+        }
+
+        try
+        {
+            addPlexusInjector( beanModules, new InstanceRegistryModule( instanceRegistry ), bootModule );
+        }
+        catch ( final RuntimeException e )
+        {
+            try
+            {
+                dispose(); // cleanup as much as possible
+            }
+            finally
+            {
+                throw e; // always report original failure
+            }
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -190,60 +224,62 @@ public final class EMBPlexusContainer
     public Object lookup( final String role )
         throws ComponentLookupException
     {
-        return lookup( role, Hints.DEFAULT_HINT );
+        return lookup( role, "" );
     }
 
     public Object lookup( final String role, final String hint )
         throws ComponentLookupException
     {
-        return lookup( loadRoleClass( role ), hint );
+        return lookup( null, role, hint );
     }
 
     public <T> T lookup( final Class<T> role )
         throws ComponentLookupException
     {
-        return lookup( role, Hints.DEFAULT_HINT );
+        return lookup( role, "" );
     }
 
     public <T> T lookup( final Class<T> role, final String hint )
         throws ComponentLookupException
     {
-        try
-        {
-            return locate( role, hint ).iterator().next().getValue();
-        }
-        catch ( final Throwable e )
-        {
-            throw new ComponentLookupException( e, role.getName(), hint );
-        }
+        return lookup( role, null, hint );
     }
 
     public <T> T lookup( final Class<T> type, final String role, final String hint )
         throws ComponentLookupException
     {
-        return lookup( loadRoleClass( type, role ), hint );
+        try
+        {
+            return locate( role, type, hint ).iterator().next().getValue();
+        }
+        catch ( final Throwable e )
+        {
+            throw new ComponentLookupException( e, null != role ? role : type.getName(), hint );
+        }
     }
 
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
-        return lookupList( loadRoleClass( role ) );
+        return new EntryListAdapter<String, Object>( locate( role, null ) );
     }
 
     public <T> List<T> lookupList( final Class<T> role )
+        throws ComponentLookupException
     {
-        return new EntryListAdapter<String, T>( locate( role ) );
+        return new EntryListAdapter<String, T>( locate( null, role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
         throws ComponentLookupException
     {
-        return lookupMap( loadRoleClass( role ) );
+        return new EntryMapAdapter<String, Object>( locate( role, null ) );
     }
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
+        throws ComponentLookupException
     {
-        return new EntryMapAdapter<String, T>( locate( role ) );
+        return new EntryMapAdapter<String, T>( locate( null, role ) );
     }
 
     // ----------------------------------------------------------------------
@@ -252,23 +288,34 @@ public final class EMBPlexusContainer
 
     public boolean hasComponent( final Class<?> role )
     {
-        return hasComponent( role, Hints.DEFAULT_HINT );
+        return hasComponent( role, "" );
     }
 
     public boolean hasComponent( final Class role, final String hint )
     {
-        final Iterator<PlexusBean<?>> i = locate( role, hint ).iterator();
-        return i.hasNext() && i.next().getImplementationClass() != null;
+        return hasComponent( role, null, hint );
     }
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
     {
-        return hasComponent( loadRoleClass( type, role ), hint );
+        return hasPlexusBeans( locate( role, type, hint ) );
     }
 
     // ----------------------------------------------------------------------
     // Component descriptor methods
     // ----------------------------------------------------------------------
+
+    public void addComponent( final Object component, final String role )
+    {
+        try
+        {
+            addComponent( component, component.getClass().getClassLoader().loadClass( role ), Hints.DEFAULT_HINT );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( role, e );
+        }
+    }
 
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
@@ -292,20 +339,23 @@ public final class EMBPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        final ClassRealm realm = descriptor.getRealm();
-        if ( null != realm )
+        ClassRealm realm = descriptor.getRealm();
+        if ( null == realm )
         {
-            List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
-            if ( null == descriptors )
-            {
-                descriptors = new ArrayList<ComponentDescriptor<?>>();
-                descriptorMap.put( realm, descriptors );
-            }
-            descriptors.add( descriptor );
-            if ( containerRealm == realm )
-            {
-                discoverComponents( containerRealm ); // for Maven3 testing
-            }
+            realm = containerRealm;
+            descriptor.setRealm( realm );
+        }
+
+        List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
+        if ( null == descriptors )
+        {
+            descriptors = new ArrayList<ComponentDescriptor<?>>();
+            descriptorMap.put( realm, descriptors );
+        }
+        descriptors.add( descriptor );
+        if ( containerRealm == realm )
+        {
+            discoverComponents( containerRealm ); // for Maven3 testing
         }
     }
 
@@ -316,27 +366,46 @@ public final class EMBPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
+        final Iterator<PlexusBean<T>> i = locate( role, type, hint ).iterator();
         if ( i.hasNext() )
         {
-            return newComponentDescriptor( role, i.next() );
+            final PlexusBean<T> bean = i.next();
+            if ( bean.getImplementationClass() != null )
+            {
+                return newComponentDescriptor( role, bean );
+            }
         }
         return null;
     }
 
     public List getComponentDescriptorList( final String role )
     {
-        return getComponentDescriptorList( loadRoleClass( role ), role );
+        return getComponentDescriptorList( null, role );
     }
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
+        for ( final PlexusBean<T> bean : locate( role, type ) )
         {
             tempList.add( newComponentDescriptor( role, bean ) );
         }
         return tempList;
+    }
+
+    public Map getComponentDescriptorMap( final String role )
+    {
+        return getComponentDescriptorMap( null, role );
+    }
+
+    public <T> Map<String, ComponentDescriptor<T>> getComponentDescriptorMap( final Class<T> type, final String role )
+    {
+        final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<String, ComponentDescriptor<T>>();
+        for ( final PlexusBean<T> bean : locate( role, type ) )
+        {
+            tempMap.put( bean.getKey(), newComponentDescriptor( role, bean ) );
+        }
+        return tempMap;
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm )
@@ -354,7 +423,10 @@ public final class EMBPlexusContainer
             if ( realmIds.add( realm.getId() ) )
             {
                 beanModules.add( new PlexusXmlBeanModule( space, variables ) );
-                beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                if ( isClassPathScanningEnabled )
+                {
+                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                }
             }
             if ( !beanModules.isEmpty() )
             {
@@ -376,8 +448,9 @@ public final class EMBPlexusContainer
         modules.add( setupModule );
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
+        modules.add( loggerModule );
 
-        Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) );
+        Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
 
     // ----------------------------------------------------------------------
@@ -406,17 +479,36 @@ public final class EMBPlexusContainer
         return lookupRealm.get();
     }
 
+    public ClassRealm createChildRealm( final String id )
+    {
+        try
+        {
+            return containerRealm.createChildRealm( id );
+        }
+        catch ( final DuplicateRealmException e1 )
+        {
+            try
+            {
+                return getClassWorld().getRealm( id );
+            }
+            catch ( final NoSuchRealmException e2 )
+            {
+                return null; // should never happen!
+            }
+        }
+    }
+
     // ----------------------------------------------------------------------
     // Logger methods
     // ----------------------------------------------------------------------
 
-    public LoggerManager getLoggerManager()
+    public synchronized LoggerManager getLoggerManager()
     {
         return loggerManager;
     }
 
     @Inject( optional = true )
-    public void setLoggerManager( final LoggerManager loggerManager )
+    public synchronized void setLoggerManager( final LoggerManager loggerManager )
     {
         if ( null != loggerManager )
         {
@@ -429,7 +521,7 @@ public final class EMBPlexusContainer
         logger = null; // refresh our local logger
     }
 
-    public Logger getLogger()
+    public synchronized Logger getLogger()
     {
         if ( null == logger )
         {
@@ -447,8 +539,26 @@ public final class EMBPlexusContainer
         lifecycleManager.unmanage( component );
     }
 
+    public void releaseAll( final Map<String, ?> components )
+    {
+        for ( final Object o : components.values() )
+        {
+            release( o );
+        }
+    }
+
+    public void releaseAll( final List<?> components )
+    {
+        for ( final Object o : components )
+        {
+            release( o );
+        }
+    }
+
     public void dispose()
     {
+        disposing = true;
+
         lifecycleManager.unmanage();
         containerRealm.setParentRealm( null );
         qualifiedBeanLocator.clear();
@@ -490,7 +600,7 @@ public final class EMBPlexusContainer
         }
         if ( null == realm )
         {
-            throw new PlexusContainerException( "Unable to find class realm: " + DEFAULT_REALM_NAME );
+            throw new PlexusContainerException( "Missing container class realm: " + DEFAULT_REALM_NAME );
         }
         return realm;
     }
@@ -533,88 +643,88 @@ public final class EMBPlexusContainer
                 }
                 if ( null == url )
                 {
-                    getLogger().warn( "Missing container configuration: " + configurationPath );
+                    getLogger().debug( "Missing container configuration: " + configurationPath );
                 }
             }
         }
         return url;
     }
 
-    private <T> Class<T> loadRoleClass( final Class<T> type, final String role )
+    private <T> Iterable<PlexusBean<T>> locate( final String role, final Class<T> type, final String... hints )
     {
-        return null != type && role.equals( type.getName() ) ? type : (Class) loadRoleClass( role );
+        if ( disposing )
+        {
+            return Collections.EMPTY_LIST;
+        }
+
+        final String[] canonicalHints = Hints.canonicalHints( hints );
+        if ( null == role || null != type && type.getName().equals( role ) )
+        {
+            return plexusBeanLocator.locate( TypeLiteral.get( type ), canonicalHints );
+        }
+
+        final Set<Class> candidates = new HashSet<Class>();
+        for ( final ClassRealm realm : getVisibleRealms() )
+        {
+            try
+            {
+                final Class clazz = realm.loadClass( role );
+                if ( candidates.add( clazz ) )
+                {
+                    final Iterable beans = plexusBeanLocator.locate( TypeLiteral.get( clazz ), canonicalHints );
+                    if ( hasPlexusBeans( beans ) )
+                    {
+                        return beans;
+                    }
+                }
+            }
+            catch ( final Throwable e )
+            {
+                // continue...
+            }
+        }
+
+        return Collections.EMPTY_LIST;
     }
 
-    /**
-     * Loads the named Plexus role from the current container {@link ClassRealm}.
-     * 
-     * @param role The Plexus role
-     * @return Plexus role class
-     */
-    private Class<Object> loadRoleClass( final String role )
+    private Collection<ClassRealm> getVisibleRealms()
     {
-        Throwable exception = null;
-        try
+        final Object[] realms = getClassWorld().getRealms().toArray();
+        final Set<ClassRealm> visibleRealms = new LinkedHashSet<ClassRealm>( realms.length );
+        final ClassRealm currentLookupRealm = getLookupRealm();
+        if ( null != currentLookupRealm )
         {
-            // the majority of roles are found here
-            return containerRealm.loadClass( role );
+            visibleRealms.add( currentLookupRealm );
         }
-        catch ( final Throwable e )
+
+        if ( PlexusConstants.REALM_VISIBILITY.equals( componentVisibility ) )
         {
-            exception = e;
-        }
-        final ClassRealm realm = getLookupRealm();
-        if ( null != realm && containerRealm != realm )
-        {
-            try
+            final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( ClassRealmUtils.contextRealm() );
+            if ( !visibleNames.isEmpty() )
             {
-                // Plexus per-thread lookup
-                return realm.loadClass( role );
-            }
-            catch ( final Throwable e )
-            {
-                exception = e;
-            }
-        }
-        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        if ( null != tccl && containerRealm != tccl )
-        {
-            try
-            {
-                // standard Java per-thread lookup
-                return (Class) tccl.loadClass( role );
-            }
-            catch ( final Throwable e )
-            {
-                exception = e;
-            }
-        }
-        if ( null != securityManager )
-        {
-            try
-            {
-                // otherwise the caller should be able to see it!
-                return securityManager.loadClassFromCaller( role );
-            }
-            catch ( final Throwable e )
-            {
-                exception = e;
+                for ( int i = realms.length - 1; i >= 0; i-- )
+                {
+                    final ClassRealm r = (ClassRealm) realms[i];
+                    if ( visibleNames.contains( r.toString() ) )
+                    {
+                        visibleRealms.add( r );
+                    }
+                }
+                return visibleRealms;
             }
         }
 
-        throw new TypeNotPresentException( role, exception );
+        for ( int i = realms.length - 1; i >= 0; i-- )
+        {
+            visibleRealms.add( (ClassRealm) realms[i] );
+        }
+        return visibleRealms;
     }
 
-    /**
-     * Locates instances of the given role, filtered using the given named hints.
-     * 
-     * @param role The Plexus role
-     * @param hints The Plexus hints
-     * @return Instances of the given role; ordered according to the given hints
-     */
-    private <T> Iterable<PlexusBean<T>> locate( final Class<T> role, final String... hints )
+    private <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )
     {
-        return plexusBeanLocator.locate( TypeLiteral.get( role ), hints );
+        final Iterator<PlexusBean<T>> i = beans.iterator();
+        return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
     private <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )
@@ -627,6 +737,16 @@ public final class EMBPlexusContainer
         return cd;
     }
 
+    final class BootModule
+        extends AbstractModule
+    {
+        @Override
+        protected void configure()
+        {
+            requestInjection( EMBPlexusContainer.this );
+        }
+    }
+
     final class SetupModule
         extends AbstractModule
     {
@@ -634,71 +754,67 @@ public final class EMBPlexusContainer
 
         final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
 
-        final LoggerProvider loggerProvider = new LoggerProvider();
-
         @Override
         protected void configure()
         {
             bind( Context.class ).toInstance( context );
             bind( ParameterKeys.PROPERTIES ).toInstance( variables );
-            bind( Logger.class ).toProvider( loggerProvider );
 
-            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
-            bind( PlexusBeanLocator.class ).to( EMBPlexusBeanLocator.class );
+            install( dateConverter );
 
             bind( MutablePlexusContainer.class ).toInstance( EMBPlexusContainer.this );
             bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
 
+            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
+            bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
-            install( dateConverter );
+            // use provider wrapper to avoid repeated injections later on when configuring plugin injectors
+            bind( MutablePlexusContainer.class ).toProvider( Providers.of( EMBPlexusContainer.this ) );
+        }
+    }
+
+    final class LoggerModule
+        extends AbstractModule
+    {
+        final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
+
+        final LoggerProvider loggerProvider = new LoggerProvider();
+
+        @Override
+        protected void configure()
+        {
+            bind( LoggerManager.class ).toProvider( loggerManagerProvider );
+            bind( Logger.class ).toProvider( loggerProvider );
+        }
+    }
+
+    final class LoggerManagerProvider
+        implements DeferredProvider<LoggerManager>
+    {
+        public LoggerManager get()
+        {
+            return getLoggerManager();
+        }
+
+        public DeferredClass<LoggerManager> getImplementationClass()
+        {
+            return new LoadedClass<LoggerManager>( get().getClass() );
         }
     }
 
     final class LoggerProvider
-        implements Provider<Logger>
+        implements DeferredProvider<Logger>
     {
         public Logger get()
         {
             return getLogger();
         }
-    }
 
-    /**
-     * Custom {@link SecurityManager} that can load Plexus roles from the calling class loader.
-     */
-    static final class ContainerSecurityManager
-        extends SecurityManager
-    {
-        // ----------------------------------------------------------------------
-        // Constants
-        // ----------------------------------------------------------------------
-
-        private static final String CONTAINER_CLASS_NAME = EMBPlexusContainer.class.getName();
-
-        // ----------------------------------------------------------------------
-        // Locally-shared methods
-        // ----------------------------------------------------------------------
-
-        /**
-         * Loads the given role from the class loader of the first non-container class in the call-stack.
-         * 
-         * @param role The Plexus role
-         * @return Plexus role type
-         */
-        Class loadClassFromCaller( final String role )
-            throws ClassNotFoundException
+        public DeferredClass<Logger> getImplementationClass()
         {
-            for ( final Class clazz : getClassContext() )
-            {
-                // simple check to ignore container related context frames
-                if ( !clazz.getName().startsWith( CONTAINER_CLASS_NAME ) )
-                {
-                    return clazz.getClassLoader().loadClass( role );
-                }
-            }
-            throw new ClassNotFoundException( "Cannot find caller" );
+            return new LoadedClass<Logger>( get().getClass() );
         }
     }
 }
