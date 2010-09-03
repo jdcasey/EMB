@@ -8,22 +8,14 @@
   <packaging>pom</packaging>
   
   <properties>
-<<<<<<< HEAD
-    <mavenVersion>3.0-beta-2</mavenVersion>
-    <plexusVersion>1.5.4</plexusVersion>
-=======
     <mavenVersion>3.0-beta-3</mavenVersion>
->>>>>>> maven-3-guice
+    <plexusVersion>1.5.4</plexusVersion>
   </properties>
   
   <modules>
     <module>integration</module>
     <module>components</module>
-<<<<<<< HEAD
-    <module>examples</module>
-=======
     <!-- <module>examples</module> -->
->>>>>>> maven-3-guice
     <module>bom</module>
     <module>booter</module>
     <module>distro</module>

@@ -12,10 +12,6 @@
 
   <name>EMB Version-Finder API</name>
 
-  <properties>
-  	<mavenVersion>3.0-beta-2</mavenVersion>
-  </properties>
-
   <dependencyManagement>
     <dependencies>
       <dependency>

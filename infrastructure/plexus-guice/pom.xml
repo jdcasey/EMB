@@ -17,21 +17,25 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.sonatype.spice</groupId>
+      <artifactId>spice-inject-plexus</artifactId>
+    </dependency>
+    <!-- <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-shim</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
+    </dependency> -->
     <dependency>
     	<groupId>org.commonjava.emb</groupId>
     	<artifactId>emb-api</artifactId>

@@ -37,9 +37,9 @@ public interface EMBLibrary
 
     Set<ComponentKey<?>> getExportedComponents();
 
-    Set<ComponentKey> getManagementComponents( Class<?> managementType );
+    Set<ComponentKey<?>> getManagementComponents( Class<?> managementType );
 
-    Map<Class<?>, Set<ComponentKey>> getManagementComponents();
+    Map<Class<?>, Set<ComponentKey<?>>> getManagementComponents();
 
     String getLabel();
 
