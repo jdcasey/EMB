@@ -1,12 +1,9 @@
 package org.commonjava.emb.plexus;
 
-import static org.codehaus.plexus.util.StringUtils.isBlank;
-import static org.codehaus.plexus.util.StringUtils.isNotBlank;
-
-import org.apache.log4j.Logger;
-import org.codehaus.plexus.PlexusConstants;
-
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -26,35 +23,26 @@ import java.util.Properties;
 public class ComponentSelector
 {
 
-    private static final String BLANK_ROLE_HINT_PLACEHOLDER = "#";
-
-    private static final char LITERAL_HINT_DELIMITER = '_';
-
-    private static final Logger logger = Logger.getLogger( ComponentSelector.class );
-
-    private final Properties selections;
-
-    public ComponentSelector( final Properties selections )
-    {
-        this.selections = selections == null ? new Properties() : selections;
-    }
-
-    public ComponentSelector( final ComponentSelector selectorToCopy )
-    {
-        selections = new Properties();
-        merge( selectorToCopy );
-    }
+    private Map<ComponentKey<?>, ComponentKey<?>> remappedComponentHints =
+        new HashMap<ComponentKey<?>, ComponentKey<?>>();
 
     public ComponentSelector()
     {
-        selections = new Properties();
     }
 
     public ComponentSelector merge( final ComponentSelector selectorToCopy )
     {
         if ( selectorToCopy != null && !selectorToCopy.isEmpty() )
         {
-            selections.putAll( selectorToCopy.selections );
+            final Map<ComponentKey<?>, ComponentKey<?>> result = new HashMap<ComponentKey<?>, ComponentKey<?>>();
+            result.putAll( selectorToCopy.remappedComponentHints );
+
+            if ( !remappedComponentHints.isEmpty() )
+            {
+                result.putAll( remappedComponentHints );
+            }
+
+            remappedComponentHints = result;
         }
 
         return this;
@@ -62,88 +50,56 @@ public class ComponentSelector
 
     public boolean isEmpty()
     {
-        return selections.isEmpty();
+        return remappedComponentHints.isEmpty();
     }
 
-    public String selectRoleHint( final String role, final String roleHint )
+    public <T> boolean hasOverride( final Class<T> role, final String hint )
     {
-        final StringBuilder sb = new StringBuilder( role );
+        final ComponentKey<T> check = new ComponentKey<T>( role, hint );
+        return remappedComponentHints.containsKey( check );
+    }
 
-        if ( isNotBlank( roleHint ) )
+    public <T> boolean hasOverride( final Class<T> role )
+    {
+        final ComponentKey<T> check = new ComponentKey<T>( role );
+        return remappedComponentHints.containsKey( check );
+    }
+
+    public Set<ComponentKey<?>> getKeysOverriddenBy( final Class<?> role, final String hint )
+    {
+        @SuppressWarnings( { "rawtypes", "unchecked" } )
+        final ComponentKey check = new ComponentKey( role, hint );
+
+        final Set<ComponentKey<?>> result = new HashSet<ComponentKey<?>>();
+        for ( final Map.Entry<ComponentKey<?>, ComponentKey<?>> mapping : remappedComponentHints.entrySet() )
         {
-            if ( BLANK_ROLE_HINT_PLACEHOLDER.equals( roleHint ) )
+            if ( mapping.getValue().equals( check ) )
             {
-                return null;
+                result.add( mapping.getKey() );
             }
-            else if ( roleHint.length() > 2 && roleHint.charAt( 0 ) == LITERAL_HINT_DELIMITER
-                && roleHint.charAt( roleHint.length() - 1 ) == LITERAL_HINT_DELIMITER )
-            {
-                return roleHint.substring( 1, roleHint.length() - 1 );
-            }
-
-            sb.append( '#' ).append( roleHint );
         }
 
-        String selectedHint = selections.getProperty( sb.toString() );
-        if ( selectedHint == null && PlexusConstants.PLEXUS_DEFAULT_HINT.equals( roleHint ) )
-        {
-            selectedHint = selections.getProperty( role );
-        }
-
-        if ( selectedHint == null )
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug( "No component override for role: '" + role + "', hint: '" + roleHint + "'." );
-            }
-
-            return roleHint;
-        }
-        else
-        {
-            if ( logger.isDebugEnabled() )
-            {
-                logger.debug( "Replaced hint: '" + roleHint + "' with hint: '" + selectedHint + "' for role: '" + role
-                    + "'." );
-            }
-
-            return selectedHint;
-        }
+        return result;
     }
 
-    public ComponentSelector setSelection( final ComponentKey originalKey, final String newHint )
+    public <T> ComponentSelector setSelection( final ComponentKey<T> originalKey, final String newHint )
     {
-        selections.setProperty( format( originalKey.getRole(), originalKey.getHint() ), newHint );
+        remappedComponentHints.put( originalKey, new ComponentKey<T>( originalKey.getRoleClass(), newHint ) );
         return this;
     }
 
-    public ComponentSelector setSelection( final Class<?> role, final String oldHint, final String newHint )
+    public <T> ComponentSelector setSelection( final Class<T> role, final String oldHint, final String newHint )
     {
-        selections.setProperty( format( role.getName(), oldHint ), newHint );
+        final ComponentKey<T> originalKey = new ComponentKey<T>( role, oldHint );
+        remappedComponentHints.put( originalKey, new ComponentKey<T>( role, newHint ) );
         return this;
     }
 
-    public ComponentSelector setSelection( final String role, final String oldHint, final String newHint )
+    public <T> ComponentSelector setSelection( final Class<T> role, final String newHint )
     {
-        selections.setProperty( format( role, oldHint ), newHint );
+        final ComponentKey<T> originalKey = new ComponentKey<T>( role );
+        remappedComponentHints.put( originalKey, new ComponentKey<T>( role, newHint ) );
         return this;
-    }
-
-    public ComponentSelector setSelection( final Class<?> role, final String newHint )
-    {
-        selections.setProperty( format( role.getName(), null ), newHint );
-        return this;
-    }
-
-    public ComponentSelector setSelection( final String role, final String newHint )
-    {
-        selections.setProperty( format( role, null ), newHint );
-        return this;
-    }
-
-    private String format( final String role, final String hint )
-    {
-        return role + ( isBlank( hint ) || PlexusConstants.PLEXUS_DEFAULT_HINT.equals( hint ) ? "" : "#" + hint );
     }
 
 }
