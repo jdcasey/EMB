@@ -4,11 +4,11 @@
   
   <groupId>org.commonjava.emb</groupId>
   <artifactId>emb</artifactId>
-  <version>0.3-b2-SNAPSHOT</version>
+  <version>0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   
   <properties>
-    <mavenVersion>3.0-beta-3-SNAPSHOT</mavenVersion>
+    <mavenVersion>3.0-beta-3</mavenVersion>
   </properties>
   
   <modules>
