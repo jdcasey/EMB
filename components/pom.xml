@@ -58,16 +58,8 @@
     <module>emb-redirector-resolver</module> -->
     <module>pixml-model</module>
     <module>version-scheme-injector</module>
+    <module>version-finder</module>
     <module>maven-scm-support</module>
   </modules>
   
-  <profiles>
-    <profile>
-      <id>experimental</id>
-      
-      <modules>
-        <module>version-finder</module>
-      </modules>
-    </profile>
-  </profiles>
 </project>
