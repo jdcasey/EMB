@@ -81,11 +81,12 @@ class XQualifiedBeans<Q extends Annotation, T>
     /**
      * Adds qualified beans from the given injector to the current sequence.
      * 
-     * @param injector The new injector
+     * @param injector
+     *            The new injector
      * @return Added beans
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
+    public List<QualifiedBean<Q, T>> add( final Injector injector )
     {
         final Collection<Binding<?>> bindings;
         final TypeLiteral bindingType = key.getTypeLiteral();
@@ -97,7 +98,7 @@ class XQualifiedBeans<Q extends Annotation, T>
             String hint = null;
 
             if ( annotation != null && ( annotation instanceof Named )
-                && ComponentKey.isLiteral( ( (Named) annotation ).value() ) )
+                            && ComponentKey.isLiteral( ( (Named) annotation ).value() ) )
             {
                 hint = ComponentKey.getLiteralHint( ( (Named) annotation ).value() );
                 b = injector.getBindings().get( Key.get( bindingType, Names.named( hint ) ) );
@@ -134,6 +135,8 @@ class XQualifiedBeans<Q extends Annotation, T>
         {
             return Collections.EMPTY_LIST;
         }
+
+        int pivot = 0;
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding binding : bindings )
         {
@@ -142,13 +145,21 @@ class XQualifiedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )
                 {
-                    newBeans.add( new QualifiedBean<Q, T>( qualifier, binding ) );
+                    final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+                    if ( DEFAULT_QUALIFIER.equals( qualifier ) )
+                    {
+                        newBeans.add( pivot++, bean );
+                    }
+                    else
+                    {
+                        newBeans.add( bean );
+                    }
                 }
             }
         }
         if ( !newBeans.isEmpty() )
         {
-            mergeQualifiedBeans( newBeans );
+            mergeQualifiedBeans( pivot, newBeans );
         }
         return newBeans;
     }
@@ -156,7 +167,8 @@ class XQualifiedBeans<Q extends Annotation, T>
     /**
      * Removes qualified beans from the given injector from the current sequence.
      * 
-     * @param injector The old injector
+     * @param injector
+     *            The old injector
      * @return Removed beans
      */
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
@@ -227,33 +239,32 @@ class XQualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    private void mergeQualifiedBeans( final List<QualifiedBean<Q, T>> newBeans )
+    private synchronized void mergeQualifiedBeans( final int pivot, final List<QualifiedBean<Q, T>> newBeans )
     {
-        final int numBeans = newBeans.size();
+        final int newBeansLength = newBeans.size();
         if ( null == beans )
         {
-            beans = new ArrayList<QualifiedBean<Q, T>>( numBeans );
+            beans = new ArrayList<QualifiedBean<Q, T>>( newBeansLength );
         }
         else
         {
-            beans.ensureCapacity( beans.size() + numBeans );
+            beans.ensureCapacity( beans.size() + newBeansLength );
         }
-        int defaultIndex = 0;
-        while ( defaultIndex < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( defaultIndex ).getKey() ) )
+
+        if ( pivot > 0 )
         {
-            defaultIndex++;
+            beans.addAll( 0, newBeans.subList( 0, pivot ) );
         }
-        for ( int i = 0; i < numBeans; i++ )
+
+        if ( pivot < newBeansLength )
         {
-            final QualifiedBean<Q, T> bean = newBeans.get( i );
-            if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
+            int i = pivot;
+            while ( i < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( i ).getKey() ) )
             {
-                beans.add( defaultIndex++, bean );
+                i++;
             }
-            else
-            {
-                beans.add( bean );
-            }
+
+            beans.addAll( i, newBeans.subList( pivot, newBeansLength ) );
         }
     }
 }

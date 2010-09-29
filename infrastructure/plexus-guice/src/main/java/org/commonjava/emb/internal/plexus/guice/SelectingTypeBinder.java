@@ -16,11 +16,11 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.sonatype.guice.bean.binders.QualifiedTypeBinder;
+import org.sonatype.guice.bean.locators.BeanDescription;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanDescription;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
@@ -100,7 +100,7 @@ public final class SelectingTypeBinder
 
         final Binder componentBinder = componentBinder( source, component.description() );
 
-        // if this component has been overridden with something else, let the overriding component 
+        // if this component has been overridden with something else, let the overriding component
         // create an alias from the main hint. Use hint_ here instead.
         if ( componentSelector.hasOverride( role, hint ) )
         {
@@ -112,7 +112,7 @@ public final class SelectingTypeBinder
             final Set<ComponentKey<?>> overriddenKeys = componentSelector.getKeysOverriddenBy( role, hint );
 
             // bind the normal component role+hint, with the exception that we're forcing the explicit
-            // use of the default hint here to avoid Guice running into an infinite loop looking up 
+            // use of the default hint here to avoid Guice running into an infinite loop looking up
             // for the component role without a hint...which could be assigned as an alias.
             Key<?> rootKey;
             if ( Hints.isDefaultHint( hint ) )
@@ -199,7 +199,7 @@ public final class SelectingTypeBinder
     // ----------------------------------------------------------------------
 
     private static final class DefaultPlexusBeanDescription
-        implements PlexusBeanDescription
+        implements BeanDescription
     {
         private final Object source;
 

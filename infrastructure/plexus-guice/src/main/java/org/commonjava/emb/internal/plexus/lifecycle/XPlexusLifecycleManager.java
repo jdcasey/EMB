@@ -12,17 +12,23 @@
  */
 package org.commonjava.emb.internal.plexus.lifecycle;
 
-import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.context.Context;
+import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
+
+import com.google.inject.ProvisionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +43,11 @@ public final class XPlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Object> activeBeans = new ArrayList<Object>();
+    private final List<Startable> startableBeans = new ArrayList<Startable>();
 
-    private final PlexusContainer container;
+    private final List<Disposable> disposableBeans = new ArrayList<Disposable>();
+
+    private final MutablePlexusContainer container;
 
     private final Context context;
 
@@ -47,7 +55,7 @@ public final class XPlexusLifecycleManager
     // Constructors
     // ----------------------------------------------------------------------
 
-    public XPlexusLifecycleManager( final PlexusContainer container, final Context context )
+    public XPlexusLifecycleManager( final MutablePlexusContainer container, final Context context )
     {
         this.container = container;
         this.context = context;
@@ -60,8 +68,8 @@ public final class XPlexusLifecycleManager
     public boolean manage( final Class<?> clazz )
     {
         return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
-            || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
-            || Disposable.class.isAssignableFrom( clazz );
+                        || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
+                        || Disposable.class.isAssignableFrom( clazz );
     }
 
     @SuppressWarnings( "rawtypes" )
@@ -86,49 +94,76 @@ public final class XPlexusLifecycleManager
                 @SuppressWarnings( "unchecked" )
                 public <B> void injectProperty( final B bean )
                 {
-                    property.set( bean, getLogger( bean.getClass().getName() ) );
+                    property.set( bean, getPlexusLogger( bean ) );
                 }
             };
         }
         return null;
     }
 
-    public boolean manage( final Object bean )
+    public synchronized boolean manage( final Object bean )
     {
-        final String name = bean.getClass().getName();
-        try
+        final boolean isStartable = bean instanceof Startable;
+        final boolean isContextualizable = bean instanceof Contextualizable;
+        final boolean isInitializable = bean instanceof Initializable;
+        final boolean isDisposable = bean instanceof Disposable;
+
+        /*
+         * Record this information before starting, in case there's a problem
+         */
+        if ( isStartable )
         {
-            /*
-             * Run through the startup phase of the standard plexus "personality"
-             */
-            if ( bean instanceof LogEnabled )
-            {
-                ( (LogEnabled) bean ).enableLogging( getLogger( name ) );
-            }
-            if ( bean instanceof Contextualizable )
-            {
-                ( (Contextualizable) bean ).contextualize( context );
-            }
-            if ( bean instanceof Initializable )
-            {
-                ( (Initializable) bean ).initialize();
-            }
-            synchronized ( this )
-            {
-                if ( bean instanceof Startable )
-                {
-                    ( (Startable) bean ).start();
-                    activeBeans.add( bean );
-                }
-                else if ( bean instanceof Disposable )
-                {
-                    activeBeans.add( bean );
-                }
-            }
+            startableBeans.add( (Startable) bean );
         }
-        catch ( final Throwable e )
+
+        if ( isDisposable )
         {
-            getLogger( name ).error( "Problem starting: " + bean, e );
+            disposableBeans.add( (Disposable) bean );
+        }
+
+        if ( bean instanceof LogEnabled )
+        {
+            ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
+        }
+
+        /*
+         * Run through the startup phase of the standard plexus "personality"
+         */
+        if ( isContextualizable || isInitializable || isStartable )
+        {
+            final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            try
+            {
+                for ( Class<?> clazz = bean.getClass(); clazz != null; clazz = clazz.getSuperclass() )
+                {
+                    // need to check hierarchy in case bean is proxied
+                    final ClassLoader loader = clazz.getClassLoader();
+                    if ( loader instanceof ClassRealm )
+                    {
+                        Thread.currentThread().setContextClassLoader( loader );
+                        break;
+                    }
+                }
+
+                if ( isContextualizable )
+                {
+                    contextualize( (Contextualizable) bean );
+                }
+
+                if ( isInitializable )
+                {
+                    initialize( (Initializable) bean );
+                }
+
+                if ( isStartable )
+                {
+                    start( (Startable) bean );
+                }
+            }
+            finally
+            {
+                Thread.currentThread().setContextClassLoader( tccl );
+            }
         }
 
         return true;
@@ -136,18 +171,33 @@ public final class XPlexusLifecycleManager
 
     public synchronized boolean unmanage( final Object bean )
     {
-        return activeBeans.remove( bean ) ? dispose( bean ) : false;
+        if ( startableBeans.remove( bean ) )
+        {
+            stop( (Startable) bean );
+        }
+
+        if ( disposableBeans.remove( bean ) )
+        {
+            dispose( (Disposable) bean );
+        }
+
+        return true;
     }
 
     public synchronized boolean unmanage()
     {
-        boolean result = false;
-        while ( !activeBeans.isEmpty() )
+        // unmanage beans in reverse order
+        while ( !startableBeans.isEmpty() )
         {
-            // dispose in reverse order of startup sequence
-            result |= dispose( activeBeans.remove( activeBeans.size() - 1 ) );
+            stop( startableBeans.remove( startableBeans.size() - 1 ) );
         }
-        return result;
+
+        while ( !disposableBeans.isEmpty() )
+        {
+            dispose( disposableBeans.remove( disposableBeans.size() - 1 ) );
+        }
+
+        return true;
     }
 
     public PlexusBeanManager manageChild()
@@ -159,45 +209,85 @@ public final class XPlexusLifecycleManager
     // Shared implementation methods
     // ----------------------------------------------------------------------
 
-    Logger getLogger( final String name )
+    Logger getPlexusLogger( final Object bean )
     {
-        return container.getLoggerManager().getLoggerForComponent( name, null );
-    }
-
-    void releaseLogger( final String name )
-    {
-        container.getLoggerManager().returnComponentLogger( name, null );
+        return container.getLoggerManager().getLoggerForComponent( bean.getClass().getName(), null );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private boolean dispose( final Object bean )
+    private void contextualize( final Contextualizable bean )
     {
-        final String name = bean.getClass().getName();
         try
         {
-            /*
-             * Run through the shutdown phase of the standard plexus "personality"
-             */
-            if ( bean instanceof Startable )
-            {
-                ( (Startable) bean ).stop();
-            }
-            if ( bean instanceof Disposable )
-            {
-                ( (Disposable) bean ).dispose();
-            }
+            bean.contextualize( context );
+        }
+        catch ( final ContextException e )
+        {
+            throw new ProvisionException( "Error contextualizing: " + bean.getClass(), e );
+        }
+    }
+
+    private static void initialize( final Initializable bean )
+    {
+        try
+        {
+            bean.initialize();
+        }
+        catch ( final InitializationException e )
+        {
+            throw new ProvisionException( "Error initializing: " + bean.getClass(), e );
+        }
+    }
+
+    private static void start( final Startable bean )
+    {
+        try
+        {
+            bean.start();
+        }
+        catch ( final StartingException e )
+        {
+            throw new ProvisionException( "Error starting: " + bean.getClass(), e );
+        }
+    }
+
+    private void stop( final Startable bean )
+    {
+        try
+        {
+            bean.stop();
         }
         catch ( final Throwable e )
         {
-            getLogger( name ).error( "Problem stopping: " + bean, e );
+            warn( "Problem stopping: " + bean.getClass(), e );
         }
-        finally
+    }
+
+    private void dispose( final Disposable bean )
+    {
+        try
         {
-            releaseLogger( name );
+            bean.dispose();
         }
-        return true;
+        catch ( final Throwable e )
+        {
+            warn( "Problem disposing: " + bean.getClass(), e );
+        }
+    }
+
+    private void warn( final String message, final Throwable cause )
+    {
+        try
+        {
+            container.getLogger().warn( message, cause );
+        }
+        catch ( final Throwable ignore )
+        {
+            System.err.println( message );
+            cause.printStackTrace();
+        }
     }
 }

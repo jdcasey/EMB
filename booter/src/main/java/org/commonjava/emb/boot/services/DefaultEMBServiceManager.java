@@ -32,7 +32,7 @@ import org.commonjava.emb.plexus.ServiceAuthorizer;
  * the License.
  */
 
-@Component( role = EMBServiceManager.class, hint = "default" )
+@Component( role = EMBServiceManager.class )
 public class DefaultEMBServiceManager
     implements EMBServiceManager, Contextualizable
 {
@@ -57,7 +57,7 @@ public class DefaultEMBServiceManager
     }
 
     public DefaultEMBServiceManager( final PlexusContainer container, final ProjectBuilder projectBuilder,
-                                       final RepositorySystem repositorySystem )
+                                     final RepositorySystem repositorySystem )
     {
         this.container = container;
         this.projectBuilder = projectBuilder;
@@ -88,7 +88,7 @@ public class DefaultEMBServiceManager
             catch ( final InvalidRepositoryException e )
             {
                 throw new EMBEmbeddingException( "Failed to create default local-repository instance: {0}", e,
-                                                   e.getMessage() );
+                                                 e.getMessage() );
             }
         }
 
@@ -116,7 +116,7 @@ public class DefaultEMBServiceManager
         catch ( final ComponentLookupException e )
         {
             throw new EMBEmbeddingException( "Failed to retrieve service: %s. Reason: %s", e, type.getName(),
-                                               e.getMessage() );
+                                             e.getMessage() );
         }
     }
 
@@ -141,7 +141,7 @@ public class DefaultEMBServiceManager
         catch ( final ComponentLookupException e )
         {
             throw new EMBEmbeddingException( "Failed to retrieve service: %s with hint: %s. Reason: %s", e,
-                                               type.getName(), hint, e.getMessage() );
+                                             type.getName(), hint, e.getMessage() );
         }
     }
 

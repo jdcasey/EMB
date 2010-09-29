@@ -46,6 +46,8 @@ public final class XPlexusXmlBeanModule
 
     private final ComponentSelector componentSelector;
 
+    private final boolean root;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -53,9 +55,12 @@ public final class XPlexusXmlBeanModule
     /**
      * Creates a bean source that scans all the surrounding class spaces for XML resources.
      * 
-     * @param space The main class space
-     * @param variables The filter variables
-     * @param plexusXml The plexus.xml URL
+     * @param space
+     *            The main class space
+     * @param variables
+     *            The filter variables
+     * @param plexusXml
+     *            The plexus.xml URL
      */
     public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
                                  final Map<?, ?> variables, final URL plexusXml )
@@ -64,13 +69,16 @@ public final class XPlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         this.plexusXml = plexusXml;
+        root = true;
     }
 
     /**
      * Creates a bean source that only scans the local class space for XML resources.
      * 
-     * @param space The local class space
-     * @param variables The filter variables
+     * @param space
+     *            The local class space
+     * @param variables
+     *            The filter variables
      */
     public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
                                  final Map<?, ?> variables )
@@ -79,6 +87,7 @@ public final class XPlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         plexusXml = null;
+        root = false;
     }
 
     // ----------------------------------------------------------------------
@@ -89,7 +98,7 @@ public final class XPlexusXmlBeanModule
     {
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
-        final Map<Component, DeferredClass<?>> components = scanner.scan( space );
+        final Map<Component, DeferredClass<?>> components = scanner.scan( space, root );
         final SelectingTypeBinder plexusTypeBinder = new SelectingTypeBinder( componentSelector, binder );
         for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
         {
