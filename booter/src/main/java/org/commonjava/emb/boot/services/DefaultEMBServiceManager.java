@@ -1,8 +1,12 @@
 package org.commonjava.emb.boot.services;
 
-import org.apache.log4j.Logger;
+import org.apache.maven.DefaultMaven;
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenExecutionRequestPopulationException;
+import org.apache.maven.execution.MavenExecutionRequestPopulator;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusConstants;
@@ -13,9 +17,10 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
+import org.commonjava.emb.DefaultEMBExecutionRequest;
 import org.commonjava.emb.boot.embed.EMBEmbeddingException;
-import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.plexus.ServiceAuthorizer;
+import org.sonatype.aether.RepositorySystemSession;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -37,7 +42,7 @@ public class DefaultEMBServiceManager
     implements EMBServiceManager, Contextualizable
 {
 
-    private final Logger logger = Logger.getLogger( EMBConfiguration.STANDARD_LOG_HANDLE_CORE );
+    // private final Logger logger = Logger.getLogger( EMBConfiguration.STANDARD_LOG_HANDLE_CORE );
 
     @Requirement
     private ProjectBuilder projectBuilder;
@@ -47,6 +52,12 @@ public class DefaultEMBServiceManager
 
     @Requirement
     private ServiceAuthorizer authorizer;
+
+    @Requirement( role = Maven.class, hint = "default_" )
+    private DefaultMaven defaultMaven;
+
+    @Requirement
+    private MavenExecutionRequestPopulator requestPopulator;
 
     private transient ArtifactRepository defaultLocalRepo;
 
@@ -66,14 +77,35 @@ public class DefaultEMBServiceManager
 
     public ProjectBuilder projectBuilder()
     {
-        logger.info( "Returning project-builder instance from service manager: " + projectBuilder );
         return projectBuilder;
     }
 
     public RepositorySystem repositorySystem()
     {
-        logger.info( "Returning repository-system instance from service manager: " + repositorySystem );
         return repositorySystem;
+    }
+
+    public RepositorySystemSession createRepositorySystemSession()
+        throws EMBEmbeddingException
+    {
+        try
+        {
+            final MavenExecutionRequest req =
+                requestPopulator.populateDefaults( new DefaultEMBExecutionRequest().asMavenExecutionRequest() );
+
+            return defaultMaven.newRepositorySession( req );
+        }
+        catch ( final MavenExecutionRequestPopulationException e )
+        {
+            throw new EMBEmbeddingException( "Failed to populate default Maven execution request, "
+                            + " for use in constructing a repository system session." + "\nReason: %s", e,
+                                             e.getMessage() );
+        }
+    }
+
+    public RepositorySystemSession createRepositorySystemSession( final MavenExecutionRequest request )
+    {
+        return defaultMaven.newRepositorySession( request );
     }
 
     public synchronized ArtifactRepository defaultLocalRepository()

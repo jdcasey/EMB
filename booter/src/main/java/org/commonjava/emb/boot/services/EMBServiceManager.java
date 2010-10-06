@@ -1,9 +1,11 @@
 package org.commonjava.emb.boot.services;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
 import org.commonjava.emb.boot.embed.EMBEmbeddingException;
+import org.sonatype.aether.RepositorySystemSession;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -26,6 +28,11 @@ public interface EMBServiceManager
     ProjectBuilder projectBuilder();
 
     RepositorySystem repositorySystem();
+
+    RepositorySystemSession createRepositorySystemSession()
+        throws EMBEmbeddingException;
+
+    RepositorySystemSession createRepositorySystemSession( MavenExecutionRequest request );
 
     <T> T service( Class<T> type )
         throws EMBEmbeddingException;

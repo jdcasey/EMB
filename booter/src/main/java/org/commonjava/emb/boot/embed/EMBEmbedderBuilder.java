@@ -116,6 +116,10 @@ public class EMBEmbedderBuilder
 
     private boolean embConfigurationProvided;
 
+    private ContainerConfiguration containerConfiguration;
+
+    private boolean classScanningEnabled;
+
     public synchronized EMBEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
         this.settingsBuilder = settingsBuilder;
@@ -236,7 +240,7 @@ public class EMBEmbedderBuilder
                     if ( resource == null )
                     {
                         throw new IllegalStateException( "Class doesn't appear in its own classloader! ["
-                            + object.getClass().getName() + "]" );
+                                        + object.getClass().getName() + "]" );
                     }
 
                     String path = resource.toExternalForm();
@@ -291,6 +295,36 @@ public class EMBEmbedderBuilder
         return classWorld;
     }
 
+    public synchronized EMBEmbedderBuilder withContainerConfiguration( final ContainerConfiguration containerConfiguration )
+    {
+        this.containerConfiguration = containerConfiguration;
+        return this;
+    }
+
+    public synchronized ContainerConfiguration containerConfiguration()
+    {
+        if ( containerConfiguration == null )
+        {
+            containerConfiguration =
+                new DefaultContainerConfiguration().setClassWorld( classWorld() )
+                                                   .setName( "maven" )
+                                                   .setClassPathScanning( classScanningEnabled );
+        }
+
+        return containerConfiguration;
+    }
+
+    public synchronized EMBEmbedderBuilder withClassScanningEnabled( final boolean classScanningEnabled )
+    {
+        this.classScanningEnabled = classScanningEnabled;
+        return this;
+    }
+
+    public boolean isClassScanningEnabled()
+    {
+        return classScanningEnabled;
+    }
+
     public synchronized EMBEmbedderBuilder withMaven( final Maven maven )
     {
         this.maven = maven;
@@ -338,7 +372,7 @@ public class EMBEmbedderBuilder
         catch ( final ComponentLookupException e )
         {
             throw new EMBEmbeddingException( "Failed to lookup component: {0}. Reason: {1}", e, cls.getName(),
-                                               e.getMessage() );
+                                             e.getMessage() );
         }
     }
 
@@ -352,7 +386,7 @@ public class EMBEmbedderBuilder
         catch ( final ComponentLookupException e )
         {
             throw new EMBEmbeddingException( "Failed to lookup component: {0} with hint: {1}. Reason: {2}", e,
-                                               cls.getName(), hint, e.getMessage() );
+                                             cls.getName(), hint, e.getMessage() );
         }
     }
 
@@ -403,11 +437,11 @@ public class EMBEmbedderBuilder
     public synchronized MutablePlexusContainer container()
         throws EMBEmbeddingException
     {
-        // Need to switch to using: org.codehaus.plexus.MutablePlexusContainer.addPlexusInjector(List<PlexusBeanModule>, Module...)
+        // Need to switch to using: org.codehaus.plexus.MutablePlexusContainer.addPlexusInjector(List<PlexusBeanModule>,
+        // Module...)
         if ( container == null )
         {
-            final ContainerConfiguration cc =
-                new DefaultContainerConfiguration().setClassWorld( classWorld() ).setName( "maven" );
+            final ContainerConfiguration cc = containerConfiguration();
 
             EMBPlexusContainer c;
             try
@@ -476,7 +510,7 @@ public class EMBEmbedderBuilder
                 loadLibraries( embConfiguration );
 
                 if ( debugLogHandles != null
-                    && Arrays.binarySearch( debugLogHandles, EMBConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )
+                                && Arrays.binarySearch( debugLogHandles, EMBConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )
                 {
                     EMBEmbedder.showEMBInfo( embConfiguration, standardOut() );
                 }
@@ -484,7 +518,7 @@ public class EMBEmbedderBuilder
             catch ( final IOException e )
             {
                 logger.error( "Failed to query context classloader for component-overrides files. Reason: "
-                                  + e.getMessage(), e );
+                                              + e.getMessage(), e );
             }
 
             embConfigurationProvided = false;
@@ -650,8 +684,8 @@ public class EMBEmbedderBuilder
         throws EMBEmbeddingException
     {
         return new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(),
-                                  executionRequestPopulator(), securityDispatcher(), serviceManager(), standardOut(),
-                                  logger(), shouldShowErrors(), showVersion() );
+                                executionRequestPopulator(), securityDispatcher(), serviceManager(), standardOut(),
+                                logger(), shouldShowErrors(), showVersion() );
     }
 
     public synchronized EMBEmbedder build()
