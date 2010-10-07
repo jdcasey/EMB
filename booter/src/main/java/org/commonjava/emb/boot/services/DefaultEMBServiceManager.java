@@ -163,7 +163,7 @@ public class DefaultEMBServiceManager
 
         if ( !authorizer.isAvailable( type, hint ) )
         {
-            throw new UnauthorizedServiceException( type, hint );
+            throw new UnauthorizedServiceException( type, hint == null ? "" : hint );
         }
 
         try

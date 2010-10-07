@@ -20,8 +20,8 @@ package org.commonjava.emb.support.mavenscm;
 import org.apache.maven.scm.manager.ScmManager;
 import org.commonjava.atservice.annotation.Service;
 import org.commonjava.emb.conf.AbstractEMBLibrary;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
 import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.conf.MavenPomVersionProvider;
 import org.commonjava.emb.plexus.ComponentKey;
 
 @Service( EMBLibrary.class )
@@ -34,7 +34,7 @@ public class MavenSCMExportLibrary
         super( "maven-scm-export", "MavenSCM-Service-Exporter",
                new MavenPomVersionProvider( "org.commonjava.emb.export", "maven-scm-export" ) );
 
-        withExportedComponent( new ComponentKey( ScmManager.class ) );
+        withExportedComponent( new ComponentKey<ScmManager>( ScmManager.class ) );
     }
 
 }

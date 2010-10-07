@@ -65,26 +65,54 @@ public class EMBException
             {
                 try
                 {
-                    formattedMessage = MessageFormat.format( format, params );
+                    formattedMessage = String.format( format, params );
                 }
                 catch ( final Error e )
                 {
-                    formattedMessage = format;
-                    throw e;
                 }
                 catch ( final RuntimeException e )
                 {
-                    formattedMessage = format;
-                    throw e;
                 }
                 catch ( final Exception e )
                 {
-                    formattedMessage = format;
+                }
+
+                if ( formattedMessage == null )
+                {
+                    try
+                    {
+                        formattedMessage = MessageFormat.format( format, params );
+                    }
+                    catch ( final Error e )
+                    {
+                        formattedMessage = format;
+                        throw e;
+                    }
+                    catch ( final RuntimeException e )
+                    {
+                        formattedMessage = format;
+                        throw e;
+                    }
+                    catch ( final Exception e )
+                    {
+                        formattedMessage = format;
+                    }
                 }
             }
         }
 
         return formattedMessage;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see java.lang.Throwable#getLocalizedMessage()
+     */
+    @Override
+    public String getLocalizedMessage()
+    {
+        return getMessage();
     }
 
 }

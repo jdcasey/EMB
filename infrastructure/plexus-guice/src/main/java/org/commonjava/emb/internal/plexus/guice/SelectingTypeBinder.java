@@ -100,14 +100,20 @@ public final class SelectingTypeBinder
 
         final Binder componentBinder = componentBinder( source, component.description() );
 
-        // if this component has been overridden with something else, let the overriding component
-        // create an alias from the main hint. Use hint_ here instead.
-        if ( componentSelector.hasOverride( role, hint ) )
-        {
-            final Key<?> rootKey = Roles.componentKey( component.role(), Hints.canonicalHint( component.hint() ) + "_" );
-            bind( rootKey, clazz, componentBinder, strategy, role );
-        }
-        else
+        // in case this component gets overridden with something else, we need to give users a way to "pin" to
+        // the original component, rather than blindly getting whatever resolves to a given hint.
+        // This means re-binding the component to a sort of literal hint.
+        //
+        // To use this literal reference, you can use 'hint_' instead.
+
+        // FIXME: This will lead to two instances of the component being managed, one for the normal hint, and another
+        // for the literal one.
+        final Key<?> literalRootKey =
+            Roles.componentKey( component.role(), Hints.canonicalHint( component.hint() ) + "_" );
+
+        bind( literalRootKey, clazz, componentBinder, strategy, role );
+
+        if ( !componentSelector.hasOverride( role, hint ) )
         {
             final Set<ComponentKey<?>> overriddenKeys = componentSelector.getKeysOverriddenBy( role, hint );
 
