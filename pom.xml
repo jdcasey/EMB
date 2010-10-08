@@ -8,7 +8,7 @@
   <packaging>pom</packaging>
   
   <properties>
-    <mavenVersion>3.0-SNAPSHOT</mavenVersion>
+    <mavenVersion>3.0</mavenVersion>
     <plexusVersion>1.5.4</plexusVersion>
   </properties>
   

@@ -2,6 +2,7 @@ package org.commonjava.emb.boot.services;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
 import org.commonjava.emb.boot.embed.EMBEmbeddingException;
@@ -27,12 +28,17 @@ public interface EMBServiceManager
 
     ProjectBuilder projectBuilder();
 
-    RepositorySystem repositorySystem();
-
-    RepositorySystemSession createRepositorySystemSession()
+    DefaultProjectBuildingRequest createProjectBuildingRequest()
         throws EMBEmbeddingException;
 
-    RepositorySystemSession createRepositorySystemSession( MavenExecutionRequest request );
+    RepositorySystem mavenRepositorySystem();
+
+    org.sonatype.aether.RepositorySystem aetherRepositorySystem();
+
+    RepositorySystemSession createAetherRepositorySystemSession()
+        throws EMBEmbeddingException;
+
+    RepositorySystemSession createAetherRepositorySystemSession( MavenExecutionRequest request );
 
     <T> T service( Class<T> type )
         throws EMBEmbeddingException;

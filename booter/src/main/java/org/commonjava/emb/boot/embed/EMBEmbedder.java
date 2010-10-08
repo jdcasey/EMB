@@ -33,6 +33,7 @@ import org.commonjava.emb.boot.main.EMBMain;
 import org.commonjava.emb.boot.services.EMBServiceManager;
 import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.conf.loader.EMBLibraryLoader;
 import org.commonjava.emb.conf.mgmt.EMBManagementException;
 import org.commonjava.emb.conf.mgmt.EMBManagementView;
 import org.commonjava.emb.conf.mgmt.LoadOnFinish;
@@ -47,6 +48,7 @@ import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,11 +97,15 @@ public class EMBEmbedder
 
     private transient final EMBServiceManager serviceManager;
 
+    private final List<EMBLibraryLoader> libraryLoaders;
+
+    private boolean infoPrinted = false;
+
     EMBEmbedder( final Maven maven, final EMBConfiguration embConfiguration, final MutablePlexusContainer container,
                  final SettingsBuilder settingsBuilder, final MavenExecutionRequestPopulator executionRequestPopulator,
                  final DefaultSecDispatcher securityDispatcher, final EMBServiceManager serviceManager,
-                 final PrintStream standardOut, final Logger logger, final boolean shouldShowErrors,
-                 final boolean showVersion )
+                 final List<EMBLibraryLoader> libraryLoaders, final PrintStream standardOut, final Logger logger,
+                 final boolean shouldShowErrors, final boolean showVersion )
     {
         this.maven = maven;
         this.embConfiguration = embConfiguration;
@@ -108,6 +114,7 @@ public class EMBEmbedder
         this.executionRequestPopulator = executionRequestPopulator;
         this.securityDispatcher = securityDispatcher;
         this.serviceManager = serviceManager;
+        this.libraryLoaders = libraryLoaders;
         this.standardOut = standardOut;
         this.logger = logger;
         this.shouldShowErrors = shouldShowErrors;
@@ -117,6 +124,7 @@ public class EMBEmbedder
     public synchronized EMBServiceManager serviceManager()
         throws EMBEmbeddingException
     {
+        printInfo( null );
         return serviceManager;
     }
 
@@ -147,6 +155,8 @@ public class EMBEmbedder
     public String encryptMasterPassword( final EMBExecutionRequest request )
         throws EMBEmbeddingException
     {
+        printInfo( null );
+
         String passwd = request.getPasswordToEncyrpt();
         if ( passwd == null )
         {
@@ -171,6 +181,8 @@ public class EMBEmbedder
     public String encryptPassword( final EMBExecutionRequest request )
         throws EMBEmbeddingException
     {
+        printInfo( null );
+
         final String passwd = request.getPasswordToEncyrpt();
 
         String configurationFile = securityDispatcher.getConfigurationFile();
@@ -219,7 +231,7 @@ public class EMBEmbedder
     protected void doExecutionStarting()
         throws EMBEmbeddingException
     {
-        for ( final EMBLibrary library : embConfiguration.getLibraries().values() )
+        for ( final EMBLibrary library : embConfiguration.getLibraries() )
         {
             final Set<ComponentKey<?>> components = library.getManagementComponents( LoadOnStart.class );
             if ( components != null && !components.isEmpty() )
@@ -245,7 +257,7 @@ public class EMBEmbedder
 
     protected void doExecutionFinished()
     {
-        for ( final EMBLibrary library : embConfiguration.getLibraries().values() )
+        for ( final EMBLibrary library : embConfiguration.getLibraries() )
         {
             final Set<ComponentKey<?>> components = library.getManagementComponents( LoadOnFinish.class );
             if ( components != null && !components.isEmpty() )
@@ -335,28 +347,28 @@ public class EMBEmbedder
         logger.setThreshold( logLevel );
         container.getLoggerManager().setThresholds( request.getLoggingLevel() );
 
-        //        final Configurator log4jConfigurator = new Configurator()
-        //        {
-        //            @SuppressWarnings( "unchecked" )
-        //            public void doConfigure( final URL notUsed, final LoggerRepository repo )
-        //            {
-        //                final Enumeration<org.apache.log4j.Logger> loggers = repo.getCurrentLoggers();
-        //                while ( loggers.hasMoreElements() )
-        //                {
-        //                    final org.apache.log4j.Logger logger = loggers.nextElement();
-        //                    if ( Logger.LEVEL_DEBUG == logLevel )
-        //                    {
-        //                        logger.setLevel( Level.DEBUG );
-        //                    }
-        //                    else if ( Logger.LEVEL_ERROR == logLevel )
-        //                    {
-        //                        logger.setLevel( Level.ERROR );
-        //                    }
-        //                }
-        //            }
-        //        };
+        // final Configurator log4jConfigurator = new Configurator()
+        // {
+        // @SuppressWarnings( "unchecked" )
+        // public void doConfigure( final URL notUsed, final LoggerRepository repo )
+        // {
+        // final Enumeration<org.apache.log4j.Logger> loggers = repo.getCurrentLoggers();
+        // while ( loggers.hasMoreElements() )
+        // {
+        // final org.apache.log4j.Logger logger = loggers.nextElement();
+        // if ( Logger.LEVEL_DEBUG == logLevel )
+        // {
+        // logger.setLevel( Level.DEBUG );
+        // }
+        // else if ( Logger.LEVEL_ERROR == logLevel )
+        // {
+        // logger.setLevel( Level.ERROR );
+        // }
+        // }
+        // }
+        // };
         //
-        //        log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
+        // log4jConfigurator.doConfigure( null, LogManager.getLoggerRepository() );
 
         request.setExecutionListener( new EventLogger( logger ) );
     }
@@ -428,7 +440,8 @@ public class EMBEmbedder
         }
     }
 
-    public static void showEMBInfo( final EMBConfiguration embConfig, final PrintStream standardOut )
+    public static void showEMBInfo( final EMBConfiguration embConfig, final List<EMBLibraryLoader> loaders,
+                                    final PrintStream standardOut )
         throws IOException
     {
         if ( embInfoShown )
@@ -440,10 +453,8 @@ public class EMBEmbedder
         standardOut.println( "-- EMB Libraries Loaded --" );
         standardOut.println();
 
-        loadLibraries( embConfig );
-
-        final Map<String, EMBLibrary> libraries = embConfig.getLibraries();
-        for ( final EMBLibrary ext : libraries.values() )
+        final Collection<EMBLibrary> libraries = loadLibraries( embConfig, loaders );
+        for ( final EMBLibrary ext : libraries )
         {
             standardOut.println( "+" + ext.getLabel() + " (Log handle: '" + ext.getLogHandle() + "')" );
         }
@@ -455,20 +466,27 @@ public class EMBEmbedder
         embInfoShown = true;
     }
 
-    public static void showVersion( final EMBConfiguration embConfig, final PrintStream standardOut )
+    public static void showVersion( final EMBConfiguration embConfig, final List<EMBLibraryLoader> loaders,
+                                    final PrintStream standardOut )
         throws IOException
     {
-        showEMBInfo( embConfig, standardOut );
+        showEMBInfo( embConfig, loaders, standardOut );
         CLIReportingUtils.showVersion( standardOut );
     }
 
-    protected void printInfo( final EMBExecutionRequest request )
+    protected synchronized void printInfo( final EMBExecutionRequest request )
     {
-        if ( Logger.LEVEL_DEBUG == request.getLoggingLevel() || showVersion )
+        if ( infoPrinted )
+        {
+            return;
+        }
+
+        infoPrinted = true;
+        if ( showVersion || ( request != null && Logger.LEVEL_DEBUG == request.getLoggingLevel() ) )
         {
             try
             {
-                showVersion( embConfiguration, standardOut );
+                showVersion( embConfiguration, libraryLoaders, standardOut );
             }
             catch ( final IOException e )
             {
@@ -481,13 +499,16 @@ public class EMBEmbedder
             logger.info( "Error stacktraces are turned on." );
         }
 
-        if ( MavenExecutionRequest.CHECKSUM_POLICY_WARN.equals( request.getGlobalChecksumPolicy() ) )
+        if ( request != null )
         {
-            logger.info( "Disabling strict checksum verification on all artifact downloads." );
-        }
-        else if ( MavenExecutionRequest.CHECKSUM_POLICY_FAIL.equals( request.getGlobalChecksumPolicy() ) )
-        {
-            logger.info( "Enabling strict checksum verification on all artifact downloads." );
+            if ( MavenExecutionRequest.CHECKSUM_POLICY_WARN.equals( request.getGlobalChecksumPolicy() ) )
+            {
+                logger.info( "Disabling strict checksum verification on all artifact downloads." );
+            }
+            else if ( MavenExecutionRequest.CHECKSUM_POLICY_FAIL.equals( request.getGlobalChecksumPolicy() ) )
+            {
+                logger.info( "Enabling strict checksum verification on all artifact downloads." );
+            }
         }
     }
 
@@ -528,7 +549,7 @@ public class EMBEmbedder
             {
                 logger.error( "" );
                 logger.error( "For more information about the errors and possible solutions"
-                    + ", please read the following articles:" );
+                                + ", please read the following articles:" );
 
                 for ( final Map.Entry<String, String> entry : references.entrySet() )
                 {

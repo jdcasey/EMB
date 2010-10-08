@@ -25,7 +25,7 @@ import org.commonjava.emb.plexus.ServiceAuthorizer;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class EMBConfiguration
 
     private InstanceRegistry instanceRegistry;
 
-    private Map<String, EMBLibrary> libraries;
+    private Set<EMBLibrary> libraries;
 
     private File configurationDirectory = DEFAULT_CONFIGURATION_DIRECTORY;
 
@@ -128,10 +128,18 @@ public class EMBConfiguration
         return configurationDirectory;
     }
 
-    public EMBConfiguration withLibraries( final Map<String, EMBLibrary> libraries )
+    public EMBConfiguration withLibraries( final Collection<EMBLibrary> libraries )
     {
-        getLibraries().putAll( libraries );
-        for ( final EMBLibrary library : libraries.values() )
+        for ( final EMBLibrary library : libraries )
+        {
+            withLibrary( library );
+        }
+        return this;
+    }
+
+    public EMBConfiguration withLibraries( final EMBLibrary... libraries )
+    {
+        for ( final EMBLibrary library : libraries )
         {
             withLibrary( library );
         }
@@ -140,14 +148,22 @@ public class EMBConfiguration
 
     public EMBLibrary getLibrary( final String id )
     {
-        return libraries.get( id );
+        for ( final EMBLibrary library : getLibraries() )
+        {
+            if ( library.getId().equalsIgnoreCase( id ) )
+            {
+                return library;
+            }
+        }
+
+        return null;
     }
 
-    public Map<String, EMBLibrary> getLibraries()
+    public Set<EMBLibrary> getLibraries()
     {
         if ( libraries == null )
         {
-            libraries = new HashMap<String, EMBLibrary>();
+            libraries = new HashSet<EMBLibrary>();
         }
 
         return libraries;
@@ -231,7 +247,7 @@ public class EMBConfiguration
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public EMBConfiguration withLibrary( final EMBLibrary library )
     {
-        getLibraries().put( library.getId(), library );
+        getLibraries().add( library );
         withComponentSelector( library.getComponentSelector() );
         withComponentInstance( new ComponentKey<EMBLibrary>( EMBLibrary.class, library.getId() ), library );
 
@@ -272,7 +288,7 @@ public class EMBConfiguration
         }
 
         final Set<ComponentKey<?>> keys = new HashSet<ComponentKey<?>>();
-        for ( final EMBLibrary lib : getLibraries().values() )
+        for ( final EMBLibrary lib : getLibraries() )
         {
             final Set<ComponentKey<?>> exports = lib.getExportedComponents();
             if ( exports != null && !exports.isEmpty() )

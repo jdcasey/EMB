@@ -63,6 +63,7 @@ public class EMBException
             }
             else
             {
+                final String original = formattedMessage;
                 try
                 {
                     formattedMessage = String.format( format, params );
@@ -77,7 +78,7 @@ public class EMBException
                 {
                 }
 
-                if ( formattedMessage == null )
+                if ( formattedMessage == null || original == formattedMessage )
                 {
                     try
                     {

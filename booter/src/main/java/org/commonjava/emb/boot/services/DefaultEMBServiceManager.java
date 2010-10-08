@@ -7,6 +7,8 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequestPopulationException;
 import org.apache.maven.execution.MavenExecutionRequestPopulator;
+import org.apache.maven.model.building.ModelBuildingRequest;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.PlexusConstants;
@@ -51,6 +53,9 @@ public class DefaultEMBServiceManager
     private RepositorySystem repositorySystem;
 
     @Requirement
+    private org.sonatype.aether.RepositorySystem aetherRepositorySystem;
+
+    @Requirement
     private ServiceAuthorizer authorizer;
 
     @Requirement( role = Maven.class, hint = "default_" )
@@ -80,12 +85,30 @@ public class DefaultEMBServiceManager
         return projectBuilder;
     }
 
-    public RepositorySystem repositorySystem()
+    public DefaultProjectBuildingRequest createProjectBuildingRequest()
+        throws EMBEmbeddingException
+    {
+        final DefaultProjectBuildingRequest req = new DefaultProjectBuildingRequest();
+        req.setLocalRepository( defaultLocalRepository() );
+        req.setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL );
+        req.setProcessPlugins( false );
+        req.setResolveDependencies( false );
+
+        return req;
+    }
+
+    public RepositorySystem mavenRepositorySystem()
     {
         return repositorySystem;
     }
 
-    public RepositorySystemSession createRepositorySystemSession()
+    @Override
+    public org.sonatype.aether.RepositorySystem aetherRepositorySystem()
+    {
+        return aetherRepositorySystem;
+    }
+
+    public RepositorySystemSession createAetherRepositorySystemSession()
         throws EMBEmbeddingException
     {
         try
@@ -103,7 +126,7 @@ public class DefaultEMBServiceManager
         }
     }
 
-    public RepositorySystemSession createRepositorySystemSession( final MavenExecutionRequest request )
+    public RepositorySystemSession createAetherRepositorySystemSession( final MavenExecutionRequest request )
     {
         return defaultMaven.newRepositorySession( request );
     }
@@ -115,7 +138,7 @@ public class DefaultEMBServiceManager
         {
             try
             {
-                defaultLocalRepo = repositorySystem().createDefaultLocalRepository();
+                defaultLocalRepo = mavenRepositorySystem().createDefaultLocalRepository();
             }
             catch ( final InvalidRepositoryException e )
             {

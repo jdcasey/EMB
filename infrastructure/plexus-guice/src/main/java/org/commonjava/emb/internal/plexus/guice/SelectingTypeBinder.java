@@ -111,9 +111,11 @@ public final class SelectingTypeBinder
         final Key<?> literalRootKey =
             Roles.componentKey( component.role(), Hints.canonicalHint( component.hint() ) + "_" );
 
-        bind( literalRootKey, clazz, componentBinder, strategy, role );
-
-        if ( !componentSelector.hasOverride( role, hint ) )
+        if ( componentSelector.hasOverride( role, hint ) )
+        {
+            bind( literalRootKey, clazz, componentBinder, strategy, role );
+        }
+        else
         {
             final Set<ComponentKey<?>> overriddenKeys = componentSelector.getKeysOverriddenBy( role, hint );
 
@@ -131,6 +133,7 @@ public final class SelectingTypeBinder
             }
 
             bind( rootKey, clazz, componentBinder, strategy, role );
+            bindAlias( literalRootKey, rootKey, componentBinder );
 
             // If this component overrides some other component, make aliases of the overridden hints
             // that point to this component. Bind this component normally.

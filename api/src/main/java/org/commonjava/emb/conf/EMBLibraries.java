@@ -2,12 +2,14 @@ package org.commonjava.emb.conf;
 
 import org.apache.log4j.Logger;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
+import org.commonjava.emb.conf.loader.EMBLibraryLoader;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -29,39 +31,42 @@ public final class EMBLibraries
 
     private static final Logger logger = Logger.getLogger( EMBConfiguration.STANDARD_LOG_HANDLE_LOADER );
 
-    private static Map<String, EMBLibrary> libraries;
+    private static Set<EMBLibrary> libraries;
 
-    public static Collection<EMBLibrary> loadLibraries( final EMBConfiguration embConfig )
+    public static Collection<EMBLibrary> loadLibraries( final EMBConfiguration embConfig,
+                                                        final List<EMBLibraryLoader> loaders )
         throws IOException
     {
         if ( libraries != null )
         {
-            embConfig.withLibraries( libraries );
-            return libraries.values();
+            return libraries;
         }
 
-        libraries = new HashMap<String, EMBLibrary>();
-        final ServiceLoader<EMBLibrary> loader = ServiceLoader.load( EMBLibrary.class );
-        for ( final EMBLibrary library : loader )
+        libraries = new LinkedHashSet<EMBLibrary>();
+        for ( final EMBLibraryLoader loader : loaders )
         {
-            try
+            final Collection<? extends EMBLibrary> libs = loader.loadLibraries( embConfig );
+            for ( final EMBLibrary library : libs )
             {
-                library.loadConfiguration( embConfig );
-            }
-            catch ( final ExtensionConfigurationException e )
-            {
-                if ( logger.isDebugEnabled() )
+                try
                 {
-                    logger.debug( "Failed to load library configuration for: '" + library.getId() + "'. Reason: "
-                        + e.getMessage(), e );
+                    library.loadConfiguration( embConfig );
                 }
-            }
+                catch ( final ExtensionConfigurationException e )
+                {
+                    if ( logger.isDebugEnabled() )
+                    {
+                        logger.debug( "Failed to load library configuration for: '" + library.getId() + "'. Reason: "
+                                        + e.getMessage(), e );
+                    }
+                }
 
-            libraries.put( library.getId(), library );
-            embConfig.withLibrary( library );
+                libraries.add( library );
+            }
         }
 
-        return libraries.values();
+        libraries = Collections.unmodifiableSet( libraries );
+        return libraries;
     }
 
 }

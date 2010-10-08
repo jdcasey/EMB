@@ -170,7 +170,7 @@ public class EMBMain
         }
 
         cliRequest.builder.withErrorMode( cliRequest.commandLine.hasOption( CLIManager.ERRORS )
-            || cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
+                        || cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
         cliRequest.builder.withDebugMode( cliRequest.commandLine.hasOption( CLIManager.DEBUG ) );
         cliRequest.builder.withQuietMode( cliRequest.commandLine.hasOption( CLIManager.QUIET ) );
         cliRequest.builder.withVersion( cliRequest.commandLine.hasOption( CLIManager.SHOW_VERSION ) );
@@ -197,12 +197,13 @@ public class EMBMain
         {
             try
             {
-                EMBEmbedder.showVersion( cliRequest.builder.embConfiguration(), cliRequest.builder.standardOut() );
+                EMBEmbedder.showVersion( cliRequest.builder.embConfiguration(), cliRequest.builder.libraryLoaders(),
+                                         cliRequest.builder.standardOut() );
             }
             catch ( final IOException e )
             {
-                cliRequest.builder.logger().error( "Failed to retrieve EMB extension information: " + e.getMessage(),
-                                                   e );
+                cliRequest.builder.logger()
+                                  .error( "Failed to retrieve EMB extension information: " + e.getMessage(), e );
             }
 
             throw new ExitException( 0 );
@@ -289,7 +290,7 @@ public class EMBMain
             if ( !globalSettingsFile.isFile() )
             {
                 throw new FileNotFoundException( "The specified global settings file does not exist: "
-                    + globalSettingsFile );
+                                + globalSettingsFile );
             }
         }
         else
@@ -304,7 +305,7 @@ public class EMBMain
     protected EMBExecutionRequest populateRequest( final CliRequest cliRequest )
         throws EMBEmbeddingException
     {
-        //        cliRequest.builder.build();
+        // cliRequest.builder.build();
 
         final EMBExecutionRequest request = cliRequest.request;
         final CommandLine commandLine = cliRequest.commandLine;
@@ -453,7 +454,8 @@ public class EMBMain
             // TODO: we need to do some more work here. Some plugins use sys out or log errors at info level.
             // Ideally, we could use Warn across the board
             loggingLevel = MavenExecutionRequest.LOGGING_LEVEL_ERROR;
-            // TODO:Additionally, we can't change the mojo level because the component key includes the version and it isn't known ahead of time. This seems worth changing.
+            // TODO:Additionally, we can't change the mojo level because the component key includes the version and it
+            // isn't known ahead of time. This seems worth changing.
         }
         else
         {
@@ -533,12 +535,12 @@ public class EMBMain
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_UPSTREAM );
         }
         else if ( !commandLine.hasOption( CLIManager.ALSO_MAKE )
-            && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
+                        && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
         {
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_DOWNSTREAM );
         }
         else if ( commandLine.hasOption( CLIManager.ALSO_MAKE )
-            && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
+                        && commandLine.hasOption( CLIManager.ALSO_MAKE_DEPENDENTS ) )
         {
             request.setMakeBehavior( MavenExecutionRequest.REACTOR_MAKE_BOTH );
         }
@@ -557,7 +559,11 @@ public class EMBMain
 
         final String threadConfiguration =
             commandLine.hasOption( CLIManager.THREADS ) ? commandLine.getOptionValue( CLIManager.THREADS )
-                            : request.getSystemProperties().getProperty( EMBMain.THREADS_DEPRECATED ); // TODO: Remove this setting. Note that the int-tests use it
+                            : request.getSystemProperties().getProperty( EMBMain.THREADS_DEPRECATED ); // TODO: Remove
+                                                                                                       // this setting.
+                                                                                                       // Note that the
+                                                                                                       // int-tests use
+                                                                                                       // it
 
         if ( threadConfiguration != null )
         {

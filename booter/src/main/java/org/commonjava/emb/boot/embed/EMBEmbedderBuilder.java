@@ -17,7 +17,11 @@ import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.commonjava.emb.boot.services.EMBServiceManager;
+import org.commonjava.emb.conf.CoreLibrary;
 import org.commonjava.emb.conf.EMBConfiguration;
+import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.conf.loader.EMBLibraryLoader;
+import org.commonjava.emb.conf.loader.ServiceLibraryLoader;
 import org.commonjava.emb.internal.plexus.EMBPlexusContainer;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
@@ -32,8 +36,12 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /*
@@ -53,6 +61,16 @@ import java.util.Set;
 
 public class EMBEmbedderBuilder
 {
+
+    private static final EMBLibraryLoader CORE_LOADER = new EMBLibraryLoader()
+    {
+        @Override
+        public Collection<? extends EMBLibrary> loadLibraries( final EMBConfiguration embConfig )
+            throws IOException
+        {
+            return Collections.singleton( new CoreLibrary() );
+        }
+    };
 
     private boolean showErrors = false;
 
@@ -119,6 +137,8 @@ public class EMBEmbedderBuilder
     private ContainerConfiguration containerConfiguration;
 
     private boolean classScanningEnabled;
+
+    private List<EMBLibraryLoader> libraryLoaders;
 
     public synchronized EMBEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -371,7 +391,7 @@ public class EMBEmbedderBuilder
         }
         catch ( final ComponentLookupException e )
         {
-            throw new EMBEmbeddingException( "Failed to lookup component: {0}. Reason: {1}", e, cls.getName(),
+            throw new EMBEmbeddingException( "Failed to lookup component: %s. Reason: %s", e, cls.getName(),
                                              e.getMessage() );
         }
     }
@@ -507,12 +527,14 @@ public class EMBEmbedderBuilder
 
             try
             {
-                loadLibraries( embConfiguration );
+                final List<EMBLibraryLoader> loaders = libraryLoaders();
+                final Collection<EMBLibrary> libraries = loadLibraries( embConfiguration, loaders );
+                embConfiguration.withLibraries( libraries );
 
                 if ( debugLogHandles != null
                                 && Arrays.binarySearch( debugLogHandles, EMBConfiguration.STANDARD_LOG_HANDLE_CORE ) > -1 )
                 {
-                    EMBEmbedder.showEMBInfo( embConfiguration, standardOut() );
+                    EMBEmbedder.showEMBInfo( embConfiguration, loaders, standardOut() );
                 }
             }
             catch ( final IOException e )
@@ -525,6 +547,59 @@ public class EMBEmbedderBuilder
         }
 
         return embConfiguration;
+    }
+
+    public EMBEmbedderBuilder withoutServiceLibraryLoader()
+    {
+        libraryLoaders = new ArrayList<EMBLibraryLoader>();
+
+        return this;
+    }
+
+    public EMBEmbedderBuilder withLibraryLoader( final EMBLibraryLoader loader )
+    {
+        libraryLoadersInternal().add( loader );
+        return this;
+    }
+
+    public EMBEmbedderBuilder withLibraryLoader( final EMBLibraryLoader loader, final int offset )
+    {
+        final List<EMBLibraryLoader> loaders = libraryLoadersInternal();
+        if ( offset < 0 )
+        {
+            // idx is negative, so we can add to the size here to get the insert index.
+            loaders.add( loaders.size() + offset, loader );
+        }
+        else
+        {
+            loaders.add( offset, loader );
+        }
+
+        return this;
+    }
+
+    private List<EMBLibraryLoader> libraryLoadersInternal()
+    {
+        if ( libraryLoaders == null )
+        {
+            libraryLoaders = new ArrayList<EMBLibraryLoader>( Collections.singletonList( new ServiceLibraryLoader() ) );
+        }
+
+        return libraryLoaders;
+    }
+
+    public List<EMBLibraryLoader> libraryLoaders()
+    {
+        final List<EMBLibraryLoader> loaders = libraryLoadersInternal();
+
+        if ( !loaders.isEmpty() && CORE_LOADER != loaders.get( 0 ) )
+        {
+            loaders.remove( CORE_LOADER );
+        }
+
+        loaders.add( CORE_LOADER );
+
+        return loaders;
     }
 
     public EMBEmbedderBuilder withVersion( final boolean showVersion )
@@ -684,8 +759,8 @@ public class EMBEmbedderBuilder
         throws EMBEmbeddingException
     {
         return new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(),
-                                executionRequestPopulator(), securityDispatcher(), serviceManager(), standardOut(),
-                                logger(), shouldShowErrors(), showVersion() );
+                                executionRequestPopulator(), securityDispatcher(), serviceManager(), libraryLoaders(),
+                                standardOut(), logger(), shouldShowErrors(), showVersion() );
     }
 
     public synchronized EMBEmbedder build()
