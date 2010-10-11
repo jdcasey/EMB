@@ -6,6 +6,7 @@ import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,16 +52,19 @@ public abstract class AbstractEMBLibrary
 
     private final Set<ComponentKey<?>> exportedComponents = new HashSet<ComponentKey<?>>();
 
-    private final Map<Class<?>, Set<ComponentKey<?>>> managementComponents = new HashMap<Class<?>, Set<ComponentKey<?>>>();
+    private final Map<Class<?>, Set<ComponentKey<?>>> managementComponents =
+        new HashMap<Class<?>, Set<ComponentKey<?>>>();
+
+    private final InstanceRegistry instanceRegistry = new InstanceRegistry();
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final ExtensionConfigurationLoader configLoader )
+                                  final ExtensionConfigurationLoader configLoader )
     {
         this( id, name, versionProvider, id, configLoader, null );
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final String logHandle )
+                                  final String logHandle )
     {
         this( id, name, versionProvider, logHandle, null, null );
     }
@@ -71,33 +75,33 @@ public abstract class AbstractEMBLibrary
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final String logHandle, final ExtensionConfigurationLoader configLoader )
+                                  final String logHandle, final ExtensionConfigurationLoader configLoader )
     {
         this( id, name, versionProvider, logHandle, configLoader, null );
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final ExtensionConfigurationLoader configLoader,
-                                    final ComponentSelector componentSelector )
+                                  final ExtensionConfigurationLoader configLoader,
+                                  final ComponentSelector componentSelector )
     {
         this( id, name, versionProvider, id, configLoader, componentSelector );
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final String logHandle, final ComponentSelector componentSelector )
+                                  final String logHandle, final ComponentSelector componentSelector )
     {
         this( id, name, versionProvider, logHandle, null, componentSelector );
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final ComponentSelector componentSelector )
+                                  final ComponentSelector componentSelector )
     {
         this( id, name, versionProvider, id, null, componentSelector );
     }
 
     protected AbstractEMBLibrary( final String id, final String name, final VersionProvider versionProvider,
-                                    final String logHandle, final ExtensionConfigurationLoader configLoader,
-                                    final ComponentSelector componentSelector )
+                                  final String logHandle, final ExtensionConfigurationLoader configLoader,
+                                  final ComponentSelector componentSelector )
     {
         this.id = id;
         this.name = name;
@@ -196,6 +200,18 @@ public abstract class AbstractEMBLibrary
     public Set<ComponentKey<?>> getManagementComponents( final Class<?> managementType )
     {
         return managementComponents.get( managementType );
+    }
+
+    public <T> AbstractEMBLibrary withComponentInstance( final ComponentKey<T> key, final T instance )
+    {
+        instanceRegistry.add( key, instance );
+        return this;
+    }
+
+    @Override
+    public InstanceRegistry getInstanceRegistry()
+    {
+        return instanceRegistry;
     }
 
 }

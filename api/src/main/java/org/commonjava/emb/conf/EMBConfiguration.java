@@ -249,6 +249,7 @@ public class EMBConfiguration
     {
         getLibraries().add( library );
         withComponentSelector( library.getComponentSelector() );
+        withInstanceRegistry( library.getInstanceRegistry() );
         withComponentInstance( new ComponentKey<EMBLibrary>( EMBLibrary.class, library.getId() ), library );
 
         final ExtensionConfiguration configuration = library.getConfiguration();

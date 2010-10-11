@@ -23,8 +23,10 @@ import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.conf.loader.EMBLibraryLoader;
 import org.commonjava.emb.conf.loader.ServiceLibraryLoader;
 import org.commonjava.emb.internal.plexus.EMBPlexusContainer;
+import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
+import org.commonjava.emb.plexus.VirtualInstance;
 import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
@@ -139,6 +141,8 @@ public class EMBEmbedderBuilder
     private boolean classScanningEnabled;
 
     private List<EMBLibraryLoader> libraryLoaders;
+
+    private final VirtualInstance<EMBEmbedder> embVirtual = new VirtualInstance<EMBEmbedder>( EMBEmbedder.class );
 
     public synchronized EMBEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -463,10 +467,13 @@ public class EMBEmbedderBuilder
         {
             final ContainerConfiguration cc = containerConfiguration();
 
+            final InstanceRegistry reg = new InstanceRegistry( instanceRegistry() );
+            reg.addVirtual( new ComponentKey<EMBEmbedder>( EMBEmbedder.class ), embVirtual );
+
             EMBPlexusContainer c;
             try
             {
-                c = new EMBPlexusContainer( cc, selector(), instanceRegistry() );
+                c = new EMBPlexusContainer( cc, selector(), reg );
             }
             catch ( final PlexusContainerException e )
             {
@@ -758,9 +765,14 @@ public class EMBEmbedderBuilder
     protected synchronized EMBEmbedder createEmbedder()
         throws EMBEmbeddingException
     {
-        return new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(),
-                                executionRequestPopulator(), securityDispatcher(), serviceManager(), libraryLoaders(),
-                                standardOut(), logger(), shouldShowErrors(), showVersion() );
+        final EMBEmbedder embedder =
+            new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(), executionRequestPopulator(),
+                             securityDispatcher(), serviceManager(), libraryLoaders(), standardOut(), logger(),
+                             shouldShowErrors(), showVersion() );
+
+        embVirtual.setInstance( embedder );
+
+        return embedder;
     }
 
     public synchronized EMBEmbedder build()

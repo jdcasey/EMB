@@ -84,7 +84,7 @@ public class InstanceRegistry
         if ( !role.isAssignableFrom( instance.getClass() ) )
         {
             throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
-                + " is not assignable to role: " + role.getClass() );
+                            + " is not assignable to role: " + role.getClass() );
         }
 
         return add( new ComponentKey<T>( role, hint ), instance );
@@ -105,10 +105,58 @@ public class InstanceRegistry
         if ( !role.isAssignableFrom( instance.getClass() ) )
         {
             throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
-                + " is not assignable to role: " + role.getClass() );
+                            + " is not assignable to role: " + role.getClass() );
         }
 
         return add( new ComponentKey<T>( role ), instance );
+    }
+
+    public <T> InstanceRegistry addVirtual( final ComponentKey<T> key, final VirtualInstance<T> instance )
+    {
+        instances.put( key, instance );
+        return this;
+    }
+
+    public <T> InstanceRegistry addVirtual( final Class<T> role, final String hint, final VirtualInstance<T> instance )
+    {
+        if ( role == null )
+        {
+            throw new NullPointerException( "Role class is null." );
+        }
+
+        if ( instance == null )
+        {
+            throw new NullPointerException( "Instance is null." );
+        }
+
+        if ( !role.isAssignableFrom( instance.getClass() ) )
+        {
+            throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
+                            + " is not assignable to role: " + role.getClass() );
+        }
+
+        return addVirtual( new ComponentKey<T>( role, hint ), instance );
+    }
+
+    public <T> InstanceRegistry addVirtual( final Class<T> role, final VirtualInstance<T> instance )
+    {
+        if ( role == null )
+        {
+            throw new NullPointerException( "Role class is null." );
+        }
+
+        if ( instance == null )
+        {
+            throw new NullPointerException( "Instance is null." );
+        }
+
+        if ( !role.isAssignableFrom( instance.getClass() ) )
+        {
+            throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
+                            + " is not assignable to role: " + role.getClass() );
+        }
+
+        return addVirtual( new ComponentKey<T>( role ), instance );
     }
 
     public InstanceRegistry overrideMerge( final InstanceRegistry instanceRegistry )

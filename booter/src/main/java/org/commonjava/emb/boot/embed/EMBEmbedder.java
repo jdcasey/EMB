@@ -110,6 +110,7 @@ public class EMBEmbedder
         this.maven = maven;
         this.embConfiguration = embConfiguration;
         this.container = container;
+
         this.settingsBuilder = settingsBuilder;
         this.executionRequestPopulator = executionRequestPopulator;
         this.securityDispatcher = securityDispatcher;

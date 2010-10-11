@@ -30,7 +30,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
-import org.commonjava.emb.internal.plexus.guice.InstanceRegistryModule;
+import org.commonjava.emb.internal.plexus.guice.InstanceBindingModule;
 import org.commonjava.emb.internal.plexus.guice.XComponentDescriptorBeanModule;
 import org.commonjava.emb.internal.plexus.guice.XPlexusAnnotatedBeanModule;
 import org.commonjava.emb.internal.plexus.guice.XPlexusXmlBeanModule;
@@ -148,6 +148,8 @@ public final class EMBPlexusContainer
 
     private boolean disposing;
 
+    private final Module instanceBindingModule;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -191,9 +193,11 @@ public final class EMBPlexusContainer
             beanModules.add( new XPlexusAnnotatedBeanModule( componentSelector, space, variables ) );
         }
 
+        instanceBindingModule = new InstanceBindingModule( instanceRegistry );
+
         try
         {
-            addPlexusInjector( beanModules, new InstanceRegistryModule( instanceRegistry ), bootModule );
+            addPlexusInjector( beanModules, bootModule );
         }
         catch ( final RuntimeException e )
         {
@@ -449,6 +453,7 @@ public final class EMBPlexusContainer
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( loggerModule );
+        modules.add( instanceBindingModule );
 
         Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
@@ -571,7 +576,8 @@ public final class EMBPlexusContainer
     /**
      * Finds container {@link ClassRealm}, taking existing {@link ClassWorld}s or {@link ClassLoader}s into account.
      * 
-     * @param configuration The container configuration
+     * @param configuration
+     *            The container configuration
      * @return Container class realm
      */
     private ClassRealm lookupContainerRealm( final ContainerConfiguration configuration )
@@ -608,7 +614,8 @@ public final class EMBPlexusContainer
     /**
      * Finds container configuration URL, may search the container {@link ClassRealm} and local file-system.
      * 
-     * @param configuration The container configuration
+     * @param configuration
+     *            The container configuration
      * @return Local or remote URL
      */
     private URL lookupPlexusXml( final ContainerConfiguration configuration )

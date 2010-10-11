@@ -23,6 +23,7 @@
     <module>events</module>
     <module>assembly-descriptors</module>
     <module>infrastructure</module>
+    <module>app</module>
   </modules>
   
   <scm>

@@ -5,6 +5,7 @@ import org.commonjava.emb.conf.ext.ExtensionConfiguration;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 
 import java.util.Map;
 import java.util.Set;
@@ -53,5 +54,7 @@ public interface EMBLibrary
 
     void loadConfiguration( final EMBConfiguration embConfig )
         throws ExtensionConfigurationException;
+
+    InstanceRegistry getInstanceRegistry();
 
 }
