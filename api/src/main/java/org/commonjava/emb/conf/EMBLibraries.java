@@ -45,23 +45,22 @@ public final class EMBLibraries
         libraries = new LinkedHashSet<EMBLibrary>();
         for ( final EMBLibraryLoader loader : loaders )
         {
-            final Collection<? extends EMBLibrary> libs = loader.loadLibraries( embConfig );
-            for ( final EMBLibrary library : libs )
-            {
-                try
-                {
-                    library.loadConfiguration( embConfig );
-                }
-                catch ( final ExtensionConfigurationException e )
-                {
-                    if ( logger.isDebugEnabled() )
-                    {
-                        logger.debug( "Failed to load library configuration for: '" + library.getId() + "'. Reason: "
-                                        + e.getMessage(), e );
-                    }
-                }
+            libraries.addAll( loader.loadLibraries( embConfig ) );
+        }
 
-                libraries.add( library );
+        for ( final EMBLibrary library : libraries )
+        {
+            try
+            {
+                library.loadConfiguration( embConfig );
+            }
+            catch ( final ExtensionConfigurationException e )
+            {
+                if ( logger.isDebugEnabled() )
+                {
+                    logger.debug( "Failed to load library configuration for: '" + library.getId() + "'. Reason: "
+                                                  + e.getMessage(), e );
+                }
             }
         }
 

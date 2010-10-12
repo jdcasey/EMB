@@ -21,11 +21,15 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.commonjava.emb.EMBException;
 import org.commonjava.emb.boot.embed.EMBEmbedderBuilder;
 import org.commonjava.emb.conf.AbstractEMBLibrary;
+import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.conf.VersionProvider;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
 import org.commonjava.emb.conf.loader.InstanceLibraryLoader;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractEMBApplication
     extends AbstractEMBLibrary
@@ -34,41 +38,48 @@ public abstract class AbstractEMBApplication
 
     private EMBEmbedderBuilder builder;
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final ComponentSelector componentSelector )
-    {
-        super( id, name, versionProvider, componentSelector );
+    private final List<EMBLibrary> additionalLibraries = new ArrayList<EMBLibrary>();
 
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
+    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
+                                      final ExtensionConfigurationLoader configLoader )
+    {
+        this( id, name, versionProvider, id, configLoader, null );
+    }
+
+    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
+                                      final String logHandle )
+    {
+        this( id, name, versionProvider, logHandle, null, null );
+    }
+
+    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider )
+    {
+        this( id, name, versionProvider, id, null, null );
+    }
+
+    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
+                                      final String logHandle, final ExtensionConfigurationLoader configLoader )
+    {
+        this( id, name, versionProvider, logHandle, configLoader, null );
     }
 
     protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
                                       final ExtensionConfigurationLoader configLoader,
                                       final ComponentSelector componentSelector )
     {
-        super( id, name, versionProvider, configLoader, componentSelector );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final ExtensionConfigurationLoader configLoader )
-    {
-        super( id, name, versionProvider, configLoader );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
+        this( id, name, versionProvider, id, configLoader, componentSelector );
     }
 
     protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
                                       final String logHandle, final ComponentSelector componentSelector )
     {
-        super( id, name, versionProvider, logHandle, componentSelector );
+        this( id, name, versionProvider, logHandle, null, componentSelector );
+    }
 
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
+    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
+                                      final ComponentSelector componentSelector )
+    {
+        this( id, name, versionProvider, id, null, componentSelector );
     }
 
     protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
@@ -76,41 +87,13 @@ public abstract class AbstractEMBApplication
                                       final ComponentSelector componentSelector )
     {
         super( id, name, versionProvider, logHandle, configLoader, componentSelector );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
+        initializeApplication();
     }
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle, final ExtensionConfigurationLoader configLoader )
+    protected final AbstractEMBApplication withLibrary( final EMBLibrary library )
     {
-        super( id, name, versionProvider, logHandle, configLoader );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle )
-    {
-        super( id, name, versionProvider, logHandle );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider )
-    {
-        super( id, name, versionProvider );
-
-        builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( this ) );
-        initApp();
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    protected void initApp()
-    {
-        withComponentInstance( new ComponentKey( getClass() ), this );
+        additionalLibraries.add( library );
+        return this;
     }
 
     protected final AbstractEMBApplication withEMBEmbedderBuilder( final EMBEmbedderBuilder builder )
@@ -121,12 +104,29 @@ public abstract class AbstractEMBApplication
 
     protected final EMBEmbedderBuilder builder()
     {
+        if ( builder == null )
+        {
+            builder = new EMBEmbedderBuilder();
+
+            builder.withLibraryLoader( new InstanceLibraryLoader( this ) );
+
+            if ( !additionalLibraries.isEmpty() )
+            {
+                builder.withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
+            }
+        }
+
         return builder;
     }
 
     public final void load()
         throws EMBException
     {
+        final EMBEmbedderBuilder builder = builder();
+
+        beforeLoading();
+        configureBuilder( builder );
+
         builder.build();
         try
         {
@@ -134,7 +134,69 @@ public abstract class AbstractEMBApplication
         }
         catch ( final ComponentLookupException e )
         {
-            throw new EMBException( "Failed to inject members of application. Reason: %s", e, e.getMessage() );
+            throw new EMBException( "Forced member-injection for application failed. Reason: %s", e, e.getMessage() );
         }
+
+        for ( final ComponentKey<?> key : getInstanceRegistry().getInstances().keySet() )
+        {
+            if ( key.getRoleClass() == getClass() )
+            {
+                continue;
+            }
+
+            try
+            {
+                builder.container().lookup( key.getRole(), key.getHint() );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                throw new EMBException( "Forced member-injection for registered instance: %s failed. Reason: %s", e,
+                                        key, e.getMessage() );
+            }
+        }
+
+        afterLoading();
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    protected void initializeApplication()
+    {
+        withComponentInstance( new ComponentKey( getClass() ), this );
+    }
+
+    protected void configureBuilder( final EMBEmbedderBuilder builder )
+        throws EMBException
+    {
+    }
+
+    protected void beforeLoading()
+        throws EMBException
+    {
+    }
+
+    protected void afterLoading()
+        throws EMBException
+    {
+    }
+
+    @Override
+    protected AbstractEMBApplication withExportedComponent( final ComponentKey<?> key )
+    {
+        super.withExportedComponent( key );
+        return this;
+    }
+
+    @Override
+    public AbstractEMBApplication withManagementComponent( final ComponentKey<?> key, final Class<?>... managementTypes )
+    {
+        super.withManagementComponent( key, managementTypes );
+        return this;
+    }
+
+    @Override
+    public <T> AbstractEMBApplication withComponentInstance( final ComponentKey<T> key, final T instance )
+    {
+        super.withComponentInstance( key, instance );
+        return this;
     }
 }

@@ -2,8 +2,8 @@ package org.commonjava.emb.boot;
 
 import org.commonjava.atservice.annotation.Service;
 import org.commonjava.emb.conf.AbstractEMBLibrary;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
 import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.conf.MavenPomVersionProvider;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
@@ -26,6 +26,7 @@ public class Maven3BooterLibrary
 {
     public Maven3BooterLibrary()
     {
-        super( "core", "EMB-Core", new MavenPomVersionProvider( "org.commonjava.emb.boot", "emb-maven3-booter" ) );
+        super( "boot", "EMB-Booter", new MavenPomVersionProvider( "org.commonjava.emb.boot", "emb-maven3-booter" ),
+               "core" );
     }
 }

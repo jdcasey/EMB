@@ -21,6 +21,11 @@ public class InstanceLibraryLoader
             libraries == null ? new ArrayList<EMBLibrary>() : new ArrayList<EMBLibrary>( Arrays.asList( libraries ) );
     }
 
+    public InstanceLibraryLoader( final List<EMBLibrary> libraries )
+    {
+        this.libraries = libraries;
+    }
+
     /**
      * {@inheritDoc}
      * 
