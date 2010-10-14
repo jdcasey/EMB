@@ -94,6 +94,8 @@ public class DefaultEMBServiceManager
         req.setProcessPlugins( false );
         req.setResolveDependencies( false );
 
+        req.setRepositorySession( createAetherRepositorySystemSession() );
+
         return req;
     }
 
