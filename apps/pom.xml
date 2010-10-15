@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <artifactId>emb</artifactId>
+      <groupId>org.commonjava.emb</groupId>
+      <version>0.4-SNAPSHOT</version>
+  </parent>
+  
+  <groupId>org.commonjava.emb</groupId>
+  <artifactId>emb-apps</artifactId>
+  <packaging>pom</packaging>
+  
+  <name>EMB Applications</name>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven</artifactId>
+        <version>${mavenVersion}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.commonjava.emb</groupId>
+      <artifactId>emb-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <modules>
+    <module>app</module>
+  </modules>
+  
+  <profiles>
+    <profile>
+      <id>experimental</id>
+      <modules>
+        <module>emb-ci</module>
+      </modules>
+    </profile>
+  </profiles>
+
+</project>

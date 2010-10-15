@@ -16,6 +16,13 @@
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb</groupId>
+        <artifactId>emb-app</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.commonjava.emb</groupId>
         <artifactId>emb-booter</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
