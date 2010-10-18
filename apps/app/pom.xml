@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>emb</artifactId>
+    <artifactId>emb-apps</artifactId>
     <groupId>org.commonjava.emb</groupId>
     <version>0.4-SNAPSHOT</version>
   </parent>
@@ -19,7 +19,7 @@
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb</groupId>
-        <artifactId>emb-bom</artifactId>
+        <artifactId>emb-app-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

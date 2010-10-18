@@ -15,7 +15,7 @@
     <dependencies>
       <dependency>
         <groupId>org.commonjava.emb</groupId>
-        <artifactId>emb-bom</artifactId>
+        <artifactId>emb-library-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>

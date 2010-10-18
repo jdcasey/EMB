@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>emb</artifactId>
+    <artifactId>emb-boms</artifactId>
     <groupId>org.commonjava.emb</groupId>
     <version>0.4-SNAPSHOT</version>
   </parent>
   
-  <artifactId>emb-bom</artifactId>
-  <name>EMB Bill-Of-Materials</name>
+  <artifactId>emb-app-bom</artifactId>
+  <name>EMB Application Bill-Of-Materials</name>
   
   <packaging>pom</packaging>
   
@@ -18,34 +18,29 @@
         <groupId>org.commonjava.emb</groupId>
         <artifactId>emb-app</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
       </dependency>
       
       <dependency>
         <groupId>org.commonjava.emb</groupId>
         <artifactId>emb-booter</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
       </dependency>
       
       <dependency>
         <groupId>org.commonjava.emb.event</groupId>
         <artifactId>emb-event-api</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.commonjava.emb</groupId>
         <artifactId>emb-api</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
       </dependency>
     
       <dependency>
         <groupId>org.commonjava.emb.event</groupId>
         <artifactId>emb-resolver-events</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
       </dependency>
       
       <dependency>
@@ -60,62 +55,46 @@
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-artifact</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-compat</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-core</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-embedder</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-model</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-model-builder</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-plugin-api</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-repository</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-settings</artifactId>
         <version>${mavenVersion}</version>
-        <scope>provided</scope>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-container-default</artifactId>
-        <version>${plexusVersion}</version>
-        <scope>provided</scope>
       </dependency>
       
       <!-- NOTE: These MUST be provided by emb infrastructure! -->
@@ -123,7 +102,6 @@
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>1.2.12</version>
-        <scope>provided</scope>
       </dependency>
       <!-- /END infra requirements -->
 
