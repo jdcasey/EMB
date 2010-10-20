@@ -14,6 +14,7 @@ package org.commonjava.emb.internal.plexus.guice;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
@@ -48,6 +49,8 @@ public final class XPlexusXmlBeanModule
 
     private final boolean root;
 
+    private final InstanceRegistry instanceRegistry;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -62,10 +65,11 @@ public final class XPlexusXmlBeanModule
      * @param plexusXml
      *            The plexus.xml URL
      */
-    public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
-                                 final Map<?, ?> variables, final URL plexusXml )
+    public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final InstanceRegistry instanceRegistry,
+                                 final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
     {
         this.componentSelector = componentSelector;
+        this.instanceRegistry = instanceRegistry;
         this.space = space;
         this.variables = variables;
         this.plexusXml = plexusXml;
@@ -80,10 +84,11 @@ public final class XPlexusXmlBeanModule
      * @param variables
      *            The filter variables
      */
-    public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
-                                 final Map<?, ?> variables )
+    public XPlexusXmlBeanModule( final ComponentSelector componentSelector, final InstanceRegistry instanceRegistry,
+                                 final ClassSpace space, final Map<?, ?> variables )
     {
         this.componentSelector = componentSelector;
+        this.instanceRegistry = instanceRegistry;
         this.space = space;
         this.variables = variables;
         plexusXml = null;
@@ -99,7 +104,8 @@ public final class XPlexusXmlBeanModule
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
         final Map<Component, DeferredClass<?>> components = scanner.scan( space, root );
-        final SelectingTypeBinder plexusTypeBinder = new SelectingTypeBinder( componentSelector, binder );
+        final SelectingTypeBinder plexusTypeBinder =
+            new SelectingTypeBinder( componentSelector, instanceRegistry, binder );
         for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
         {
             plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );

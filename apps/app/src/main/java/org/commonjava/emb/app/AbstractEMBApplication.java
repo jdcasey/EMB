@@ -17,22 +17,26 @@
 
 package org.commonjava.emb.app;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.commonjava.emb.EMBException;
 import org.commonjava.emb.boot.embed.EMBEmbedderBuilder;
-import org.commonjava.emb.conf.AbstractEMBLibrary;
+import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.conf.VersionProvider;
-import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
+import org.commonjava.emb.conf.ext.ExtensionConfiguration;
+import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
 import org.commonjava.emb.conf.loader.InstanceLibraryLoader;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractEMBApplication
-    extends AbstractEMBLibrary
     implements EMBApplication
 {
 
@@ -40,53 +44,16 @@ public abstract class AbstractEMBApplication
 
     private final List<EMBLibrary> additionalLibraries = new ArrayList<EMBLibrary>();
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final ExtensionConfigurationLoader configLoader )
-    {
-        this( id, name, versionProvider, id, configLoader, null );
-    }
+    private final InstanceRegistry instanceRegistry = new InstanceRegistry();
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle )
-    {
-        this( id, name, versionProvider, logHandle, null, null );
-    }
+    private transient boolean loaded = false;
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    protected AbstractEMBApplication()
     {
-        this( id, name, versionProvider, id, null, null );
-    }
+        withLibrary( this );
+        withComponentInstance( new ComponentKey( getClass() ), this );
 
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle, final ExtensionConfigurationLoader configLoader )
-    {
-        this( id, name, versionProvider, logHandle, configLoader, null );
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final ExtensionConfigurationLoader configLoader,
-                                      final ComponentSelector componentSelector )
-    {
-        this( id, name, versionProvider, id, configLoader, componentSelector );
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle, final ComponentSelector componentSelector )
-    {
-        this( id, name, versionProvider, logHandle, null, componentSelector );
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final ComponentSelector componentSelector )
-    {
-        this( id, name, versionProvider, id, null, componentSelector );
-    }
-
-    protected AbstractEMBApplication( final String id, final String name, final VersionProvider versionProvider,
-                                      final String logHandle, final ExtensionConfigurationLoader configLoader,
-                                      final ComponentSelector componentSelector )
-    {
-        super( id, name, versionProvider, logHandle, configLoader, componentSelector );
         initializeApplication();
     }
 
@@ -106,47 +73,31 @@ public abstract class AbstractEMBApplication
     {
         if ( builder == null )
         {
-            builder = new EMBEmbedderBuilder();
-
-            builder.withLibraryLoader( new InstanceLibraryLoader( this ) );
-
-            if ( !additionalLibraries.isEmpty() )
-            {
-                builder.withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
-            }
+            builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
         }
 
         return builder;
     }
 
-    public final void load()
+    public final AbstractEMBApplication load()
         throws EMBException
     {
+        if ( loaded )
+        {
+            return this;
+        }
+
         final EMBEmbedderBuilder builder = builder();
 
         beforeLoading();
         configureBuilder( builder );
 
         builder.build();
-        try
-        {
-            builder.container().lookup( getClass() );
-        }
-        catch ( final ComponentLookupException e )
-        {
-            throw new EMBException( "Forced member-injection for application failed. Reason: %s", e, e.getMessage() );
-        }
-
         for ( final ComponentKey<?> key : getInstanceRegistry().getInstances().keySet() )
         {
-            if ( key.getRoleClass() == getClass() )
-            {
-                continue;
-            }
-
             try
             {
-                builder.container().lookup( key.getRole(), key.getHint() );
+                builder.container().lookup( key.getRoleClass(), key.getHint() );
             }
             catch ( final ComponentLookupException e )
             {
@@ -156,12 +107,19 @@ public abstract class AbstractEMBApplication
         }
 
         afterLoading();
+
+        loaded = true;
+
+        return this;
     }
 
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     protected void initializeApplication()
     {
-        withComponentInstance( new ComponentKey( getClass() ), this );
+    }
+
+    protected <C> void withComponentInstance( final ComponentKey<C> componentKey, final C instance )
+    {
+        getInstanceRegistry().add( componentKey, instance );
     }
 
     protected void configureBuilder( final EMBEmbedderBuilder builder )
@@ -180,23 +138,81 @@ public abstract class AbstractEMBApplication
     }
 
     @Override
-    protected AbstractEMBApplication withExportedComponent( final ComponentKey<?> key )
+    public Logger getLogger()
     {
-        super.withExportedComponent( key );
-        return this;
+        return Logger.getLogger( getLogHandle() );
     }
 
     @Override
-    public AbstractEMBApplication withManagementComponent( final ComponentKey<?> key, final Class<?>... managementTypes )
+    public ExtensionConfiguration getConfiguration()
     {
-        super.withManagementComponent( key, managementTypes );
-        return this;
+        return null;
     }
 
     @Override
-    public <T> AbstractEMBApplication withComponentInstance( final ComponentKey<T> key, final T instance )
+    public ComponentSelector getComponentSelector()
     {
-        super.withComponentInstance( key, instance );
-        return this;
+        return null;
     }
+
+    @Override
+    public Set<ComponentKey<?>> getExportedComponents()
+    {
+        return null;
+    }
+
+    @Override
+    public Set<ComponentKey<?>> getManagementComponents( final Class<?> managementType )
+    {
+        return null;
+    }
+
+    @Override
+    public Map<Class<?>, Set<ComponentKey<?>>> getManagementComponents()
+    {
+        return null;
+    }
+
+    @Override
+    public String getLabel()
+    {
+        return getName();
+    }
+
+    @Override
+    public String getLogHandle()
+    {
+        return getId();
+    }
+
+    @Override
+    public void loadConfiguration( final EMBConfiguration embConfig )
+        throws ExtensionConfigurationException
+    {
+    }
+
+    @Override
+    public final InstanceRegistry getInstanceRegistry()
+    {
+        return instanceRegistry;
+    }
+
+    @Override
+    public String getVersion()
+    {
+        final VersionProvider provider = getVersionProvider();
+        if ( provider == null )
+        {
+            throw new IllegalStateException( "Your application booter: " + getClass().getName()
+                            + " must implement either getVersion() or getVersionProvider()." );
+        }
+
+        return provider.getVersion();
+    }
+
+    protected VersionProvider getVersionProvider()
+    {
+        return null;
+    }
+
 }

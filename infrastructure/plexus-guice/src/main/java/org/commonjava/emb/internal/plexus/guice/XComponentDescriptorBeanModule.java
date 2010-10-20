@@ -20,6 +20,7 @@ import org.codehaus.plexus.component.factory.ComponentFactory;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRequirement;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -52,10 +53,14 @@ public final class XComponentDescriptorBeanModule
 
     private final ComponentSelector componentSelector;
 
-    public XComponentDescriptorBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
+    private final InstanceRegistry instanceRegistry;
+
+    public XComponentDescriptorBeanModule( final ComponentSelector componentSelector,
+                                           final InstanceRegistry instanceRegistry, final ClassSpace space,
                                            final List<ComponentDescriptor<?>> descriptors )
     {
         this.componentSelector = componentSelector;
+        this.instanceRegistry = instanceRegistry;
         this.space = space;
 
         for ( int i = 0, size = descriptors.size(); i < size; i++ )
@@ -81,7 +86,8 @@ public final class XComponentDescriptorBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
-        final SelectingTypeBinder plexusTypeBinder = new SelectingTypeBinder( componentSelector, binder );
+        final SelectingTypeBinder plexusTypeBinder =
+            new SelectingTypeBinder( componentSelector, instanceRegistry, binder );
         for ( final Entry<Component, DeferredClass<?>> entry : componentMap.entrySet() )
         {
             plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );

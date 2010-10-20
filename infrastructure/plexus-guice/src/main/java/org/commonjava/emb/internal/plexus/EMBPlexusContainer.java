@@ -49,10 +49,8 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanModule;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
-import org.sonatype.guice.plexus.binders.PlexusXmlBeanModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
@@ -148,7 +146,7 @@ public final class EMBPlexusContainer
 
     private boolean disposing;
 
-    private final Module instanceBindingModule;
+    private final InstanceRegistry instanceRegistry;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -161,11 +159,12 @@ public final class EMBPlexusContainer
     }
 
     @SuppressWarnings( "finally" )
-    public EMBPlexusContainer( final ContainerConfiguration configuration, final ComponentSelector componentSelector,
+    public EMBPlexusContainer( final ContainerConfiguration configuration, final ComponentSelector selector,
                                final InstanceRegistry instanceRegistry )
         throws PlexusContainerException
     {
-        this.componentSelector = componentSelector;
+        componentSelector = selector;
+        this.instanceRegistry = instanceRegistry;
         final URL plexusXml = lookupPlexusXml( configuration );
 
         context = new DefaultContext( configuration.getContext() );
@@ -185,15 +184,15 @@ public final class EMBPlexusContainer
         final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
         final ClassSpace space = new URLClassSpace( containerRealm );
-        beanModules.add( new XPlexusXmlBeanModule( componentSelector, space, variables, plexusXml ) );
+        beanModules.add( new XPlexusXmlBeanModule( selector, instanceRegistry, space, variables, plexusXml ) );
 
         isClassPathScanningEnabled = configuration.getClassPathScanning();
         if ( isClassPathScanningEnabled )
         {
-            beanModules.add( new XPlexusAnnotatedBeanModule( componentSelector, space, variables ) );
+            beanModules.add( new XPlexusAnnotatedBeanModule( selector, instanceRegistry, space, variables ) );
         }
 
-        instanceBindingModule = new InstanceBindingModule( instanceRegistry );
+        beanModules.add( new InstanceBindingModule( instanceRegistry, selector, variables ) );
 
         try
         {
@@ -422,14 +421,16 @@ public final class EMBPlexusContainer
             final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
             if ( null != descriptors )
             {
-                beanModules.add( new XComponentDescriptorBeanModule( componentSelector, space, descriptors ) );
+                beanModules.add( new XComponentDescriptorBeanModule( componentSelector, instanceRegistry, space,
+                                                                     descriptors ) );
             }
             if ( realmIds.add( realm.getId() ) )
             {
-                beanModules.add( new PlexusXmlBeanModule( space, variables ) );
+                beanModules.add( new XPlexusXmlBeanModule( componentSelector, instanceRegistry, space, variables ) );
                 if ( isClassPathScanningEnabled )
                 {
-                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                    beanModules.add( new XPlexusAnnotatedBeanModule( componentSelector, instanceRegistry, space,
+                                                                     variables ) );
                 }
             }
             if ( !beanModules.isEmpty() )
@@ -453,7 +454,6 @@ public final class EMBPlexusContainer
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( loggerModule );
-        modules.add( instanceBindingModule );
 
         Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }

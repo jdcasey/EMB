@@ -15,6 +15,7 @@ package org.commonjava.emb.internal.plexus.guice;
 import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.guice.bean.binders.QualifiedTypeBinder;
 import org.sonatype.guice.bean.locators.BeanDescription;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -27,6 +28,7 @@ import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
@@ -64,13 +66,17 @@ public final class SelectingTypeBinder
 
     private final ComponentSelector componentSelector;
 
+    private final InstanceRegistry instanceRegistry;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public SelectingTypeBinder( final ComponentSelector componentSelector, final Binder binder )
+    public SelectingTypeBinder( final ComponentSelector componentSelector, final InstanceRegistry instanceRegistry,
+                                final Binder binder )
     {
         this.componentSelector = componentSelector;
+        this.instanceRegistry = instanceRegistry;
         this.binder = binder;
 
         qualifiedTypeBinder = new QualifiedTypeBinder( binder );
@@ -94,9 +100,23 @@ public final class SelectingTypeBinder
 
     public void hear( final Component component, final DeferredClass<?> clazz, final Object source )
     {
+        hear( component, clazz, source, null );
+    }
+
+    public void hear( final Component component, final DeferredClass<?> clazz, final Object source,
+                      final Provider<?> provider )
+    {
         final String strategy = component.instantiationStrategy();
         final Class<?> role = component.role();
         final String hint = Hints.canonicalHint( component.hint() );
+
+        if ( provider == null )
+        {
+            if ( instanceRegistry.has( component.role(), component.hint() ) )
+            {
+                return;
+            }
+        }
 
         final Binder componentBinder = componentBinder( source, component.description() );
 
@@ -105,15 +125,12 @@ public final class SelectingTypeBinder
         // This means re-binding the component to a sort of literal hint.
         //
         // To use this literal reference, you can use 'hint_' instead.
-
-        // FIXME: This will lead to two instances of the component being managed, one for the normal hint, and another
-        // for the literal one.
         final Key<?> literalRootKey =
             Roles.componentKey( component.role(), Hints.canonicalHint( component.hint() ) + "_" );
 
         if ( componentSelector.hasOverride( role, hint ) )
         {
-            bind( literalRootKey, clazz, componentBinder, strategy, role );
+            bind( literalRootKey, clazz, componentBinder, strategy, role, provider );
         }
         else
         {
@@ -132,7 +149,7 @@ public final class SelectingTypeBinder
                 rootKey = Roles.componentKey( component );
             }
 
-            bind( rootKey, clazz, componentBinder, strategy, role );
+            bind( rootKey, clazz, componentBinder, strategy, role, provider );
             bindAlias( literalRootKey, rootKey, componentBinder );
 
             // If this component overrides some other component, make aliases of the overridden hints
@@ -156,11 +173,15 @@ public final class SelectingTypeBinder
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     private void bind( final Key key, final DeferredClass clazz, final Binder componentBinder, final String strategy,
-                       final Class role )
+                       final Class role, final Provider provider )
     {
         final ScopedBindingBuilder sbb;
         // special case when role is the implementation
-        if ( role.getName().equals( clazz.getName() ) )
+        if ( provider != null )
+        {
+            sbb = componentBinder.bind( key ).toProvider( provider );
+        }
+        else if ( role.getName().equals( clazz.getName() ) )
         {
             if ( key.getAnnotation() != null )
             {

@@ -12,14 +12,12 @@
  */
 package org.commonjava.emb.internal.plexus.guice;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.plexus.ComponentSelector;
+import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
-import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
 
 import com.google.inject.Binder;
@@ -42,21 +40,28 @@ public final class XPlexusAnnotatedBeanModule
 
     private final ComponentSelector componentSelector;
 
+    private final InstanceRegistry instanceRegistry;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     /**
      * Creates a bean source that scans the given class space for Plexus annotations using the given scanner.
-     * @param componentSelector 
      * 
-     * @param space The local class space
-     * @param variables The filter variables
+     * @param componentSelector
+     * 
+     * @param space
+     *            The local class space
+     * @param variables
+     *            The filter variables
      */
-    public XPlexusAnnotatedBeanModule( final ComponentSelector componentSelector, final ClassSpace space,
+    public XPlexusAnnotatedBeanModule( final ComponentSelector componentSelector,
+                                       final InstanceRegistry instanceRegistry, final ClassSpace space,
                                        final Map<?, ?> variables )
     {
         this.componentSelector = componentSelector;
+        this.instanceRegistry = instanceRegistry;
         this.space = space;
         this.variables = variables;
     }
@@ -70,28 +75,14 @@ public final class XPlexusAnnotatedBeanModule
         if ( null != space )
         {
             new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new SelectingTypeBinder( componentSelector,
-                                                                                                 binder ) ) );
+                                                                                                   instanceRegistry,
+                                                                                                   binder ) ) );
         }
-        return new PlexusAnnotatedBeanSource( variables );
+        return new XAnnotatedBeanSource( variables );
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private static final class PlexusAnnotatedBeanSource
-        implements PlexusBeanSource
-    {
-        private final PlexusBeanMetadata metadata;
-
-        PlexusAnnotatedBeanSource( final Map<?, ?> variables )
-        {
-            metadata = new PlexusAnnotatedMetadata( variables );
-        }
-
-        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-        {
-            return implementation.isAnnotationPresent( Component.class ) ? metadata : null;
-        }
-    }
 }

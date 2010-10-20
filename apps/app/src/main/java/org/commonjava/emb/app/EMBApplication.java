@@ -23,6 +23,6 @@ import org.commonjava.emb.conf.EMBLibrary;
 public interface EMBApplication
     extends EMBLibrary
 {
-    void load()
+    EMBApplication load()
         throws EMBException;
 }

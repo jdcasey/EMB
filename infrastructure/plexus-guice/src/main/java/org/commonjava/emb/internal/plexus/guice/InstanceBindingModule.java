@@ -17,12 +17,17 @@
 
 package org.commonjava.emb.internal.plexus.guice;
 
+import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.plexus.ComponentKey;
+import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
 import org.commonjava.emb.plexus.VirtualInstance;
+import org.sonatype.guice.bean.reflect.LoadedClass;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
+import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Roles;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -30,20 +35,28 @@ import com.google.inject.Provider;
 import java.util.Map;
 
 public class InstanceBindingModule
-    extends AbstractModule
+    implements PlexusBeanModule
 {
 
     private final InstanceRegistry registry;
 
-    public InstanceBindingModule( final InstanceRegistry registry )
+    private final ComponentSelector selector;
+
+    private final Map<?, ?> variables;
+
+    public InstanceBindingModule( final InstanceRegistry registry, final ComponentSelector selector,
+                                  final Map<?, ?> variables )
     {
         this.registry = registry;
+        this.selector = selector;
+        this.variables = variables;
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     @Override
-    protected void configure()
+    public PlexusBeanSource configure( final Binder binder )
     {
+        final SelectingTypeBinder typeBinder = new SelectingTypeBinder( selector, registry, binder );
         for ( final Map.Entry<ComponentKey<?>, Object> mapping : registry.getInstances().entrySet() )
         {
             final ComponentKey<?> key = mapping.getKey();
@@ -51,14 +64,39 @@ public class InstanceBindingModule
 
             if ( instance instanceof VirtualInstance )
             {
-                bind( Roles.componentKey( key.getRoleClass(), key.getHint() ) ).toProvider( (Provider) instance );
+                final VirtualInstance vi = (VirtualInstance) instance;
+                final Class<?> cls = vi.getVirtualClass();
+
+                final Component comp = cls.getAnnotation( Component.class );
+                if ( comp != null )
+                {
+                    typeBinder.hear( comp, new LoadedClass<Object>( cls ),
+                                     "External instance loaded from: " + cls.getClassLoader(), vi );
+                }
+                else
+                {
+                    binder.bind( Roles.componentKey( key.getRoleClass(), key.getHint() ) )
+                          .toProvider( (Provider) instance );
+                }
             }
             else
             {
-                bind( Roles.componentKey( key.getRoleClass(), key.getHint() ) ).toProvider( new InstanceProvider(
-                                                                                                                  instance ) );
+                final InstanceProvider provider = new InstanceProvider( instance );
+
+                final Component comp = instance.getClass().getAnnotation( Component.class );
+                if ( comp != null )
+                {
+                    typeBinder.hear( comp, new LoadedClass<Object>( instance.getClass() ),
+                                     "External instance loaded from: " + instance.getClass().getClassLoader(), provider );
+                }
+                else
+                {
+                    binder.bind( Roles.componentKey( key.getRoleClass(), key.getHint() ) ).toProvider( provider );
+                }
             }
         }
+
+        return new XAnnotatedBeanSource( variables );
     }
 
     private static final class InstanceProvider<T>

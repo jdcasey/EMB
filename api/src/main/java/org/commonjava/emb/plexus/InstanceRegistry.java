@@ -65,7 +65,10 @@ public class InstanceRegistry
 
     public <T> InstanceRegistry add( final ComponentKey<T> key, final T instance )
     {
-        instances.put( key, instance );
+        if ( instance != null )
+        {
+            instances.put( key, instance );
+        }
         return this;
     }
 

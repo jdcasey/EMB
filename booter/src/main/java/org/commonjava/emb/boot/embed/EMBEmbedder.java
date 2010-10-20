@@ -24,6 +24,7 @@ import org.apache.maven.settings.building.SettingsProblem;
 import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
+import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
@@ -70,6 +71,7 @@ import java.util.Set;
  * the License.
  */
 
+@Component( role = EMBEmbedder.class )
 public class EMBEmbedder
 {
 
