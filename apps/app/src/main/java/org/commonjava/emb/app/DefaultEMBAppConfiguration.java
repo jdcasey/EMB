@@ -17,15 +17,7 @@
 
 package org.commonjava.emb.app;
 
-import org.commonjava.emb.EMBException;
-import org.commonjava.emb.conf.EMBLibrary;
-
-public interface EMBApplication
-    extends EMBLibrary
+public class DefaultEMBAppConfiguration
 {
-    EMBApplication load()
-        throws EMBException;
 
-    EMBApplication load( EMBApplicationConfiguration configuration )
-        throws EMBException;
 }

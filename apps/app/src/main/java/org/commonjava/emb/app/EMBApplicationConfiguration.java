@@ -18,14 +18,12 @@
 package org.commonjava.emb.app;
 
 import org.commonjava.emb.EMBException;
-import org.commonjava.emb.conf.EMBLibrary;
+import org.commonjava.emb.boot.embed.EMBEmbedderBuilder;
 
-public interface EMBApplication
-    extends EMBLibrary
+public interface EMBApplicationConfiguration
 {
-    EMBApplication load()
+
+    void configureBuilder( EMBEmbedderBuilder builder )
         throws EMBException;
 
-    EMBApplication load( EMBApplicationConfiguration configuration )
-        throws EMBException;
 }

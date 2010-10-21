@@ -142,7 +142,8 @@ public class EMBEmbedderBuilder
 
     private List<EMBLibraryLoader> libraryLoaders;
 
-    private final VirtualInstance<EMBEmbedder> embVirtual = new VirtualInstance<EMBEmbedder>( EMBEmbedder.class );
+    private final VirtualInstance<EMBEmbedder> embVirtual =
+        new VirtualInstance<EMBEmbedder>( EMBEmbedder.class );
 
     public synchronized EMBEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -766,9 +767,9 @@ public class EMBEmbedderBuilder
         throws EMBEmbeddingException
     {
         final EMBEmbedder embedder =
-            new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(), executionRequestPopulator(),
-                             securityDispatcher(), serviceManager(), libraryLoaders(), standardOut(), logger(),
-                             shouldShowErrors(), showVersion() );
+            new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(),
+                                    executionRequestPopulator(), securityDispatcher(), serviceManager(),
+                                    libraryLoaders(), standardOut(), logger(), shouldShowErrors(), showVersion() );
 
         embVirtual.setInstance( embedder );
 

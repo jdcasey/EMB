@@ -40,8 +40,6 @@ public abstract class AbstractEMBApplication
     implements EMBApplication
 {
 
-    private EMBEmbedderBuilder builder;
-
     private final List<EMBLibrary> additionalLibraries = new ArrayList<EMBLibrary>();
 
     private final InstanceRegistry instanceRegistry = new InstanceRegistry();
@@ -53,8 +51,6 @@ public abstract class AbstractEMBApplication
     {
         withLibrary( this );
         withComponentInstance( new ComponentKey( getClass() ), this );
-
-        initializeApplication();
     }
 
     protected final AbstractEMBApplication withLibrary( final EMBLibrary library )
@@ -63,23 +59,20 @@ public abstract class AbstractEMBApplication
         return this;
     }
 
-    protected final AbstractEMBApplication withEMBEmbedderBuilder( final EMBEmbedderBuilder builder )
+    private EMBEmbedderBuilder builder()
     {
-        this.builder = builder;
-        return this;
+        return new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
     }
 
-    protected final EMBEmbedderBuilder builder()
+    @Override
+    public final EMBApplication load()
+        throws EMBException
     {
-        if ( builder == null )
-        {
-            builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
-        }
-
-        return builder;
+        return load( null );
     }
 
-    public final AbstractEMBApplication load()
+    @Override
+    public final EMBApplication load( final EMBApplicationConfiguration configuration )
         throws EMBException
     {
         if ( loaded )
@@ -91,6 +84,10 @@ public abstract class AbstractEMBApplication
 
         beforeLoading();
         configureBuilder( builder );
+        if ( configuration != null )
+        {
+            configuration.configureBuilder( builder );
+        }
 
         builder.build();
         for ( final ComponentKey<?> key : getInstanceRegistry().getInstances().keySet() )
@@ -113,11 +110,13 @@ public abstract class AbstractEMBApplication
         return this;
     }
 
-    protected void initializeApplication()
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    protected final void withComponentInstance( final Object instance )
     {
+        getInstanceRegistry().add( new ComponentKey( instance.getClass() ), instance );
     }
 
-    protected <C> void withComponentInstance( final ComponentKey<C> componentKey, final C instance )
+    protected final <C> void withComponentInstance( final ComponentKey<C> componentKey, final C instance )
     {
         getInstanceRegistry().add( componentKey, instance );
     }
