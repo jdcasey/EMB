@@ -64,15 +64,43 @@ public abstract class AbstractEMBApplication
         return new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
     }
 
+    protected boolean allowLoadWithoutConfiguration()
+    {
+        return true;
+    }
+
+    protected boolean allowLoadWithConfiguration()
+    {
+        return true;
+    }
+
     @Override
     public final EMBApplication load()
         throws EMBException
     {
-        return load( null );
+        if ( !allowLoadWithoutConfiguration() )
+        {
+            throw new EMBException( "Cannot load application: " + getName()
+                            + " without a configuration. Use the 'app.load( config )' method instead!" );
+        }
+
+        return doLoad( null );
     }
 
     @Override
     public final EMBApplication load( final EMBApplicationConfiguration configuration )
+        throws EMBException
+    {
+        if ( !allowLoadWithConfiguration() )
+        {
+            throw new EMBException( "Cannot load application: " + getName()
+                            + " with a configuration. Use the 'app.load()' method instead!" );
+        }
+
+        return doLoad( configuration );
+    }
+
+    private EMBApplication doLoad( final EMBApplicationConfiguration configuration )
         throws EMBException
     {
         if ( loaded )

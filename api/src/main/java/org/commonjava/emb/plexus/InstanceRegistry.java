@@ -132,10 +132,10 @@ public class InstanceRegistry
             throw new NullPointerException( "Instance is null." );
         }
 
-        if ( !role.isAssignableFrom( instance.getClass() ) )
+        if ( !role.isAssignableFrom( instance.getVirtualClass() ) )
         {
-            throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
-                            + " is not assignable to role: " + role.getClass() );
+            throw new IllegalArgumentException( "Instance class: " + instance.getVirtualClass().getName()
+                            + " is not assignable to role: " + role.getName() );
         }
 
         return addVirtual( new ComponentKey<T>( role, hint ), instance );
@@ -153,10 +153,10 @@ public class InstanceRegistry
             throw new NullPointerException( "Instance is null." );
         }
 
-        if ( !role.isAssignableFrom( instance.getClass() ) )
+        if ( !role.isAssignableFrom( instance.getVirtualClass() ) )
         {
-            throw new IllegalArgumentException( "Instance class: " + instance.getClass().getName()
-                            + " is not assignable to role: " + role.getClass() );
+            throw new IllegalArgumentException( "Instance class: " + instance.getVirtualClass().getName()
+                            + " is not assignable to role: " + role.getName() );
         }
 
         return addVirtual( new ComponentKey<T>( role ), instance );
@@ -175,6 +175,28 @@ public class InstanceRegistry
     public Map<ComponentKey<?>, Object> getInstances()
     {
         return instances;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public <T> InstanceRegistry add( final T instance )
+    {
+        if ( instance == null )
+        {
+            throw new NullPointerException( "Instance is null." );
+        }
+
+        return add( new ComponentKey<T>( (Class<T>) instance.getClass() ), instance );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public <T> InstanceRegistry addVirtual( final VirtualInstance<T> instance )
+    {
+        if ( instance == null )
+        {
+            throw new NullPointerException( "Instance is null." );
+        }
+
+        return addVirtual( new ComponentKey<T>( (Class<T>) instance.getVirtualClass() ), instance );
     }
 
 }

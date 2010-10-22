@@ -271,6 +271,12 @@ public class EMBConfiguration
         return this;
     }
 
+    public synchronized EMBConfiguration withComponentInstance( final Object instance )
+    {
+        getInstanceRegistry().add( instance );
+        return this;
+    }
+
     public synchronized EMBConfiguration withInstanceRegistry( final InstanceRegistry instanceRegistry )
     {
         if ( instanceRegistry != null )
