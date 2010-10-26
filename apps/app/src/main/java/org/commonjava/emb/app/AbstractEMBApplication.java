@@ -97,6 +97,7 @@ public abstract class AbstractEMBApplication
                             + " with a configuration. Use the 'app.load()' method instead!" );
         }
 
+        instanceRegistry.add( configuration );
         return doLoad( configuration );
     }
 
