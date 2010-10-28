@@ -8,7 +8,6 @@
   </parent>
   
   <artifactId>maven-scm-support</artifactId>
-  <version>0.4-SNAPSHOT</version>
   
   <name>EMB Service Export for Maven-SCM</name>
   
@@ -30,7 +29,7 @@
     <dependency>
 	   	<groupId>org.apache.maven.scm</groupId>
 	   	<artifactId>maven-scm-api</artifactId>
-	   	<version>1.3</version>
+	   	<version>1.4</version>
     </dependency>
   </dependencies>
 </project>
