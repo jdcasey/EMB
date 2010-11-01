@@ -25,7 +25,4 @@ public interface EMBApplication
 {
     EMBApplication load()
         throws EMBException;
-
-    EMBApplication load( EMBApplicationConfiguration configuration )
-        throws EMBException;
 }

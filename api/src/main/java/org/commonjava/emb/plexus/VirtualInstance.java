@@ -42,9 +42,14 @@ public class VirtualInstance<T>
         this.instance = instance;
     }
 
-    public Class<?> getVirtualClass()
+    public Class<T> getVirtualClass()
     {
         return virtualClass;
+    }
+
+    public T getRawInstance()
+    {
+        return instance;
     }
 
     @Override

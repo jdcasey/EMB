@@ -30,6 +30,7 @@ import org.commonjava.emb.conf.loader.InstanceLibraryLoader;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
+import org.commonjava.emb.plexus.VirtualInstance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,41 +65,11 @@ public abstract class AbstractEMBApplication
         return new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
     }
 
-    protected boolean allowLoadWithoutConfiguration()
-    {
-        return true;
-    }
-
-    protected boolean allowLoadWithConfiguration()
-    {
-        return true;
-    }
-
     @Override
-    public final EMBApplication load()
+    public EMBApplication load()
         throws EMBException
     {
-        if ( !allowLoadWithoutConfiguration() )
-        {
-            throw new EMBException( "Cannot load application: " + getName()
-                            + " without a configuration. Use the 'app.load( config )' method instead!" );
-        }
-
         return doLoad( null );
-    }
-
-    @Override
-    public final EMBApplication load( final EMBApplicationConfiguration configuration )
-        throws EMBException
-    {
-        if ( !allowLoadWithConfiguration() )
-        {
-            throw new EMBException( "Cannot load application: " + getName()
-                            + " with a configuration. Use the 'app.load()' method instead!" );
-        }
-
-        instanceRegistry.add( configuration );
-        return doLoad( configuration );
     }
 
     private EMBApplication doLoad( final EMBApplicationConfiguration configuration )
@@ -145,9 +116,29 @@ public abstract class AbstractEMBApplication
         getInstanceRegistry().add( new ComponentKey( instance.getClass() ), instance );
     }
 
+    protected final <C> void withVirtualComponent( final Class<C> virtualClass )
+    {
+        getInstanceRegistry().addVirtual( new VirtualInstance<C>( virtualClass ) );
+    }
+
+    protected final <C, T extends C> void setVirtualInstance( final Class<C> virtualKey, final T instance )
+    {
+        getInstanceRegistry().setVirtualInstance( virtualKey, instance );
+    }
+
     protected final <C> void withComponentInstance( final ComponentKey<C> componentKey, final C instance )
     {
         getInstanceRegistry().add( componentKey, instance );
+    }
+
+    protected final <C> void withVirtualComponent( final ComponentKey<C> virtualKey )
+    {
+        getInstanceRegistry().addVirtual( virtualKey, new VirtualInstance<C>( virtualKey.getRoleClass() ) );
+    }
+
+    protected final <C, T extends C> void setVirtualInstance( final ComponentKey<C> virtualKey, final T instance )
+    {
+        getInstanceRegistry().setVirtualInstance( virtualKey, instance );
     }
 
     protected void configureBuilder( final EMBEmbedderBuilder builder )
