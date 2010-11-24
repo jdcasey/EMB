@@ -11,8 +11,8 @@
   <artifactId>emb-integration</artifactId>
   <packaging>pom</packaging>
   
-  <modules>
+  <!-- <modules>
     <module>nexus-autonx-plugin</module>
     <module>autonx-m3-resolver</module>
-  </modules>
+  </modules> -->
 </project>

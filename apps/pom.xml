@@ -60,13 +60,13 @@
     <module>app</module>
   </modules>
   
-  <profiles>
+  <!-- <profiles>
     <profile>
       <id>experimental</id>
       <modules>
         <module>emb-ci</module>
       </modules>
     </profile>
-  </profiles>
+  </profiles> -->
 
 </project>
