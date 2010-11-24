@@ -4,7 +4,7 @@
   <parent>
     <artifactId>emb-boms</artifactId>
     <groupId>org.commonjava.emb</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4</version>
   </parent>
   
   <artifactId>emb-app-bom</artifactId>
