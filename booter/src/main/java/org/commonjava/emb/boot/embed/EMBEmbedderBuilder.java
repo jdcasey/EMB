@@ -1,3 +1,19 @@
+/*
+ * Copyright 2010 Red Hat, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.commonjava.emb.boot.embed;
 
 import static org.commonjava.emb.conf.EMBLibraries.loadLibraries;
@@ -45,21 +61,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more contributor license
- * agreements. See the NOTICE file distributed with this work for additional information regarding
- * copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License. You may obtain a
- * copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 
 public class EMBEmbedderBuilder
 {
@@ -142,8 +143,7 @@ public class EMBEmbedderBuilder
 
     private List<EMBLibraryLoader> libraryLoaders;
 
-    private final VirtualInstance<EMBEmbedder> embVirtual =
-        new VirtualInstance<EMBEmbedder>( EMBEmbedder.class );
+    private final VirtualInstance<EMBEmbedder> embVirtual = new VirtualInstance<EMBEmbedder>( EMBEmbedder.class );
 
     public synchronized EMBEmbedderBuilder withSettingsBuilder( final SettingsBuilder settingsBuilder )
     {
@@ -767,9 +767,9 @@ public class EMBEmbedderBuilder
         throws EMBEmbeddingException
     {
         final EMBEmbedder embedder =
-            new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(),
-                                    executionRequestPopulator(), securityDispatcher(), serviceManager(),
-                                    libraryLoaders(), standardOut(), logger(), shouldShowErrors(), showVersion() );
+            new EMBEmbedder( maven(), embConfiguration(), container(), settingsBuilder(), executionRequestPopulator(),
+                             securityDispatcher(), serviceManager(), libraryLoaders(), standardOut(), logger(),
+                             shouldShowErrors(), showVersion() );
 
         embVirtual.setInstance( embedder );
 

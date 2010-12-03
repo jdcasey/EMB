@@ -1,5 +1,3 @@
-package org.commonjava.emb.component.vscheme;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,6 +17,8 @@ package org.commonjava.emb.component.vscheme;
  * under the License.
  */
 
+package org.commonjava.emb.component.vscheme;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,29 +36,30 @@ import java.util.Stack;
  * <ul>
  * <li>mixing of '<code>-</code>' (dash) and '<code>.</code>' (dot) separators,</li>
  * <li>transition between characters and digits also constitutes a separator:
- *     <code>1.0alpha1 =&gt; [1, 0, alpha, 1]</code></li>
+ * <code>1.0alpha1 =&gt; [1, 0, alpha, 1]</code></li>
  * <li>unlimited number of version components,</li>
  * <li>version components in the text can be digits or strings</li>
- * <li>strings are checked for well-known qualifiers and the qualifier ordering is used for version ordering.
- *     Well-known qualifiers (case insensitive):<ul>
- *     <li><code>snapshot</code></li>
- *     <li><code>alpha</code> or <code>a</code></li>
- *     <li><code>beta</code> or <code>b</code></li>
- *     <li><code>milestone</code> or <code>m</code></li>
- *     <li><code>rc</code> or <code>cr</code></li>
- *     <li><code>(the empty string)</code> or <code>ga</code> or <code>final</code></li>
- *     <li><code>sp</code></li>
- *     </ul>
- *   </li>
+ * <li>strings are checked for well-known qualifiers and the qualifier ordering is used for version ordering. Well-known
+ * qualifiers (case insensitive):
+ * <ul>
+ * <li><code>snapshot</code></li>
+ * <li><code>alpha</code> or <code>a</code></li>
+ * <li><code>beta</code> or <code>b</code></li>
+ * <li><code>milestone</code> or <code>m</code></li>
+ * <li><code>rc</code> or <code>cr</code></li>
+ * <li><code>(the empty string)</code> or <code>ga</code> or <code>final</code></li>
+ * <li><code>sp</code></li>
+ * </ul>
+ * </li>
  * <li>a dash usually precedes a qualifier, and is always less important than something preceded with a dot.</li>
  * </ul>
- *
+ * 
  * @see <a href="http://docs.codehaus.org/display/MAVEN/Versioning">"Versioning" on Maven Wiki</a>
  * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>
  * @author <a href="mailto:hboutemy@apache.org">Hervé Boutemy</a>
  * @version $Id$
  * 
- * Forked from maven 3.0-beta-2
+ *          Forked from maven 3.0-beta-2
  */
 public class VersionComparison
     implements Comparable<VersionComparison>
@@ -217,14 +218,14 @@ public class VersionComparison
 
         /**
          * Returns a comparable value for a qualifier.
-         *
+         * 
          * This method both takes into account the ordering of known qualifiers as well as lexical ordering for unknown
          * qualifiers.
-         *
+         * 
          * just returning an Integer with the index here is faster, but requires a lot of if/then/else to check for -1
          * or QUALIFIERS.size and then resort to lexical ordering. Most comparisons are decided by the first character,
          * so this is still fast. If more characters are needed then it requires a lexical sort anyway.
-         *
+         * 
          * @param qualifier
          * @return an equivalent value that can be used with lexical comparison
          */

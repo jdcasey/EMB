@@ -1,5 +1,3 @@
-package org.commonjava.emb.component.vscheme;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,6 +17,8 @@ package org.commonjava.emb.component.vscheme;
  * under the License.
  */
 
+package org.commonjava.emb.component.vscheme;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * Construct a version range from a specification.
- *
+ * 
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  * @version $Id$
  */
@@ -120,11 +120,12 @@ public class SchemeAwareVersionRange
      * <li><code>[1.5,)</code> Versions 1.5 and higher</li>
      * <li><code>(,1.0],[1.2,)</code> Versions up to 1.0 (included) and 1.2 or higher</li>
      * </ul>
-     *
-     * @param spec string representation of a version or version range
+     * 
+     * @param spec
+     *            string representation of a version or version range
      * @return a new {@link SchemeAwareVersionRange} object that represents the spec
      * @throws InvalidVersionSpecificationException
-     *
+     * 
      */
     public static SchemeAwareVersionRange createFromVersionSpec( final String spec, final String scheme )
         throws InvalidVersionSpecificationException
@@ -196,7 +197,7 @@ public class SchemeAwareVersionRange
             {
                 throw new InvalidVersionSpecificationException(
                                                                 "Only fully-qualified sets allowed in multiple set scenario: "
-                                                                    + spec );
+                                                                                + spec );
             }
             else
             {
@@ -276,32 +277,32 @@ public class SchemeAwareVersionRange
     }
 
     /**
-     * Creates and returns a new <code>VersionRange</code> that is a restriction of this
-     * version range and the specified version range.
+     * Creates and returns a new <code>VersionRange</code> that is a restriction of this version range and the specified
+     * version range.
      * <p>
-     * Note: Precedence is given to the recommended version from this version range over the
-     * recommended version from the specified version range.
+     * Note: Precedence is given to the recommended version from this version range over the recommended version from
+     * the specified version range.
      * </p>
-     *
-     * @param restriction the <code>VersionRange</code> that will be used to restrict this version
-     *                    range.
-     * @return the <code>VersionRange</code> that is a restriction of this version range and the
-     *         specified version range.
+     * 
+     * @param restriction
+     *            the <code>VersionRange</code> that will be used to restrict this version range.
+     * @return the <code>VersionRange</code> that is a restriction of this version range and the specified version
+     *         range.
      *         <p>
-     *         The restrictions of the returned version range will be an intersection of the restrictions
-     *         of this version range and the specified version range if both version ranges have
-     *         restrictions. Otherwise, the restrictions on the returned range will be empty.
+     *         The restrictions of the returned version range will be an intersection of the restrictions of this
+     *         version range and the specified version range if both version ranges have restrictions. Otherwise, the
+     *         restrictions on the returned range will be empty.
      *         </p>
      *         <p>
-     *         The recommended version of the returned version range will be the recommended version of
-     *         this version range, provided that ranges falls within the intersected restrictions. If
-     *         the restrictions are empty, this version range's recommended version is used if it is not
-     *         <code>null</code>. If it is <code>null</code>, the specified version range's recommended
-     *         version is used (provided it is non-<code>null</code>). If no recommended version can be
-     *         obtained, the returned version range's recommended version is set to <code>null</code>.
+     *         The recommended version of the returned version range will be the recommended version of this version
+     *         range, provided that ranges falls within the intersected restrictions. If the restrictions are empty,
+     *         this version range's recommended version is used if it is not <code>null</code>. If it is
+     *         <code>null</code>, the specified version range's recommended version is used (provided it is non-
+     *         <code>null</code>). If no recommended version can be obtained, the returned version range's recommended
+     *         version is set to <code>null</code>.
      *         </p>
-     * @throws NullPointerException if the specified <code>VersionRange</code> is
-     *                              <code>null</code>.
+     * @throws NullPointerException
+     *             if the specified <code>VersionRange</code> is <code>null</code>.
      */
     public SchemeAwareVersionRange restrict( final SchemeAwareVersionRange restriction )
     {
@@ -330,7 +331,7 @@ public class SchemeAwareVersionRange
                     break;
                 }
                 else if ( version == null && restriction.getRecommendedVersion() != null
-                    && r.containsVersion( restriction.getRecommendedVersion() ) )
+                                && r.containsVersion( restriction.getRecommendedVersion() ) )
                 {
                     // use this if we can, but prefer the original if possible
                     version = restriction.getRecommendedVersion();
@@ -349,12 +350,10 @@ public class SchemeAwareVersionRange
             // original recommended version
             version = restriction.getRecommendedVersion();
         }
-        /* TODO: should throw this immediately, but need artifact
-                else
-                {
-                    throw new OverConstrainedVersionException( "Restricting incompatible version ranges" );
-                }
-        */
+        /*
+         * TODO: should throw this immediately, but need artifact else { throw new OverConstrainedVersionException(
+         * "Restricting incompatible version ranges" ); }
+         */
 
         return new SchemeAwareVersionRange( version, restrictions, restriction.getVersionScheme() );
     }
@@ -372,10 +371,10 @@ public class SchemeAwareVersionRange
         while ( !done )
         {
             if ( res1.getLowerBound() == null || res2.getUpperBound() == null
-                || res1.getLowerBound().compareTo( res2.getUpperBound() ) <= 0 )
+                            || res1.getLowerBound().compareTo( res2.getUpperBound() ) <= 0 )
             {
                 if ( res1.getUpperBound() == null || res2.getLowerBound() == null
-                    || res1.getUpperBound().compareTo( res2.getLowerBound() ) >= 0 )
+                                || res1.getUpperBound().compareTo( res2.getLowerBound() ) >= 0 )
                 {
                     ArtifactVersion lower;
                     ArtifactVersion upper;
@@ -453,7 +452,7 @@ public class SchemeAwareVersionRange
                         restrictions.add( new Restriction( lower, lowerInclusive, upper, upperInclusive ) );
                     }
 
-                    //noinspection ObjectEquality
+                    // noinspection ObjectEquality
                     if ( upper == res2.getUpperBound() )
                     {
                         // advance res2
@@ -627,10 +626,10 @@ public class SchemeAwareVersionRange
 
         boolean equals =
             recommendedVersion == other.getRecommendedVersion()
-                || ( ( recommendedVersion != null ) && recommendedVersion.equals( other.getRecommendedVersion() ) );
+                            || ( ( recommendedVersion != null ) && recommendedVersion.equals( other.getRecommendedVersion() ) );
         equals &=
             restrictions == other.getRestrictions()
-                || ( ( restrictions != null ) && restrictions.equals( other.getRestrictions() ) );
+                            || ( ( restrictions != null ) && restrictions.equals( other.getRestrictions() ) );
         return equals;
     }
 

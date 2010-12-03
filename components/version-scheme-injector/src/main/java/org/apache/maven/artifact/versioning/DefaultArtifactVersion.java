@@ -1,5 +1,3 @@
-package org.apache.maven.artifact.versioning;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,15 +17,17 @@ package org.apache.maven.artifact.versioning;
  * under the License.
  */
 
+package org.apache.maven.artifact.versioning;
+
 import org.commonjava.emb.component.vscheme.SchemeAwareArtifactVersion;
 
 /**
  * Default implementation of artifact versioning.
- *
+ * 
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  * @version $Id$
  * 
- * Forked from maven 3.0-beta-2
+ *          Forked from maven 3.0-beta-2
  */
 public class DefaultArtifactVersion
     implements ArtifactVersion

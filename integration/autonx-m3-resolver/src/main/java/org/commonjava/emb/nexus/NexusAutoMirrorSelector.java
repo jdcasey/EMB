@@ -1,23 +1,20 @@
-package org.commonjava.emb.nexus;
-
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
+ * Copyright 2010 Red Hat, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+package org.commonjava.emb.nexus;
 
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
@@ -64,8 +61,8 @@ public class NexusAutoMirrorSelector
 
     private boolean initialized = false;
 
-    //    @Requirement
-    //    private LegacySupport legacySupport;
+    // @Requirement
+    // private LegacySupport legacySupport;
 
     @Requirement( hint = "default_" )
     private MirrorSelector delegateSelector;
@@ -235,7 +232,7 @@ public class NexusAutoMirrorSelector
                     final Map<String, String> mirrors = client.execute( get, new ResponseHandler<Map<String, String>>()
                     {
                         public Map<String, String> handleResponse( final HttpResponse response )
-                            throws /*ClientProtocolException,*/IOException
+                            throws /* ClientProtocolException, */IOException
                         {
                             final int statusCode = response.getStatusLine().getStatusCode();
                             if ( statusCode > 199 && statusCode < 300 )
@@ -262,7 +259,7 @@ public class NexusAutoMirrorSelector
                                                 if ( library.getLogger().isDebugEnabled() )
                                                 {
                                                     library.getLogger().debug( "Mirroring: " + repoUrl + "\n\t==> "
-                                                                                   + mirrorUrl );
+                                                                                               + mirrorUrl );
                                                 }
 
                                                 mirrors.put( repoUrl, mirrorUrl );
@@ -279,8 +276,9 @@ public class NexusAutoMirrorSelector
                             }
                             else if ( library.getLogger().isDebugEnabled() )
                             {
-                                library.getLogger().debug( "Response: " + response.getStatusLine().getStatusCode()
-                                                               + " " + response.getStatusLine().getReasonPhrase() );
+                                library.getLogger()
+                                       .debug( "Response: " + response.getStatusLine().getStatusCode() + " "
+                                                               + response.getStatusLine().getReasonPhrase() );
                             }
 
                             return null;
@@ -297,7 +295,7 @@ public class NexusAutoMirrorSelector
                     if ( library.getLogger().isDebugEnabled() )
                     {
                         library.getLogger().debug( "Failed to read proxied repositories from: '" + builder.toString()
-                                                       + "'. Reason: " + e.getMessage(), e );
+                                                                   + "'. Reason: " + e.getMessage(), e );
                     }
                 }
                 catch ( final IOException e )
@@ -305,7 +303,7 @@ public class NexusAutoMirrorSelector
                     if ( library.getLogger().isDebugEnabled() )
                     {
                         library.getLogger().debug( "Failed to read proxied repositories from: '" + builder.toString()
-                                                       + "'. Reason: " + e.getMessage(), e );
+                                                                   + "'. Reason: " + e.getMessage(), e );
                     }
                 }
             }
