@@ -45,6 +45,8 @@ public class AutoNXConfigLoader
 
     private static final String KEY_FAILOVER_NEXUS_URL = "failover-nexus-url";
 
+    private static final String KEY_DISABLED = "disabled";
+
     public Class<? extends ExtensionConfiguration> getExtensionConfigurationClass()
     {
         return AutoNXConfiguration.class;
@@ -67,7 +69,8 @@ public class AutoNXConfigLoader
 
                 config.withMirrorId( p.getProperty( KEY_MIRROR_ID ) )
                       .withNexusUrl( p.getProperty( KEY_NEXUS_URL ) )
-                      .withFailoverNexusUrl( p.getProperty( KEY_FAILOVER_NEXUS_URL ) );
+                      .withFailoverNexusUrl( p.getProperty( KEY_FAILOVER_NEXUS_URL ) )
+                      .disable( Boolean.parseBoolean( p.getProperty( KEY_DISABLED, "false" ) ) );
 
                 final String user = p.getProperty( KEY_NEXUS_USER );
                 final String pass = p.getProperty( KEY_NEXUS_PASSWORD );

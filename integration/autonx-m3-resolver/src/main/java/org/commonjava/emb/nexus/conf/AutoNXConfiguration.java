@@ -35,6 +35,8 @@ public class AutoNXConfiguration
 
     private UsernamePasswordCredentials nexusCredentials;
 
+    private boolean disabled = false;
+
     public AutoNXConfiguration withNexusCredentials( final String user, final String password )
     {
         nexusCredentials = new UsernamePasswordCredentials( user, password );
@@ -84,6 +86,17 @@ public class AutoNXConfiguration
             this.failoverNexusUrl = failoverNexusUrl;
         }
 
+        return this;
+    }
+
+    public boolean isDisabled()
+    {
+        return disabled;
+    }
+
+    public AutoNXConfiguration disable( final boolean disabled )
+    {
+        this.disabled = disabled;
         return this;
     }
 

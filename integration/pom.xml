@@ -26,6 +26,14 @@
   <artifactId>emb-integration</artifactId>
   <packaging>pom</packaging>
   
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.codehaus.plexus</groupId>
+  			<artifactId>plexus-component-metadata</artifactId>
+  		</plugin>
+  	</plugins>
+  </build>
   <modules>
     <module>nexus-autonx-plugin</module>
     <module>autonx-m3-resolver</module>

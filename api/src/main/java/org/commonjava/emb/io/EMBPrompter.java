@@ -23,6 +23,8 @@ import org.codehaus.plexus.components.interactivity.PrompterException;
 import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.emb.conf.EMBConfiguration;
 
+import javax.inject.Inject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,7 +39,13 @@ public class EMBPrompter
     implements Prompter
 {
     @Requirement
-    private EMBConfiguration embConfig;
+    private final EMBConfiguration embConfig;
+
+    @Inject
+    public EMBPrompter( final EMBConfiguration embConfig )
+    {
+        this.embConfig = embConfig;
+    }
 
     public String prompt( final String message )
         throws PrompterException

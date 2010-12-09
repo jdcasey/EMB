@@ -20,6 +20,9 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.conf.EMBLibrary;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +33,13 @@ public class EMBAdvisor
     private final Map<String, Object> advice = new HashMap<String, Object>();
 
     @Requirement( hint = "core" )
-    private EMBLibrary library;
+    private final EMBLibrary library;
+
+    @Inject
+    public EMBAdvisor( @Named( "core" ) final EMBLibrary library )
+    {
+        this.library = library;
+    }
 
     public EMBAdvisor advise( final String key, final Object value, final boolean override )
     {
@@ -58,7 +67,7 @@ public class EMBAdvisor
         catch ( final ClassCastException e )
         {
             throw new EMBException( "Invalid type for advice: %s.\nExpected type: %s\nActual type: %s", e, key,
-                                      adviceType.getName(), advice.get( key ).getClass().getName() );
+                                    adviceType.getName(), advice.get( key ).getClass().getName() );
         }
     }
 

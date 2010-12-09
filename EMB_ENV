@@ -1,1 +1,2 @@
-ENV_OPTS="-ZX autonx -V"
+#EMB_ENV="-ZX autonx -V"
+EMB_ENV="-V"

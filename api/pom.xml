@@ -44,6 +44,14 @@
     </dependencies>
   </dependencyManagement>
   
+  <build>
+  	<plugins>
+  		<plugin>
+  			<groupId>org.codehaus.plexus</groupId>
+  			<artifactId>plexus-component-metadata</artifactId>
+  		</plugin>
+  	</plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>log4j</groupId>

@@ -23,6 +23,8 @@ import static org.junit.Assert.assertNull;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.commonjava.emb.internal.plexus.fixture.Child;
+import org.commonjava.emb.internal.plexus.fixture.DefaultSingletonOwner;
+import org.commonjava.emb.internal.plexus.fixture.InitializedUsingRequirement;
 import org.commonjava.emb.internal.plexus.fixture.MapOwner;
 import org.commonjava.emb.internal.plexus.fixture.SingletonLiteralOwner;
 import org.commonjava.emb.internal.plexus.fixture.SingletonOwner;
@@ -35,7 +37,6 @@ import java.util.Map;
 
 public class EMBPlexusContainerTest
 {
-
     @Test
     public void mappedRequirementContainsNoLiteralIds()
         throws Throwable
@@ -51,6 +52,20 @@ public class EMBPlexusContainerTest
         System.out.println( members );
 
         assertNull( members.get( "simple" + ComponentKey.LITERAL_SUFFIX ) );
+    }
+
+    @Test
+    public void singletonImpliedRequirementOnComponentWithImpliedHint()
+        throws Throwable
+    {
+        final ContainerConfiguration config = new DefaultContainerConfiguration().setClassPathScanning( true );
+
+        final EMBPlexusContainer container =
+            new EMBPlexusContainer( config, new ComponentSelector(), new InstanceRegistry() );
+
+        final DefaultSingletonOwner owner = container.lookup( DefaultSingletonOwner.class );
+
+        assertNotNull( owner.singleton() );
     }
 
     @Test
@@ -79,6 +94,18 @@ public class EMBPlexusContainerTest
         final SingletonLiteralOwner owner = container.lookup( SingletonLiteralOwner.class );
 
         assertNotNull( owner.singletonLiteral() );
+    }
+
+    @Test
+    public void initializableUsingRequirement()
+        throws Throwable
+    {
+        final ContainerConfiguration config = new DefaultContainerConfiguration().setClassPathScanning( true );
+
+        final EMBPlexusContainer container =
+            new EMBPlexusContainer( config, new ComponentSelector(), new InstanceRegistry() );
+
+        container.lookup( InitializedUsingRequirement.class );
     }
 
 }

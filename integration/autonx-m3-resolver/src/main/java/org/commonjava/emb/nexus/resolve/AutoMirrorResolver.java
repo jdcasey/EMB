@@ -1,4 +1,4 @@
-package org.commonjava.emb.nexus.nx;
+package org.commonjava.emb.nexus.resolve;
 
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
@@ -69,6 +69,16 @@ public class AutoMirrorResolver
 
     private HttpClient client;
 
+    // @Inject
+    // public AutoMirrorResolver( @Named( "autonx" ) final EMBLibrary library, final AutoNXConfiguration autonxConfig,
+    // final EMBConfiguration embConfig, @Named( "emb" ) final Prompter prompter )
+    // {
+    // this.library = library;
+    // this.autonxConfig = autonxConfig;
+    // this.embConfig = embConfig;
+    // this.prompter = prompter;
+    // }
+
     public Map<String, String> resolveFromNexusUrl( final String nexusUrl )
     {
         return resolveFromNexusUrls( Collections.singleton( nexusUrl ) );
@@ -77,6 +87,10 @@ public class AutoMirrorResolver
     public Map<String, String> resolveFromNexusUrls( final Set<String> nexusUrls )
     {
         final Map<String, String> result = new LinkedHashMap<String, String>();
+        if ( autonxConfig.isDisabled() )
+        {
+            return result;
+        }
 
         if ( nexusUrls != null && !nexusUrls.isEmpty() )
         {
@@ -99,18 +113,18 @@ public class AutoMirrorResolver
                 }
 
                 final HttpGet get = new HttpGet( builder.toString() );
+                get.addHeader( "Accept", "text/plain;q=0.9,*/*;q=0.8" );
+
                 try
                 {
-                    final Map<String, String> mirrors = client.execute( get, new ResponseHandler<Map<String, String>>()
+                    client.execute( get, new ResponseHandler<Void>()
                     {
-                        public Map<String, String> handleResponse( final HttpResponse response )
+                        public Void handleResponse( final HttpResponse response )
                             throws /* ClientProtocolException, */IOException
                         {
                             final int statusCode = response.getStatusLine().getStatusCode();
-                            if ( statusCode > 199 && statusCode < 300 )
+                            if ( statusCode > 199 && statusCode < 204 )
                             {
-                                final Map<String, String> mirrors = new HashMap<String, String>();
-
                                 InputStream stream = null;
                                 try
                                 {
@@ -130,11 +144,11 @@ public class AutoMirrorResolver
 
                                                 if ( library.getLogger().isDebugEnabled() )
                                                 {
-                                                    library.getLogger().debug( "Auto-Mirrors += " + repoUrl + "\n\t=> "
-                                                                                               + mirrorUrl );
+                                                    library.getLogger().debug( "Resolved-Mirrors += " + repoUrl
+                                                                                               + "\n\t=> " + mirrorUrl );
                                                 }
 
-                                                mirrors.put( repoUrl, mirrorUrl );
+                                                result.put( repoUrl, mirrorUrl );
                                             }
                                         }
                                     }
@@ -143,8 +157,6 @@ public class AutoMirrorResolver
                                 {
                                     close( stream );
                                 }
-
-                                return mirrors;
                             }
                             else if ( library.getLogger().isDebugEnabled() )
                             {
@@ -156,11 +168,6 @@ public class AutoMirrorResolver
                             return null;
                         }
                     } );
-
-                    if ( mirrors != null && !mirrors.isEmpty() )
-                    {
-                        result.putAll( mirrors );
-                    }
                 }
                 catch ( final ClientProtocolException e )
                 {

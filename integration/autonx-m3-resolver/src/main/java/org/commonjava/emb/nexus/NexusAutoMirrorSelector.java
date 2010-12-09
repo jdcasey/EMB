@@ -25,8 +25,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.nexus.conf.AutoNXConfiguration;
-import org.commonjava.emb.nexus.nx.AutoMirrorResolver;
-import org.commonjava.emb.nexus.search.FailOverDiscoveryStrategy;
+import org.commonjava.emb.nexus.resolve.AutoMirrorResolver;
 import org.commonjava.emb.nexus.search.NexusDiscoveryStrategy;
 
 import java.util.HashMap;
@@ -56,45 +55,45 @@ public class NexusAutoMirrorSelector
     @Requirement( role = NexusDiscoveryStrategy.class )
     private List<NexusDiscoveryStrategy> strategies;
 
-    @Requirement( optional = true )
-    private FailOverDiscoveryStrategy failover;
+    @Requirement( hint = "failover" )
+    private NexusDiscoveryStrategy failover;
 
     @Requirement
-    private AutoMirrorResolver mirrorPopulator;
+    private AutoMirrorResolver mirrorResolver;
+
+    // @Inject
+    // public NexusAutoMirrorSelector( final List<NexusDiscoveryStrategy> strategies,
+    // final FailOverDiscoveryStrategy failover, final AutoMirrorResolver mirrorResolver,
+    // @Named( "default_" ) final MirrorSelector delegateSelector,
+    // final EMBLibrary library, final AutoNXConfiguration autonxConfig )
+    // {
+    // this.strategies = strategies;
+    // this.failover = failover;
+    // this.mirrorResolver = mirrorResolver;
+    // this.delegateSelector = delegateSelector;
+    // this.library = library;
+    // this.autonxConfig = autonxConfig;
+    // }
 
     public Mirror getMirror( final ArtifactRepository repository, final List<Mirror> mirrors )
     {
-        final String repoUrl = repository.getUrl();
-
-        String mirrorUrl = autodetectedMirrors.get( repoUrl );
-        if ( mirrorUrl == null && failover != null )
-        {
-            try
-            {
-                mirrorUrl = failover.getMirrorUrl( repoUrl );
-            }
-            catch ( final AutoNXException e )
-            {
-                if ( library.getLogger().isDebugEnabled() )
-                {
-                    library.getLogger().error( "Failed to auto-detect Nexus mirror for: " + repoUrl + ".\nReason: "
-                                                               + e.getMessage(), e );
-                }
-
-                mirrorUrl = null;
-            }
-        }
-
         Mirror mirror = null;
-        if ( mirrorUrl != null )
+
+        if ( !autonxConfig.isDisabled() )
         {
-            mirror = new Mirror();
-            mirror.setMirrorOf( repository.getId() );
-            mirror.setLayout( "default" );
-            mirror.setId( autonxConfig.getMirrorId() );
-            mirror.setUrl( mirrorUrl );
+            final String repoUrl = repository.getUrl();
+            final String mirrorUrl = autodetectedMirrors.get( repoUrl );
+            if ( mirrorUrl != null )
+            {
+                mirror = new Mirror();
+                mirror.setMirrorOf( repository.getId() );
+                mirror.setLayout( "default" );
+                mirror.setId( autonxConfig.getMirrorId() );
+                mirror.setUrl( mirrorUrl );
+            }
         }
-        else
+
+        if ( mirror == null )
         {
             mirror = delegateSelector.getMirror( repository, mirrors );
         }
@@ -110,39 +109,66 @@ public class NexusAutoMirrorSelector
             return;
         }
 
-        try
+        if ( !autonxConfig.isDisabled() )
         {
-            final Set<String> candidates = new LinkedHashSet<String>();
+            try
+            {
+                final Set<String> candidates = new LinkedHashSet<String>();
 
-            if ( autonxConfig.getNexusUrl() != null )
-            {
-                candidates.add( autonxConfig.getNexusUrl() );
-            }
-            else
-            {
-                LinkedHashSet<String> tmp = null;
-                for ( final NexusDiscoveryStrategy strategy : strategies )
+                if ( autonxConfig.getNexusUrl() != null )
                 {
-                    if ( strategy == null )
+                    candidates.add( autonxConfig.getNexusUrl() );
+                }
+                else
+                {
+                    LinkedHashSet<String> tmp = null;
+                    for ( final NexusDiscoveryStrategy strategy : strategies )
                     {
-                        continue;
-                    }
+                        if ( strategy == null )
+                        {
+                            continue;
+                        }
 
-                    tmp = strategy.findNexusCandidates();
-                    if ( tmp != null && !tmp.isEmpty() )
+                        tmp = strategy.findNexusCandidates();
+                        if ( tmp != null && !tmp.isEmpty() )
+                        {
+                            candidates.addAll( tmp );
+                        }
+                    }
+                }
+
+                if ( candidates.isEmpty() )
+                {
+                    candidates.addAll( failover.findNexusCandidates() );
+                }
+
+                for ( final Map.Entry<String, String> entry : mirrorResolver.resolveFromNexusUrls( candidates )
+                                                                            .entrySet() )
+                {
+                    final String repoUrl = entry.getKey();
+                    final String mirrorUrl = entry.getValue();
+
+                    if ( !autodetectedMirrors.containsKey( repoUrl ) )
                     {
-                        candidates.addAll( tmp );
+                        library.getLogger().info( "Auto-Mirrors += " + repoUrl + "\n\t=> " + mirrorUrl );
+
+                        autodetectedMirrors.put( repoUrl, mirrorUrl );
+                    }
+                    else
+                    {
+                        if ( library.getLogger().isDebugEnabled() )
+                        {
+                            library.getLogger().debug( "Auto-Mirrors already contains key: " + repoUrl );
+                        }
                     }
                 }
             }
-
-            autodetectedMirrors.putAll( mirrorPopulator.resolveFromNexusUrls( candidates ) );
-        }
-        catch ( final AutoNXException e )
-        {
-            if ( library.getLogger().isDebugEnabled() )
+            catch ( final AutoNXException e )
             {
-                library.getLogger().error( "Failed to auto-detect Nexus mirrors: " + e.getMessage(), e );
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().error( "Failed to auto-detect Nexus mirrors: " + e.getMessage(), e );
+                }
             }
         }
 

@@ -27,14 +27,10 @@ import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.repository.RepositorySystem;
-import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextException;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.commonjava.emb.DefaultEMBExecutionRequest;
 import org.commonjava.emb.boot.embed.EMBEmbeddingException;
 import org.commonjava.emb.plexus.ServiceAuthorizer;
@@ -42,7 +38,7 @@ import org.sonatype.aether.RepositorySystemSession;
 
 @Component( role = EMBServiceManager.class )
 public class DefaultEMBServiceManager
-    implements EMBServiceManager, Contextualizable
+    implements EMBServiceManager/* , Contextualizable */
 {
 
     // private final Logger logger = Logger.getLogger( EMBConfiguration.STANDARD_LOG_HANDLE_CORE );
@@ -67,19 +63,25 @@ public class DefaultEMBServiceManager
 
     private transient ArtifactRepository defaultLocalRepo;
 
+    @Requirement
     private PlexusContainer container;
 
-    public DefaultEMBServiceManager()
-    {
-    }
-
-    public DefaultEMBServiceManager( final PlexusContainer container, final ProjectBuilder projectBuilder,
-                                     final RepositorySystem repositorySystem )
-    {
-        this.container = container;
-        this.projectBuilder = projectBuilder;
-        this.repositorySystem = repositorySystem;
-    }
+    // @Inject
+    // public DefaultEMBServiceManager( final ProjectBuilder projectBuilder, final RepositorySystem repositorySystem,
+    // final org.sonatype.aether.RepositorySystem aetherRepositorySystem,
+    // final ServiceAuthorizer authorizer,
+    // @Named( "default_" ) final DefaultMaven defaultMaven,
+    // final MavenExecutionRequestPopulator requestPopulator,
+    // final PlexusContainer container )
+    // {
+    // this.projectBuilder = projectBuilder;
+    // this.repositorySystem = repositorySystem;
+    // this.aetherRepositorySystem = aetherRepositorySystem;
+    // this.authorizer = authorizer;
+    // this.defaultMaven = defaultMaven;
+    // this.requestPopulator = requestPopulator;
+    // this.container = container;
+    // }
 
     public ProjectBuilder projectBuilder()
     {
@@ -203,11 +205,11 @@ public class DefaultEMBServiceManager
         }
     }
 
-    @Override
-    public void contextualize( final Context ctx )
-        throws ContextException
-    {
-        container = (PlexusContainer) ctx.get( PlexusConstants.PLEXUS_KEY );
-    }
+    // @Override
+    // public void contextualize( final Context ctx )
+    // throws ContextException
+    // {
+    // container = (PlexusContainer) ctx.get( PlexusConstants.PLEXUS_KEY );
+    // }
 
 }

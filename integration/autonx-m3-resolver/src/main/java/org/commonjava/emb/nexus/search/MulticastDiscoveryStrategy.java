@@ -17,7 +17,6 @@
 package org.commonjava.emb.nexus.search;
 
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.nexus.AutoNXException;
@@ -31,7 +30,9 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashSet;
 import java.util.Properties;
 
-@Component( role = NexusDiscoveryStrategy.class, hint = "multicast" )
+// Disable this from the discovery pool for now, until I can straighten out the 
+// usage/sysadmin implications of multicast...
+//@Component( role = NexusDiscoveryStrategy.class, hint = "multicast" )
 public class MulticastDiscoveryStrategy
     implements NexusDiscoveryStrategy
 {
@@ -54,6 +55,12 @@ public class MulticastDiscoveryStrategy
 
     @Requirement( hint = "autonx" )
     private EMBLibrary library;
+
+    // @Inject
+    // public MulticastDiscoveryStrategy( final EMBLibrary library )
+    // {
+    // this.library = library;
+    // }
 
     public LinkedHashSet<String> findNexusCandidates()
         throws AutoNXException
