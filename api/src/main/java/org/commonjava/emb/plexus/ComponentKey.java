@@ -23,7 +23,7 @@ public class ComponentKey<T>
 
     public static final String DEFAULT_HINT = "default".intern();
 
-    public static final String LITERAL_SUFFIX = "__";
+    public static final String LITERAL_SUFFIX = "_";
 
     private final Class<T> roleClass;
 
@@ -114,12 +114,12 @@ public class ComponentKey<T>
 
     public static boolean isLiteral( final String value )
     {
-        return value != null && value.length() > 1 && value.startsWith( "_" );
+        return value != null && value.length() > 1 && value.endsWith( LITERAL_SUFFIX );
     }
 
     public static String getLiteralHint( final String value )
     {
-        return value != null && value.length() > 1 ? value.substring( 1 ) : value;
+        return isLiteral( value ) ? value.substring( 0, value.length() - 1 ) : value;
     }
 
 }

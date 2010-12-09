@@ -19,7 +19,7 @@
   <parent>
     <artifactId>emb-events</artifactId>
     <groupId>org.commonjava.emb.event</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-event-api</artifactId>

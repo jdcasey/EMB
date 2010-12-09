@@ -55,7 +55,6 @@ import org.commonjava.emb.conf.mgmt.EMBManagementView;
 import org.commonjava.emb.conf.mgmt.LoadOnFinish;
 import org.commonjava.emb.conf.mgmt.LoadOnStart;
 import org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer;
-import org.commonjava.emb.internal.plexus.MultiComponentLookupException;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
@@ -135,22 +134,11 @@ public class EMBEmbedder
         return container.getInjector();
     }
 
-    public synchronized EMBEmbedder wire( final Object... instances )
+    public synchronized Map<Object, Throwable> wire( final Object... instances )
         throws EMBEmbeddingException
     {
         printInfo( null );
-        try
-        {
-            container.extrudeDependencies( instances );
-        }
-        catch ( final MultiComponentLookupException e )
-        {
-            throw new EMBEmbeddingException(
-                                             "Failed to wire component dependencies of one or more external instances: %s",
-                                             e, e.getMessage() );
-        }
-
-        return this;
+        return container.extrudeDependencies( instances );
     }
 
     public synchronized EMBServiceManager serviceManager()

@@ -25,9 +25,13 @@ public class AutoNXConfiguration
 
     public static final String DEFAULT_MIRROR_ID = "nexus";
 
+    public static final String DEFAULT_FAILOVER_URL = "http://localhost:8081/nexus";
+
     private String nexusUrl;
 
     private String mirrorId = DEFAULT_MIRROR_ID;
+
+    private String failoverNexusUrl = DEFAULT_FAILOVER_URL;
 
     private UsernamePasswordCredentials nexusCredentials;
 
@@ -66,6 +70,21 @@ public class AutoNXConfiguration
     public String getMirrorId()
     {
         return mirrorId;
+    }
+
+    public String getFailoverNexusUrl()
+    {
+        return failoverNexusUrl;
+    }
+
+    public AutoNXConfiguration withFailoverNexusUrl( final String failoverNexusUrl )
+    {
+        if ( failoverNexusUrl != null )
+        {
+            this.failoverNexusUrl = failoverNexusUrl;
+        }
+
+        return this;
     }
 
 }

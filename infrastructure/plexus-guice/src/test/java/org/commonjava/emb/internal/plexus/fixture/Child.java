@@ -15,20 +15,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.internal.plexus;
+package org.commonjava.emb.internal.plexus.fixture;
 
-import org.codehaus.plexus.MutablePlexusContainer;
+import org.codehaus.plexus.component.annotations.Component;
 
-import com.google.inject.Injector;
-
-import java.util.Map;
-
-public interface ExtrudablePlexusContainer
-    extends MutablePlexusContainer
+@Component( role = Child.class, hint = "simple" )
+public class Child
 {
-
-    Map<Object, Throwable> extrudeDependencies( Object... instances );
-
-    Injector getInjector();
 
 }

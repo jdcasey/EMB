@@ -310,6 +310,28 @@ public final class EMBPlexusContainer
         return hasPlexusBeans( locate( role, type, hint ) );
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @see org.codehaus.plexus.PlexusContainer#hasComponent(java.lang.String)
+     */
+    @Override
+    public boolean hasComponent( final String role )
+    {
+        return hasComponent( null, role, "" );
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see org.codehaus.plexus.PlexusContainer#hasComponent(java.lang.String, java.lang.String)
+     */
+    @Override
+    public boolean hasComponent( final String role, final String hint )
+    {
+        return hasComponent( null, role, hint );
+    }
+
     // ----------------------------------------------------------------------
     // Component descriptor methods
     // ----------------------------------------------------------------------
@@ -842,8 +864,7 @@ public final class EMBPlexusContainer
      * @see org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer#extrudeDependencies(java.lang.Object)
      */
     @Override
-    public EMBPlexusContainer extrudeDependencies( final Object... instances )
-        throws MultiComponentLookupException
+    public Map<Object, Throwable> extrudeDependencies( final Object... instances )
     {
         final Map<Object, Throwable> errors = new LinkedHashMap<Object, Throwable>();
         for ( final Object instance : instances )
@@ -851,14 +872,7 @@ public final class EMBPlexusContainer
             extrude( instance, errors );
         }
 
-        if ( !errors.isEmpty() )
-        {
-            throw new MultiComponentLookupException(
-                                                     "Failed to extrude dependency components for one or more external instances.",
-                                                     errors );
-        }
-
-        return this;
+        return errors;
     }
 
     private <T> void extrude( final T instance, final Map<Object, Throwable> errors )
@@ -899,4 +913,5 @@ public final class EMBPlexusContainer
     {
         return injector;
     }
+
 }

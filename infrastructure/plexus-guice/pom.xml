@@ -19,7 +19,7 @@
   <parent>
     <artifactId>emb-infrastructure</artifactId>
     <groupId>org.commonjava.emb.infra</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-plexus-guice</artifactId>
@@ -63,4 +63,19 @@
     	<version>${project.version}</version>
     </dependency>
   </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <includes>
+              <include>**/*Test.class</include>
+            </includes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

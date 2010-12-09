@@ -43,6 +43,8 @@ public class AutoNXConfigLoader
 
     private static final String KEY_NEXUS_PASSWORD = "nexus-password";
 
+    private static final String KEY_FAILOVER_NEXUS_URL = "failover-nexus-url";
+
     public Class<? extends ExtensionConfiguration> getExtensionConfigurationClass()
     {
         return AutoNXConfiguration.class;
@@ -63,7 +65,9 @@ public class AutoNXConfigLoader
                 final Properties p = new Properties();
                 p.load( stream );
 
-                config.withMirrorId( p.getProperty( KEY_MIRROR_ID ) ).withNexusUrl( p.getProperty( KEY_NEXUS_URL ) );
+                config.withMirrorId( p.getProperty( KEY_MIRROR_ID ) )
+                      .withNexusUrl( p.getProperty( KEY_NEXUS_URL ) )
+                      .withFailoverNexusUrl( p.getProperty( KEY_FAILOVER_NEXUS_URL ) );
 
                 final String user = p.getProperty( KEY_NEXUS_USER );
                 final String pass = p.getProperty( KEY_NEXUS_PASSWORD );

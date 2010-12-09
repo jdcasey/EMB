@@ -91,31 +91,32 @@ class XQualifiedBeans<Q extends Annotation, T>
         final Collection<Binding<?>> bindings;
         final TypeLiteral bindingType = key.getTypeLiteral();
         Binding<?> b = null;
+        final String hint = null;
+
         if ( strategy == QualifyingStrategy.NAMED_WITH_ATTRIBUTES )
         {
             bindings = new HashSet<Binding<?>>();
             final Annotation annotation = key.getAnnotation();
-            String hint = null;
 
-            if ( annotation != null && ( annotation instanceof Named )
-                            && ComponentKey.isLiteral( ( (Named) annotation ).value() ) )
+            // if ( annotation != null && ( annotation instanceof Named )
+            // && ComponentKey.isLiteral( ( (Named) annotation ).value() ) )
+            // {
+            // hint = ComponentKey.getLiteralHint( ( (Named) annotation ).value() );
+            // b = injector.getBindings().get( Key.get( bindingType, Names.named( hint ) ) );
+            //
+            // if ( null != b )
+            // {
+            // bindings.add( b );
+            // }
+            // }
+            // else
+            // {
+            b = injector.getBindings().get( key );
+            if ( null != b )
             {
-                hint = ComponentKey.getLiteralHint( ( (Named) annotation ).value() );
-                b = injector.getBindings().get( Key.get( bindingType, Names.named( hint ) ) );
-
-                if ( null != b )
-                {
-                    bindings.add( b );
-                }
+                bindings.add( b );
             }
-            else
-            {
-                b = injector.getBindings().get( key );
-                if ( null != b )
-                {
-                    bindings.add( b );
-                }
-            }
+            // }
 
             if ( DEFAULT_QUALIFIER.equals( annotation ) || ComponentKey.DEFAULT_HINT.equals( hint ) )
             {
@@ -143,6 +144,16 @@ class XQualifiedBeans<Q extends Annotation, T>
             if ( false == binding.getSource() instanceof HiddenSource )
             {
                 final Q qualifier = (Q) strategy.qualify( key, binding );
+                if ( qualifier != null && qualifier.annotationType() != null
+                                && Named.class.equals( qualifier.annotationType() ) )
+                {
+                    final String named = ( (Named) qualifier ).value();
+                    if ( strategy == QualifyingStrategy.NAMED && ComponentKey.isLiteral( named ) )
+                    {
+                        continue;
+                    }
+                }
+
                 if ( null != qualifier )
                 {
                     final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
