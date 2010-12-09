@@ -35,6 +35,7 @@ import org.commonjava.emb.internal.plexus.guice.XComponentDescriptorBeanModule;
 import org.commonjava.emb.internal.plexus.guice.XPlexusAnnotatedBeanModule;
 import org.commonjava.emb.internal.plexus.guice.XPlexusXmlBeanModule;
 import org.commonjava.emb.internal.plexus.lifecycle.XPlexusLifecycleManager;
+import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
 import org.sonatype.guice.bean.binders.MergedModule;
@@ -90,7 +91,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings( { "unchecked", "rawtypes" } )
 public final class EMBPlexusContainer
-    implements MutablePlexusContainer
+    implements ExtrudablePlexusContainer
 {
     static
     {
@@ -148,6 +149,10 @@ public final class EMBPlexusContainer
 
     private final InstanceRegistry instanceRegistry;
 
+    private final InstanceBindingModule instanceBinder;
+
+    private Injector injector;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -192,7 +197,8 @@ public final class EMBPlexusContainer
             beanModules.add( new XPlexusAnnotatedBeanModule( selector, instanceRegistry, space, variables ) );
         }
 
-        beanModules.add( new InstanceBindingModule( instanceRegistry, selector, variables ) );
+        instanceBinder = new InstanceBindingModule( instanceRegistry, selector, variables );
+        beanModules.add( instanceBinder );
 
         try
         {
@@ -455,7 +461,8 @@ public final class EMBPlexusContainer
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( loggerModule );
 
-        Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
+        injector =
+            Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
 
     // ----------------------------------------------------------------------
@@ -823,5 +830,73 @@ public final class EMBPlexusContainer
         {
             return new LoadedClass<Logger>( get().getClass() );
         }
+    }
+
+    // SPECIFIC TO ExtrudablePlexusContainer
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws MultiComponentLookupException
+     * 
+     * @see org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer#extrudeDependencies(java.lang.Object)
+     */
+    @Override
+    public EMBPlexusContainer extrudeDependencies( final Object... instances )
+        throws MultiComponentLookupException
+    {
+        final Map<Object, Throwable> errors = new LinkedHashMap<Object, Throwable>();
+        for ( final Object instance : instances )
+        {
+            extrude( instance, errors );
+        }
+
+        if ( !errors.isEmpty() )
+        {
+            throw new MultiComponentLookupException(
+                                                     "Failed to extrude dependency components for one or more external instances.",
+                                                     errors );
+        }
+
+        return this;
+    }
+
+    private <T> void extrude( final T instance, final Map<Object, Throwable> errors )
+    {
+        final ComponentKey<T> key = instanceBinder.addInstance( instance );
+        if ( key != null )
+        {
+            // trigger the injection now that the instance is added.
+            try
+            {
+                lookup( key.getRoleClass(), key.getHint() );
+            }
+            catch ( final ComponentLookupException e )
+            {
+                errors.put( instance, e );
+            }
+        }
+        else
+        {
+            try
+            {
+                injector.injectMembers( instance );
+            }
+            catch ( final RuntimeException e )
+            {
+                errors.put( instance, e );
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer#getInjector()
+     */
+    @Override
+    public Injector getInjector()
+    {
+        return injector;
     }
 }

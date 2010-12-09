@@ -37,7 +37,6 @@ import org.apache.maven.settings.building.SettingsBuildingException;
 import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
 import org.apache.maven.settings.building.SettingsProblem;
-import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
@@ -55,6 +54,8 @@ import org.commonjava.emb.conf.mgmt.EMBManagementException;
 import org.commonjava.emb.conf.mgmt.EMBManagementView;
 import org.commonjava.emb.conf.mgmt.LoadOnFinish;
 import org.commonjava.emb.conf.mgmt.LoadOnStart;
+import org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer;
+import org.commonjava.emb.internal.plexus.MultiComponentLookupException;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.sonatype.plexus.components.cipher.DefaultPlexusCipher;
 import org.sonatype.plexus.components.cipher.PlexusCipherException;
@@ -62,6 +63,8 @@ import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 import org.sonatype.plexus.components.sec.dispatcher.SecUtil;
 import org.sonatype.plexus.components.sec.dispatcher.model.SettingsSecurity;
+
+import com.google.inject.Injector;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -88,7 +91,7 @@ public class EMBEmbedder
 
     private final boolean showVersion;
 
-    private final MutablePlexusContainer container;
+    private final ExtrudablePlexusContainer container;
 
     private final EMBConfiguration embConfiguration;
 
@@ -104,7 +107,7 @@ public class EMBEmbedder
 
     private boolean infoPrinted = false;
 
-    EMBEmbedder( final Maven maven, final EMBConfiguration embConfiguration, final MutablePlexusContainer container,
+    EMBEmbedder( final Maven maven, final EMBConfiguration embConfiguration, final ExtrudablePlexusContainer container,
                  final SettingsBuilder settingsBuilder, final MavenExecutionRequestPopulator executionRequestPopulator,
                  final DefaultSecDispatcher securityDispatcher, final EMBServiceManager serviceManager,
                  final List<EMBLibraryLoader> libraryLoaders, final PrintStream standardOut, final Logger logger,
@@ -123,6 +126,31 @@ public class EMBEmbedder
         this.logger = logger;
         this.shouldShowErrors = shouldShowErrors;
         this.showVersion = showVersion;
+    }
+
+    public synchronized Injector injector()
+        throws EMBEmbeddingException
+    {
+        printInfo( null );
+        return container.getInjector();
+    }
+
+    public synchronized EMBEmbedder wire( final Object... instances )
+        throws EMBEmbeddingException
+    {
+        printInfo( null );
+        try
+        {
+            container.extrudeDependencies( instances );
+        }
+        catch ( final MultiComponentLookupException e )
+        {
+            throw new EMBEmbeddingException(
+                                             "Failed to wire component dependencies of one or more external instances: %s",
+                                             e, e.getMessage() );
+        }
+
+        return this;
     }
 
     public synchronized EMBServiceManager serviceManager()

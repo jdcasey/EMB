@@ -12,6 +12,7 @@
   <groupId>org.commonjava.emb</groupId>
   <artifactId>emb</artifactId>
   <version>0.5-SNAPSHOT</version>
+  
   <packaging>pom</packaging>
   
   <properties>
@@ -20,16 +21,15 @@
   </properties>
   
   <modules>
-    <module>integration</module>
-    <module>components</module>
-    <!-- <module>examples</module> -->
     <module>boms</module>
-    <module>booter</module>
-    <module>distro</module>
     <module>api</module>
-    <module>events</module>
-    <module>assembly-descriptors</module>
     <module>infrastructure</module>
+    <module>booter</module>
+    <module>components</module>
+    <module>events</module>
+    <module>integration</module>
+    <module>distro</module>
+    <module>assembly-descriptors</module>
     <module>apps</module>
   </modules>
   

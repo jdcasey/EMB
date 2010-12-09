@@ -28,7 +28,6 @@
   
   <modules>
     <module>api</module>
-    <!-- <module>resolver-events</module> -->
   </modules>
   
   <dependencyManagement>

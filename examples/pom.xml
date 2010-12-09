@@ -11,9 +11,4 @@
   <groupId>org.commonjava.emb.examples</groupId>
   <artifactId>emb-examples</artifactId>
   <packaging>pom</packaging>
-  
-  <modules>
-    <module>artifact-resolver</module>
-    <module>resolution-logger</module>
-  </modules>
 </project>

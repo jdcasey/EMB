@@ -74,17 +74,5 @@
   <modules>
     <module>maven-scm-support</module>
   </modules>
-  
-  <profiles>
-    <profile>
-      <id>experimental</id>
-      <modules>
-        <module>emb-recording-resolver</module>
-        <module>version-scheme-injector</module>
-        <module>pixml-model</module>
-        <module>version-finder</module>
-      </modules>
-    </profile>
-  </profiles>
 
 </project>

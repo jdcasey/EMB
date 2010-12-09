@@ -43,6 +43,8 @@ public class InstanceBindingModule
 
     private final Map<?, ?> variables;
 
+    private SelectingTypeBinder typeBinder;
+
     public InstanceBindingModule( final InstanceRegistry registry, final ComponentSelector selector,
                                   final Map<?, ?> variables )
     {
@@ -52,10 +54,31 @@ public class InstanceBindingModule
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public <T> ComponentKey<T> addInstance( final T instance )
+    {
+        final Component comp = instance.getClass().getAnnotation( Component.class );
+        final ComponentKey<T> key = new ComponentKey( comp.role(), comp.hint() );
+        if ( !registry.has( key ) )
+        {
+            registry.add( key, instance );
+
+            final InstanceProvider<T> provider = new InstanceProvider( instance );
+
+            typeBinder.hear( comp, new LoadedClass<Object>( instance.getClass() ), "External instance loaded from: "
+                            + instance.getClass().getClassLoader(), provider );
+
+            return key;
+        }
+
+        return null;
+    }
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     @Override
     public PlexusBeanSource configure( final Binder binder )
     {
-        final SelectingTypeBinder typeBinder = new SelectingTypeBinder( selector, registry, binder );
+        typeBinder = new SelectingTypeBinder( selector, registry, binder );
+
         for ( final Map.Entry<ComponentKey<?>, Object> mapping : registry.getInstances().entrySet() )
         {
             final ComponentKey<?> key = mapping.getKey();

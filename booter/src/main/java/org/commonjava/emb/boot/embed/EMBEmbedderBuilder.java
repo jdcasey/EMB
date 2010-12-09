@@ -27,7 +27,6 @@ import org.apache.maven.model.building.ModelProcessor;
 import org.apache.maven.settings.building.SettingsBuilder;
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultContainerConfiguration;
-import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -39,6 +38,7 @@ import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.conf.loader.EMBLibraryLoader;
 import org.commonjava.emb.conf.loader.ServiceLibraryLoader;
 import org.commonjava.emb.internal.plexus.EMBPlexusContainer;
+import org.commonjava.emb.internal.plexus.ExtrudablePlexusContainer;
 import org.commonjava.emb.plexus.ComponentKey;
 import org.commonjava.emb.plexus.ComponentSelector;
 import org.commonjava.emb.plexus.InstanceRegistry;
@@ -63,6 +63,7 @@ import java.util.List;
 import java.util.Set;
 
 public class EMBEmbedderBuilder
+    implements EMBOptions
 {
 
     private static final EMBLibraryLoader CORE_LOADER = new EMBLibraryLoader()
@@ -103,7 +104,7 @@ public class EMBEmbedderBuilder
 
     private ModelProcessor modelProcessor;
 
-    private MutablePlexusContainer container;
+    private ExtrudablePlexusContainer container;
 
     private MavenExecutionRequestPopulator executionRequestPopulator;
 
@@ -415,7 +416,7 @@ public class EMBEmbedderBuilder
         }
     }
 
-    public synchronized EMBEmbedderBuilder withContainer( final MutablePlexusContainer container )
+    public synchronized EMBEmbedderBuilder withContainer( final ExtrudablePlexusContainer container )
     {
         this.container = container;
         resetContainer();
@@ -459,7 +460,7 @@ public class EMBEmbedderBuilder
         }
     }
 
-    public synchronized MutablePlexusContainer container()
+    public synchronized ExtrudablePlexusContainer container()
         throws EMBEmbeddingException
     {
         // Need to switch to using: org.codehaus.plexus.MutablePlexusContainer.addPlexusInjector(List<PlexusBeanModule>,
@@ -557,11 +558,45 @@ public class EMBEmbedderBuilder
         return embConfiguration;
     }
 
-    public EMBEmbedderBuilder withoutServiceLibraryLoader()
+    public EMBEmbedderBuilder withServiceLibraryLoader( final boolean enabled )
     {
-        libraryLoaders = new ArrayList<EMBLibraryLoader>();
+        boolean found = false;
+        final Collection<? extends EMBLibraryLoader> loaders = libraryLoadersInternal();
+        for ( final EMBLibraryLoader loader : new LinkedHashSet<EMBLibraryLoader>( loaders ) )
+        {
+            if ( loader instanceof ServiceLibraryLoader )
+            {
+                found = true;
+                if ( !enabled )
+                {
+                    loaders.remove( loader );
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if ( enabled && !found )
+        {
+            withLibraryLoader( new ServiceLibraryLoader() );
+        }
 
         return this;
+    }
+
+    public boolean isServiceLibraryLoaderUsed()
+    {
+        for ( final EMBLibraryLoader loader : libraryLoadersInternal() )
+        {
+            if ( loader instanceof ServiceLibraryLoader )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public EMBEmbedderBuilder withLibraryLoader( final EMBLibraryLoader loader )
@@ -792,15 +827,108 @@ public class EMBEmbedderBuilder
         return embedder;
     }
 
-    public void withDebugLogHandles( final String[] debugLogHandles )
+    public EMBEmbedderBuilder withDebugLogHandles( final String[] debugLogHandles )
     {
         this.debugLogHandles = debugLogHandles;
         logHandlesConfigured = false;
+
+        return this;
     }
 
     public String[] debugLogHandles()
     {
         return debugLogHandles;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see org.commonjava.emb.boot.embed.EMBOptions#mergeIn(org.commonjava.emb.boot.embed.EMBOptions)
+     */
+    @Override
+    public EMBOptions mergeIn( final EMBOptions options )
+    {
+        // EMBConfiguration embConfiguration();
+        final EMBConfiguration config = options.embConfiguration();
+        if ( config != null )
+        {
+            withEMBConfiguration( config );
+        }
+
+        // boolean isServiceLibraryLoaderUsed();
+        if ( !options.isServiceLibraryLoaderUsed() )
+        {
+            withServiceLibraryLoader( false );
+        }
+
+        // boolean showVersion();
+        if ( options.showVersion() )
+        {
+            withVersion( true );
+        }
+
+        // File logFile();
+        final File logFile = options.logFile();
+        if ( logFile != null && logFile != logFile() )
+        {
+            withLogFile( logFile );
+        }
+
+        // boolean shouldBeQuiet();
+        if ( options.shouldBeQuiet() )
+        {
+            withQuietMode( true );
+        }
+        // boolean shouldShowDebug();
+        if ( options.shouldShowDebug() )
+        {
+            withDebugMode( true );
+        }
+
+        // boolean shouldShowErrors();
+        if ( options.shouldShowErrors() )
+        {
+            withErrorMode( true );
+        }
+
+        // PrintStream standardOut();
+        if ( options.standardOut() != System.out )
+        {
+            withStandardOut( options.standardOut() );
+        }
+
+        // PrintStream standardErr();
+        if ( options.standardErr() != System.err )
+        {
+            withStandardErr( options.standardErr() );
+        }
+
+        // InputStream standardIn();
+        if ( options.standardIn() != System.in )
+        {
+            withStandardIn( options.standardIn() );
+        }
+
+        // String[] debugLogHandles();
+        final Set<String> lh = new LinkedHashSet<String>();
+        String[] handles = debugLogHandles();
+        if ( handles != null )
+        {
+            lh.addAll( Arrays.asList( handles ) );
+        }
+
+        handles = options.debugLogHandles();
+        if ( handles != null )
+        {
+            lh.addAll( Arrays.asList( handles ) );
+        }
+
+        if ( !lh.isEmpty() )
+        {
+            withDebugLogHandles( lh.toArray( new String[] {} ) );
+        }
+
+        return this;
     }
 
 }

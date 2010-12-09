@@ -74,14 +74,5 @@
   <modules>
     <module>app</module>
   </modules>
-  
-  <!-- <profiles>
-    <profile>
-      <id>experimental</id>
-      <modules>
-        <module>emb-ci</module>
-      </modules>
-    </profile>
-  </profiles> -->
 
 </project>

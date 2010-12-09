@@ -16,77 +16,59 @@
 
 package org.commonjava.emb.boot.embed;
 
-import org.codehaus.plexus.ContainerConfiguration;
-import org.codehaus.plexus.classworlds.ClassWorld;
 import org.commonjava.emb.conf.EMBConfiguration;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 
 public interface EMBOptions
 {
 
-    public abstract EMBOptions withCoreClassLoader( final ClassLoader classLoader );
+    EMBOptions withEMBConfiguration( final EMBConfiguration config );
 
-    public abstract EMBOptions withCoreClassLoader( final ClassLoader root, final Object... constituents )
-        throws MalformedURLException;
+    EMBConfiguration embConfiguration();
 
-    public abstract EMBOptions withClassWorld( final ClassWorld classWorld );
+    EMBOptions withServiceLibraryLoader( final boolean enabled );
 
-    public abstract ClassLoader coreClassLoader();
+    boolean isServiceLibraryLoaderUsed();
 
-    public abstract ClassWorld classWorld();
+    EMBOptions withVersion( final boolean showVersion );
 
-    public abstract EMBOptions withContainerConfiguration( final ContainerConfiguration containerConfiguration );
+    boolean showVersion();
 
-    public abstract ContainerConfiguration containerConfiguration();
+    EMBOptions withLogFile( final File logFile );
 
-    public abstract EMBOptions withClassScanningEnabled( final boolean classScanningEnabled );
+    File logFile();
 
-    public abstract EMBOptions withEMBConfiguration( final EMBConfiguration config );
+    EMBOptions withQuietMode( final boolean quiet );
 
-    public abstract EMBConfiguration embConfiguration();
+    boolean shouldBeQuiet();
 
-    public abstract EMBOptions withoutServiceLibraryLoader();
+    EMBOptions withDebugMode( final boolean debug );
 
-    public abstract EMBOptions withVersion( final boolean showVersion );
+    boolean shouldShowDebug();
 
-    public abstract boolean showVersion();
+    EMBOptions withErrorMode( final boolean showErrors );
 
-    public abstract EMBOptions withLogFile( final File logFile );
+    boolean shouldShowErrors();
 
-    public abstract File logFile();
+    EMBOptions withStandardOut( final PrintStream stdout );
 
-    public abstract EMBOptions withQuietMode( final boolean quiet );
+    PrintStream standardOut();
 
-    public abstract boolean shouldBeQuiet();
+    EMBOptions withStandardErr( final PrintStream stderr );
 
-    public abstract EMBOptions withDebugMode( final boolean debug );
+    PrintStream standardErr();
 
-    public abstract boolean shouldShowDebug();
+    EMBOptions withStandardIn( final InputStream stdin );
 
-    public abstract EMBOptions withErrorMode( final boolean showErrors );
+    InputStream standardIn();
 
-    public abstract boolean shouldShowErrors();
+    EMBOptions withDebugLogHandles( final String[] debugLogHandles );
 
-    public abstract EMBOptions withStandardOut( final PrintStream stdout );
+    String[] debugLogHandles();
 
-    public abstract PrintStream standardOut();
-
-    public abstract EMBOptions withStandardErr( final PrintStream stderr );
-
-    public abstract PrintStream standardErr();
-
-    public abstract EMBOptions withStandardIn( final InputStream stdin );
-
-    public abstract InputStream standardIn();
-
-    public abstract String mavenHome();
-
-    public abstract void withDebugLogHandles( final String[] debugLogHandles );
-
-    public abstract String[] debugLogHandles();
+    EMBOptions mergeIn( EMBOptions options );
 
 }
