@@ -18,7 +18,6 @@ package org.commonjava.emb.nexus;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.MirrorSelector;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -31,9 +30,9 @@ public class AetherAutoSelector
     implements MirrorSelector
 {
 
-    private RepositorySystemSession delegate;
+    private MirrorSelector delegate;
 
-    public AetherAutoSelector setDelegateSession( final RepositorySystemSession delegate )
+    public AetherAutoSelector setDelegateSelector( final MirrorSelector delegate )
     {
         this.delegate = delegate;
         return this;
@@ -42,7 +41,11 @@ public class AetherAutoSelector
     @Override
     public RemoteRepository getMirror( final RemoteRepository repository )
     {
-        library.getLogger().info( "AETHER-SELECT: " + repository.getUrl() );
+        if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( "AETHER-SELECT: " + repository.getUrl() );
+        }
+
         RemoteRepository mirror = null;
 
         if ( !autonxConfig.isDisabled() )
@@ -51,7 +54,10 @@ public class AetherAutoSelector
             final String mirrorUrl = autodetectedMirrors.get( repoUrl );
             if ( mirrorUrl != null )
             {
-                library.getLogger().info( "\t\t====> " + mirrorUrl );
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().debug( "\t\t====> " + mirrorUrl );
+                }
 
                 mirror = new RemoteRepository();
 
@@ -67,17 +73,30 @@ public class AetherAutoSelector
 
                 mirror.setMirroredRepositories( Collections.singletonList( repository ) );
             }
+            else
+            {
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().debug( "AETHER-SELECT: no auto-mirror found." );
+                }
+            }
+        }
+        else
+        {
+            if ( library.getLogger().isDebugEnabled() )
+            {
+                library.getLogger().debug( "AETHER-SELECT disabled." );
+            }
         }
 
         if ( mirror == null )
         {
             if ( delegate != null )
             {
-                mirror = delegate.getMirrorSelector().getMirror( repository );
+                mirror = delegate.getMirror( repository );
             }
         }
 
-        // if useMirrors == false, this will be NULL...but the repository URL will have been modded.
         return mirror;
     }
 }

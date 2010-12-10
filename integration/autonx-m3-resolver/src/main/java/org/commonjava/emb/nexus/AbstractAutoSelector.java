@@ -103,9 +103,16 @@ abstract class AbstractAutoSelector
 
                     if ( !autodetectedMirrors.containsKey( repoUrl ) )
                     {
-                        library.getLogger().info( "Auto-Mirrors += " + repoUrl + "\n\t=> " + mirrorUrl );
+                        if ( library.getLogger().isDebugEnabled() )
+                        {
+                            library.getLogger().debug( "Auto-Mirrors += " + repoUrl + "\n\t=> " + mirrorUrl );
+                        }
 
                         autodetectedMirrors.put( repoUrl, mirrorUrl );
+                        if ( repoUrl.endsWith( "/" ) )
+                        {
+                            autodetectedMirrors.put( repoUrl.substring( 0, repoUrl.length() - 1 ), mirrorUrl );
+                        }
                     }
                     else
                     {

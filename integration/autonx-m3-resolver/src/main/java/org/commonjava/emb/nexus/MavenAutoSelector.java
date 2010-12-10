@@ -35,7 +35,10 @@ public class MavenAutoSelector
 
     public Mirror getMirror( final ArtifactRepository repository, final List<Mirror> mirrors )
     {
-        library.getLogger().info( "MAVEN-SELECT: " + repository.getUrl() );
+        if ( library.getLogger().isDebugEnabled() )
+        {
+            library.getLogger().debug( "MAVEN-SELECT: " + repository.getUrl() );
+        }
         Mirror mirror = null;
 
         if ( !autonxConfig.isDisabled() )
@@ -44,13 +47,30 @@ public class MavenAutoSelector
             final String mirrorUrl = autodetectedMirrors.get( repoUrl );
             if ( mirrorUrl != null )
             {
-                library.getLogger().info( "\t\t====> " + mirrorUrl );
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().debug( "\t\t====> " + mirrorUrl );
+                }
 
                 mirror = new Mirror();
                 mirror.setMirrorOf( repository.getId() );
                 mirror.setLayout( "default" );
                 mirror.setId( autonxConfig.getMirrorId() );
                 mirror.setUrl( mirrorUrl );
+            }
+            else
+            {
+                if ( library.getLogger().isDebugEnabled() )
+                {
+                    library.getLogger().debug( "MAVEN-SELECT: no auto-mirror found." );
+                }
+            }
+        }
+        else
+        {
+            if ( library.getLogger().isDebugEnabled() )
+            {
+                library.getLogger().debug( "MAVEN-SELECT disabled." );
             }
         }
 

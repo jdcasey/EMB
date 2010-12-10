@@ -26,13 +26,39 @@ public class LegacySupportInterceptor
     @Override
     public void setSession( final MavenSession session )
     {
-        final RepositorySystemSession original = session.getRepositorySession();
-        autonxSelector.setDelegateSession( original );
+        MirrorSelector original = null;
 
-        final DefaultRepositorySystemSession replacement = new DefaultRepositorySystemSession( original );
-        replacement.setMirrorSelector( autonxSelector );
+        boolean setDelegate = true;
+        if ( session != null && session.getRepositorySession() != null )
+        {
+            final RepositorySystemSession repoSession = session.getRepositorySession();
+            original = repoSession.getMirrorSelector();
 
-        delegate.setSession( new MavenSession( container, replacement, session.getRequest(), session.getResult() ) );
+            if ( original instanceof AetherAutoSelector )
+            {
+                // pass-through.
+                delegate.setSession( session );
+                setDelegate = false;
+            }
+            else if ( repoSession instanceof DefaultRepositorySystemSession )
+            {
+                ( (DefaultRepositorySystemSession) repoSession ).setMirrorSelector( autonxSelector );
+                delegate.setSession( session );
+            }
+            else
+            {
+                final DefaultRepositorySystemSession replacement = new DefaultRepositorySystemSession( repoSession );
+                replacement.setMirrorSelector( autonxSelector );
+
+                delegate.setSession( new MavenSession( container, replacement, session.getRequest(),
+                                                       session.getResult() ) );
+            }
+        }
+
+        if ( setDelegate )
+        {
+            autonxSelector.setDelegateSelector( original );
+        }
     }
 
     @Override
