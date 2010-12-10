@@ -39,19 +39,6 @@
     <url>http://github.com/jdcasey/EMB</url>
   </scm>
   
-  <distributionManagement>
-    <repository>
-      <id>nexus</id>
-      <name>Local Nexus Releases Repository</name>
-      <url>http://localhost:8081/nexus/content/repositories/releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>nexus</id>
-      <name>Local Nexus Snapshots Repository</name>
-      <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-  
   <dependencies>
     <dependency>
       <groupId>org.commonjava.atservice</groupId>
