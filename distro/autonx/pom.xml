@@ -39,6 +39,11 @@
   </dependencyManagement>
   
   <dependencies>
+    <!-- <dependency>
+      <groupId>org.sonatype.aether</groupId>
+      <artifactId>aether-connector-asynchttpclient</artifactId>
+      <version>1.8</version>
+    </dependency> -->
     <dependency>
       <groupId>org.commonjava.emb</groupId>
       <artifactId>emb-distro-commons</artifactId>

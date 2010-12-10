@@ -8,15 +8,13 @@ import org.commonjava.emb.nexus.conf.AutoNXConfiguration;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 
-@Component( role = NexusDiscoveryStrategy.class, hint = "failover" )
-public class FailoverDiscoveryStrategy
-    implements NexusDiscoveryStrategy
+@Component( role = FailoverDiscovery.class )
+public class FailoverDiscovery
 {
 
     @Requirement
     private AutoNXConfiguration autonxConfig;
 
-    @Override
     public LinkedHashSet<String> findNexusCandidates()
         throws AutoNXException
     {

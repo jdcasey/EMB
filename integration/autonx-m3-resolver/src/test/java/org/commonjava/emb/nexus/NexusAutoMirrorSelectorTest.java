@@ -23,11 +23,12 @@ public class NexusAutoMirrorSelectorTest
     {
         final ContainerConfiguration config = new DefaultContainerConfiguration().setClassPathScanning( true );
         final AutoNXLibrary lib = new AutoNXLibrary();
-        lib.getInstanceRegistry().add( EMBLibrary.class, "autonx", lib );
 
         final EMBConfiguration embConfig = new EMBConfiguration().withConfigurationDirectory( getResourceFile( "m2" ) );
 
         lib.loadConfiguration( embConfig );
+
+        lib.getInstanceRegistry().add( EMBLibrary.class, "autonx", lib );
         lib.getInstanceRegistry().add( lib.getConfiguration() );
         lib.getInstanceRegistry().add( embConfig );
 
@@ -37,7 +38,7 @@ public class NexusAutoMirrorSelectorTest
         final MirrorSelectorUser user = container.lookup( MirrorSelectorUser.class );
         final MirrorSelector mirrorSelector = user.mirrorSelector();
 
-        assertTrue( mirrorSelector instanceof NexusAutoMirrorSelector );
+        assertTrue( mirrorSelector instanceof AbstractAutoSelector );
     }
 
     private File getResourceFile( final String path )

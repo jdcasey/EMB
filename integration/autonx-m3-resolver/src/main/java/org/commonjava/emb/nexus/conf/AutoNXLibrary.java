@@ -16,6 +16,7 @@
 
 package org.commonjava.emb.nexus.conf;
 
+import org.apache.maven.plugin.LegacySupport;
 import org.apache.maven.repository.MirrorSelector;
 import org.commonjava.atservice.annotation.Service;
 import org.commonjava.emb.conf.AbstractEMBLibrary;
@@ -32,7 +33,10 @@ public class AutoNXLibrary
     {
         super( "autonx", "AutoNX.MirrorSelector", new MavenPomVersionProvider( "org.commonjava.emb.integration",
                                                                                "emb-autonx-m3-resolver" ),
-               new AutoNXConfigLoader(), new ComponentSelector().setSelection( MirrorSelector.class, "autonx" ) );
+               new AutoNXConfigLoader(),
+               new ComponentSelector().setSelection( MirrorSelector.class, "autonx" )
+                                      .setSelection( org.sonatype.aether.repository.MirrorSelector.class, "autonx" )
+                                      .setSelection( LegacySupport.class, "autonx" ) );
     }
 
 }
