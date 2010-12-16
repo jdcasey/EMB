@@ -73,7 +73,7 @@
   <modules>
     <module>maven-scm-support</module>
     <module>autoboxing-version-range</module>
-    <module>dependency-resolver</module>
+    <module>project-tools</module>
   </modules>
 
 </project>
