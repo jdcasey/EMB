@@ -22,6 +22,7 @@ import org.commonjava.emb.conf.ext.ExtensionConfiguration;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
 import org.commonjava.emb.version.autobox.qual.DefaultQualifiers;
+import org.commonjava.emb.version.autobox.qual.Qualifiers;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,33 +63,39 @@ public class AutoboxingConfigReader
         }
 
         final File f = new File( embConfig.getConfigurationDirectory(), FILENAME );
-
-        final Properties p = new Properties();
-        FileInputStream fis = null;
-        try
+        if ( f.exists() && f.isFile() && f.canRead() )
         {
-            fis = new FileInputStream( f );
-            p.load( fis );
+            final Properties p = new Properties();
+            FileInputStream fis = null;
+            try
+            {
+                fis = new FileInputStream( f );
+                p.load( fis );
 
-            final boolean autobox = Boolean.parseBoolean( p.getProperty( KEY_DO_AUTOBOX, "false" ) );
-            final String rebuild = p.getProperty( KEY_REBUILD_QUALIFIER, DefaultQualifiers.INSTANCE.rebuildIndicator() );
-            final String orderStr = p.getProperty( KEY_QUALIFIER_ORDER );
+                final boolean autobox = Boolean.parseBoolean( p.getProperty( KEY_DO_AUTOBOX, "false" ) );
+                final String rebuild =
+                    p.getProperty( KEY_REBUILD_QUALIFIER, DefaultQualifiers.INSTANCE.rebuildIndicator() );
+                final String orderStr = p.getProperty( KEY_QUALIFIER_ORDER );
 
-            final String[] order =
-                orderStr != null ? orderStr.split( "\\s*,\\s*" ) : DefaultQualifiers.INSTANCE.order();
+                final String[] order =
+                    orderStr != null ? orderStr.split( "\\s*,\\s*" ) : DefaultQualifiers.INSTANCE.order();
 
-            return new AutoboxingConfig( autobox, rebuild, order );
+                return new AutoboxingConfig( autobox, rebuild, order );
+            }
+            catch ( final IOException e )
+            {
+                throw new ExtensionConfigurationException(
+                                                           "Failed to read configuration from: %s\nConfiguration directory: %s.\nReason: %s",
+                                                           e, FILENAME, embConfig.getConfigurationDirectory(),
+                                                           e.getMessage() );
+            }
+            finally
+            {
+                IOUtils.closeQuietly( fis );
+            }
         }
-        catch ( final IOException e )
-        {
-            throw new ExtensionConfigurationException(
-                                                       "Failed to read configuration from: %s\nConfiguration directory: %s.\nReason: %s",
-                                                       e, FILENAME, embConfig.getConfigurationDirectory(),
-                                                       e.getMessage() );
-        }
-        finally
-        {
-            IOUtils.closeQuietly( fis );
-        }
+
+        final Qualifiers q = DefaultQualifiers.INSTANCE;
+        return new AutoboxingConfig( false, q.rebuildIndicator(), q.order() );
     }
 }
