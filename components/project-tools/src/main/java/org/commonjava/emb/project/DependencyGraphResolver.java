@@ -66,13 +66,19 @@ public class DependencyGraphResolver
     @Requirement
     private RepositorySystem repositorySystem;
 
-    public void resolveGraph( RepositorySystemSession session, final Collection<MavenProject> rootProjects )
+    public DependencyGraphTracker resolveGraph( final Collection<MavenProject> rootProjects,
+                                                RepositorySystemSession rss, final ProjectToolsSession session )
     {
-        session = prepareForGraphResolution( session );
-        final DependencyGraphTracker graphState = accumulate( session, rootProjects );
-        resolve( session, rootProjects, graphState );
+        rss = prepareForGraphResolution( rss );
+
+        final DependencyGraphTracker graphState =
+            accumulate( session, rss, rootProjects, session.getRemoteRepositoriesArray() );
+
+        resolve( rss, rootProjects, graphState );
 
         LOGGER.info( "Graph state contains: " + graphState.size() + " nodes." );
+
+        return graphState;
     }
 
     // TODO: Allow fine-tuning of scopes resolved...
@@ -94,7 +100,7 @@ public class DependencyGraphResolver
         }
 
         final Set<DependencyResolveWorker> workers = new HashSet<DependencyResolveWorker>();
-        for ( final DependencyTracker depState : graphState.getDependencyTrackingStates() )
+        for ( final DependencyTracker depState : graphState.getDependencyTrackers() )
         {
             if ( depState == null || depState.hasErrors() || rootProjectIds.contains( depState.getProjectId() ) )
             {
@@ -173,13 +179,13 @@ public class DependencyGraphResolver
         }
     }
 
-    private DependencyGraphTracker accumulate( final RepositorySystemSession session,
-                                           final Collection<MavenProject> projects,
-                                           final RemoteRepository... remoteRepositories )
+    private DependencyGraphTracker accumulate( final ProjectToolsSession session, final RepositorySystemSession rss,
+                                               final Collection<MavenProject> projects,
+                                               final RemoteRepository... remoteRepositories )
     {
-        final ArtifactTypeRegistry stereotypes = session.getArtifactTypeRegistry();
+        final ArtifactTypeRegistry stereotypes = rss.getArtifactTypeRegistry();
 
-        final DependencyGraphTracker graphState = new DependencyGraphTracker();
+        final DependencyGraphTracker graphState = session.getGraphTracker();
         final GraphAccumulator accumulator = new GraphAccumulator( graphState );
 
         for ( final MavenProject project : projects )
@@ -233,7 +239,7 @@ public class DependencyGraphResolver
             CollectResult result;
             try
             {
-                result = repositorySystem.collectDependencies( session, request );
+                result = repositorySystem.collectDependencies( rss, request );
             }
             catch ( final DependencyCollectionException e )
             {

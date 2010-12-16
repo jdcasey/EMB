@@ -22,7 +22,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.commonjava.emb.conf.ext.ExtensionConfiguration;
 import org.commonjava.emb.version.autobox.lib.AutoboxingConfig;
 import org.sonatype.aether.RepositoryEvent.EventType;
 import org.sonatype.aether.RepositoryListener;
@@ -63,7 +62,7 @@ public class AutoboxingVersionRangeResolver
     @Requirement
     private MetadataResolver resolver;
 
-    @Requirement( role = ExtensionConfiguration.class, hint = "abx" )
+    @Requirement
     private AutoboxingConfig config;
 
     private transient AutoboxableVersionScheme scheme;

@@ -69,7 +69,7 @@ public class DependencyGraphTracker
         return new HashMap<MavenProject, DependencyNode>( graphRoots ).entrySet().iterator();
     }
 
-    public synchronized Set<DependencyTracker> getDependencyTrackingStates()
+    public synchronized Set<DependencyTracker> getDependencyTrackers()
     {
         // if ( LOGGER.isDebugEnabled() )
         // {

@@ -27,7 +27,6 @@ public class Maven3BooterLibrary
 {
     public Maven3BooterLibrary()
     {
-        super( "boot", "EMB-Booter", new MavenPomVersionProvider( "org.commonjava.emb.boot", "emb-maven3-booter" ),
-               "core" );
+        super( "boot", "EMB-Booter", new MavenPomVersionProvider( "org.commonjava.emb", "emb-booter" ), "core" );
     }
 }

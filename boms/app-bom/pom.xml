@@ -128,7 +128,7 @@
       </dependency>
       <dependency>
       	<groupId>org.commonjava.emb.components</groupId>
-      	<artifactId>emb-dependency-resolver</artifactId>
+      	<artifactId>emb-project-tools</artifactId>
       	<version>${project.version}</version>
       	<scope>compile</scope>
       </dependency>

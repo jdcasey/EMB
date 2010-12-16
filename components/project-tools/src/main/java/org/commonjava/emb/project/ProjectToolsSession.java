@@ -67,10 +67,12 @@ public interface ProjectToolsSession
 
     MavenProject getReactorProject( final Artifact artifact );
 
-    DependencyGraphTracker getGraphTrackingState();
+    DependencyGraphTracker getGraphTracker();
 
-    ProjectToolsSession setGraphTrackingState( final DependencyGraphTracker graphState );
+    ProjectToolsSession setGraphTracker( final DependencyGraphTracker graphState );
 
     ProjectToolsSession copy();
+
+    RemoteRepository[] getRemoteRepositoriesArray();
 
 }

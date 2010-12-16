@@ -62,7 +62,7 @@ public class SimpleProjectToolsSession
     }
 
     public SimpleProjectToolsSession( final File workdir, final File localRepositoryDirectory,
-                                  final Repository... resolveRepositories )
+                                      final Repository... resolveRepositories )
     {
         this.workdir = workdir;
         this.localRepositoryDirectory = localRepositoryDirectory;
@@ -112,6 +112,18 @@ public class SimpleProjectToolsSession
     public List<RemoteRepository> getRemoteRepositories()
     {
         return remoteRepositories;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see org.commonjava.emb.project.ProjectToolsSession#getRemoteRepositoriesArray()
+     */
+    @Override
+    public RemoteRepository[] getRemoteRepositoriesArray()
+    {
+        return remoteRepositories == null ? new RemoteRepository[] {}
+                        : remoteRepositories.toArray( new RemoteRepository[] {} );
     }
 
     /**
@@ -272,10 +284,10 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getGraphTrackingState()
+     * @see org.commonjava.emb.project.ProjectToolsSession#getGraphTracker()
      */
     @Override
-    public synchronized DependencyGraphTracker getGraphTrackingState()
+    public synchronized DependencyGraphTracker getGraphTracker()
     {
         if ( graphState == null )
         {
@@ -288,10 +300,10 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setGraphTrackingState(org.commonjava.emb.project.DependencyGraphTracker)
+     * @see org.commonjava.emb.project.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.DependencyGraphTracker)
      */
     @Override
-    public ProjectToolsSession setGraphTrackingState( final DependencyGraphTracker graphState )
+    public ProjectToolsSession setGraphTracker( final DependencyGraphTracker graphState )
     {
         this.graphState = graphState;
         return this;

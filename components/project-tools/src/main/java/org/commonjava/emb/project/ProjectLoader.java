@@ -76,10 +76,10 @@ public class ProjectLoader
     private DependencyGraphResolver dependencyGraphResolver;
 
     @Requirement
-    private ProjectToolsSessionInjector sessionManager;
+    private ProjectToolsSessionInjector sessionInjector;
 
     public DependencyGraphTracker resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
-                                                          final boolean includeModuleProjects )
+                                                              final boolean includeModuleProjects )
         throws EMBException
     {
         List<MavenProject> projects;
@@ -92,15 +92,15 @@ public class ProjectLoader
             projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
         }
 
-        dependencyGraphResolver.resolveGraph( sessionManager.getRepositorySystemSession( session ), projects );
+        dependencyGraphResolver.resolveGraph( projects, sessionInjector.getRepositorySystemSession( session ), session );
 
-        return session.getGraphTrackingState();
+        return session.getGraphTracker();
     }
 
     public List<MavenProject> buildReactorProjectInstances( final File rootPom, final ProjectToolsSession session )
         throws ProjectToolsException
     {
-        final ProjectBuildingRequest pbr = sessionManager.getProjectBuildingRequest( session );
+        final ProjectBuildingRequest pbr = sessionInjector.getProjectBuildingRequest( session );
 
         try
         {
@@ -189,7 +189,7 @@ public class ProjectLoader
 
     private void addProjects( final ProjectToolsSession session, final List<MavenProject> projects )
     {
-        final DependencyGraphTracker graphState = session.getGraphTrackingState();
+        final DependencyGraphTracker graphState = session.getGraphTracker();
         for ( final MavenProject project : projects )
         {
             final LinkedList<MavenProject> parentage = new LinkedList<MavenProject>();
@@ -231,7 +231,7 @@ public class ProjectLoader
     public MavenProject buildProjectInstance( final File pomFile, final ProjectToolsSession session )
         throws ProjectToolsException
     {
-        final ProjectBuildingRequest pbr = sessionManager.getProjectBuildingRequest( session );
+        final ProjectBuildingRequest pbr = sessionInjector.getProjectBuildingRequest( session );
 
         try
         {
@@ -299,7 +299,7 @@ public class ProjectLoader
                                               final ProjectToolsSession session )
         throws ProjectToolsException
     {
-        final ProjectBuildingRequest req = sessionManager.getProjectBuildingRequest( session );
+        final ProjectBuildingRequest req = sessionInjector.getProjectBuildingRequest( session );
 
         try
         {
@@ -309,7 +309,7 @@ public class ProjectLoader
             final Artifact aetherPomArtifact = RepositoryUtils.toArtifact( pomArtifact );
 
             final ArtifactRequest artifactRequest =
-                new ArtifactRequest( aetherPomArtifact, sessionManager.getRemoteRepositories( session ), "project" );
+                new ArtifactRequest( aetherPomArtifact, sessionInjector.getRemoteRepositories( session ), "project" );
 
             final ArtifactResult artifactResult =
                 aetherRepositorySystem.resolveArtifact( req.getRepositorySession(), artifactRequest );
@@ -382,8 +382,8 @@ public class ProjectLoader
         }
         catch ( final ArtifactResolutionException e )
         {
-            throw new ProjectToolsException( "Failed to resolve POM: %s:%s:%s\nReason: %s", e, groupId,
-                                                   artifactId, version, e.getMessage() );
+            throw new ProjectToolsException( "Failed to resolve POM: %s:%s:%s\nReason: %s", e, groupId, artifactId,
+                                             version, e.getMessage() );
         }
     }
 
@@ -516,13 +516,13 @@ public class ProjectLoader
         {
             LOGGER.error( String.format( "Failed to read POM: %s.\nReason: %s", pom, e.getMessage() ), e );
             throw new ProjectToolsException( "Failed to read POM: %s. Reason: %s", e, pom.getAbsolutePath(),
-                                                   e.getMessage() );
+                                             e.getMessage() );
         }
         catch ( final XmlPullParserException e )
         {
             LOGGER.error( String.format( "Failed to read POM: %s.\nReason: %s", pom, e.getMessage() ), e );
             throw new ProjectToolsException( "Failed to read POM: %s. Reason: %s", e, pom.getAbsolutePath(),
-                                                   e.getMessage() );
+                                             e.getMessage() );
         }
         finally
         {
