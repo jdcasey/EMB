@@ -105,7 +105,7 @@
           <configuration>
             <excludes>
               <exclude>**/testutil/*</exclude>
-              <exclude>**/fixture/*</exclude>
+              <!-- <exclude>**/fixture/*</exclude> -->
             </excludes>
           </configuration>
         </plugin>
