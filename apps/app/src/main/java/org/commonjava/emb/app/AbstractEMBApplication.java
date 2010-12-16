@@ -71,7 +71,7 @@ public abstract class AbstractEMBApplication
         return doLoad( null );
     }
 
-    private EMBApplication doLoad( final EMBApplicationConfiguration configuration )
+    private synchronized EMBApplication doLoad( final EMBApplicationConfiguration configuration )
         throws EMBException
     {
         if ( loaded )

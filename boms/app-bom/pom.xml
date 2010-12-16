@@ -126,6 +126,24 @@
         <version>4.5</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+      	<groupId>org.commonjava.emb.components</groupId>
+      	<artifactId>emb-dependency-resolver</artifactId>
+      	<version>${project.version}</version>
+      	<scope>compile</scope>
+      </dependency>
+      <dependency>
+      	<groupId>org.commonjava.emb.components</groupId>
+      	<artifactId>emb-autoboxing-version-range</artifactId>
+      	<version>${project.version}</version>
+      	<scope>compile</scope>
+      </dependency>
+      <dependency>
+      	<groupId>org.commonjava.emb.integration</groupId>
+      	<artifactId>emb-autonx-m3-resolver</artifactId>
+      	<version>${project.version}</version>
+      	<scope>compile</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
