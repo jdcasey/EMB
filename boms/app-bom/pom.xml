@@ -51,19 +51,10 @@
         <artifactId>emb-api</artifactId>
         <version>${project.version}</version>
       </dependency>
-    
       <dependency>
         <groupId>org.commonjava.emb.event</groupId>
         <artifactId>emb-resolver-events</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven</artifactId>
-        <version>${mavenVersion}</version>
-        <type>pom</type>
-        <scope>import</scope>
       </dependency>
       
       <dependency>
@@ -118,6 +109,11 @@
         <artifactId>log4j</artifactId>
         <version>1.2.12</version>
       </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.0</version>
+      </dependency>
       <!-- /END infra requirements -->
 
       <dependency>
@@ -127,22 +123,22 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-      	<groupId>org.commonjava.emb.components</groupId>
-      	<artifactId>emb-project-tools</artifactId>
-      	<version>${project.version}</version>
-      	<scope>compile</scope>
+        <groupId>org.commonjava.emb.components</groupId>
+        <artifactId>emb-project-tools</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
       </dependency>
       <dependency>
-      	<groupId>org.commonjava.emb.components</groupId>
-      	<artifactId>emb-autoboxing-version-range</artifactId>
-      	<version>${project.version}</version>
-      	<scope>compile</scope>
+        <groupId>org.commonjava.emb.components</groupId>
+        <artifactId>emb-autoboxing-version-range</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
       </dependency>
       <dependency>
-      	<groupId>org.commonjava.emb.integration</groupId>
-      	<artifactId>emb-autonx-m3-resolver</artifactId>
-      	<version>${project.version}</version>
-      	<scope>compile</scope>
+        <groupId>org.commonjava.emb.integration</groupId>
+        <artifactId>emb-autonx-m3-resolver</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
