@@ -23,7 +23,6 @@
   </parent>
   
   <artifactId>emb-app</artifactId>
-  <version>0.5-SNAPSHOT</version>
   <name>EMB-Based Application Hooks</name>
   
   <properties>

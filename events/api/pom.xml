@@ -23,7 +23,6 @@
   </parent>
   
   <artifactId>emb-event-api</artifactId>
-  <version>0.5-SNAPSHOT</version>
   <name>EMB Event API</name>
   
   <dependencies>

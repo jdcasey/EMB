@@ -23,7 +23,6 @@
   </parent>
   
   <artifactId>emb-plexus-guice</artifactId>
-  <version>0.5-SNAPSHOT</version>
   <name>EMB Injectable Plexus-Guice Container</name>
 
   <properties>
