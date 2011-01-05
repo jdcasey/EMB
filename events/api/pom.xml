@@ -19,11 +19,11 @@
   <parent>
     <artifactId>emb-events</artifactId>
     <groupId>org.commonjava.emb.event</groupId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-event-api</artifactId>
-  <version>0.6-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <name>EMB Event API</name>
   
   <dependencies>
