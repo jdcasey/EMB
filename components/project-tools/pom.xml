@@ -19,11 +19,11 @@
   <parent>
     <artifactId>emb-components</artifactId>
     <groupId>org.commonjava.emb.components</groupId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.6-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-project-tools</artifactId>
-  <version>0.5</version>
+  <version>0.6-SNAPSHOT</version>
   <name>EMB Project Tools</name>
 
   <properties>
