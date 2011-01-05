@@ -8,7 +8,7 @@
   </parent>
   
   <artifactId>emb-event-api</artifactId>
-  <version>0.4.1-SNAPSHOT</version>
+  <version>0.4.1</version>
   <name>EMB Event API</name>
   
   <dependencies>
