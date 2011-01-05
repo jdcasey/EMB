@@ -4,7 +4,7 @@
   <parent>
     <artifactId>emb</artifactId>
     <groupId>org.commonjava.emb</groupId>
-    <version>0.4</version>
+    <version>0.4.1-SNAPSHOT</version>
   </parent>
   
   <groupId>org.commonjava.emb.event</groupId>

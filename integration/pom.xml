@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.commonjava.emb</groupId>
     <artifactId>emb</artifactId>
-    <version>0.4</version>
+    <version>0.4.1-SNAPSHOT</version>
   </parent>
   
   <groupId>org.commonjava.emb.integration</groupId>

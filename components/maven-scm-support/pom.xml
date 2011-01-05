@@ -4,11 +4,11 @@
   <parent>
     <artifactId>emb-components</artifactId>
     <groupId>org.commonjava.emb.components</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
   </parent>
   
   <artifactId>maven-scm-support</artifactId>
-  <version>0.4</version>
+  <version>0.4.1-SNAPSHOT</version>
   
   <name>EMB Service Export for Maven-SCM</name>
   

@@ -4,11 +4,11 @@
   <parent>
     <artifactId>emb-apps</artifactId>
     <groupId>org.commonjava.emb</groupId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
   </parent>
   
   <artifactId>emb-app</artifactId>
-  <version>0.4</version>
+  <version>0.4.1-SNAPSHOT</version>
   <name>EMB-Based Application Hooks</name>
   
   <properties>
