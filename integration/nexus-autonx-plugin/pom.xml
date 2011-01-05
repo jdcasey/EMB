@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.commonjava.emb.integration</groupId>
     <artifactId>emb-integration</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
   
   <artifactId>nexus-autonx-plugin</artifactId>

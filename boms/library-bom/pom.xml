@@ -19,7 +19,7 @@
   <parent>
     <artifactId>emb-boms</artifactId>
     <groupId>org.commonjava.emb</groupId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
   
   <artifactId>emb-library-bom</artifactId>

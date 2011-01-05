@@ -23,7 +23,7 @@
   </parent>
   
   <artifactId>maven-scm-support</artifactId>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.5</version>
   
   <name>EMB Service Export for Maven-SCM</name>
   
