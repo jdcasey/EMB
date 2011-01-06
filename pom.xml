@@ -314,5 +314,20 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>ci</id>
+      <distributionManagement>
+        <repository>
+          <id>nexus</id>
+          <name>CI Releases Repository</name>
+          <url>http://localhost:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+          <id>nexus</id>
+          <name>CI Snapshots Repository</name>
+          <url>http://localhost:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
   </profiles>
 </project>
