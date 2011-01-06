@@ -111,7 +111,7 @@
           <dependency>
             <groupId>org.commonjava.emb</groupId>
             <artifactId>emb-assembly-descriptors</artifactId>
-            <version>${project.version}</version>
+            <version>0.5</version>
           </dependency>
         </dependencies>
         <executions>
