@@ -19,7 +19,7 @@
   <parent>
     <artifactId>emb-infrastructure</artifactId>
     <groupId>org.commonjava.emb.infra</groupId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.5</version>
   </parent>
   
   <artifactId>emb-plexus-guice</artifactId>
