@@ -22,7 +22,6 @@
       <version>0.6-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.emb</groupId>
   <artifactId>emb-apps</artifactId>
   <packaging>pom</packaging>
   
