@@ -1,6 +1,6 @@
 # EMB - Extensible, Modular Builds #
 
-EMB is a build tool that wraps and extends Apache Maven. Its goal is to provide a mechanism for changing the core functionality of Maven using sets of add-on libraries.
+EMB is a build tool that wraps and extends [Apache Maven](http://maven.apache.org/). Its goal is to provide a mechanism for changing the core functionality of Maven using sets of add-on libraries.
 
 ## Getting Started ##
 
