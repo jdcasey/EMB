@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
   
   <properties>
-  	<mavenVersion>3.0.1</mavenVersion>
+  	<mavenVersion>3.0.2</mavenVersion>
   	<plexusVersion>1.5.4</plexusVersion>
   </properties>
   
