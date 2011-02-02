@@ -271,8 +271,6 @@ public class DependencyGraphResolver
 
         private final Set<Exclusion> lastExclusions = new HashSet<Exclusion>();
 
-        private DependencyNode last;
-
         private final DependencyGraphTracker graphState;
 
         GraphAccumulator( final DependencyGraphTracker graphState )
@@ -285,7 +283,6 @@ public class DependencyGraphResolver
             parents.clear();
             exclusions.clear();
             lastExclusions.clear();
-            last = null;
         }
 
         @Override
@@ -324,7 +321,15 @@ public class DependencyGraphResolver
                 }
 
                 parents.addFirst( node );
-                last = node;
+
+                final StringBuilder builder = new StringBuilder();
+                for ( int i = 0; i < parents.size(); i++ )
+                {
+                    builder.append( "  " );
+                }
+                builder.append( ">>>" );
+                builder.append( node );
+                LOGGER.info( builder.toString() );
 
                 result = true;
             }
@@ -383,9 +388,22 @@ public class DependencyGraphResolver
 
             lastExclusions.clear();
 
-            if ( node == last )
+            if ( !parents.isEmpty() && node == parents.getFirst() )
             {
+                final StringBuilder builder = new StringBuilder();
+                for ( int i = 0; i < parents.size(); i++ )
+                {
+                    builder.append( "  " );
+                }
+                builder.append( "<<<" );
+                builder.append( node );
+                LOGGER.info( builder.toString() );
+
                 parents.removeFirst();
+            }
+            else
+            {
+                LOGGER.info( "\n\nTRAVERSAL LEAK!!! " + node + "\n\n" );
             }
 
             if ( LOGGER.isDebugEnabled() )

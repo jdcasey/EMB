@@ -85,7 +85,7 @@ public class ProjectLoader
         List<MavenProject> projects;
         if ( includeModuleProjects )
         {
-            projects = buildReactorProjectInstances( rootPom, session );
+            projects = buildReactorProjectInstances( session, rootPom );
         }
         else
         {
@@ -97,14 +97,14 @@ public class ProjectLoader
         return session.getGraphTracker();
     }
 
-    public List<MavenProject> buildReactorProjectInstances( final File rootPom, final ProjectToolsSession session )
+    public List<MavenProject> buildReactorProjectInstances( final ProjectToolsSession session, final File... rootPoms )
         throws ProjectToolsException
     {
         final ProjectBuildingRequest pbr = sessionInjector.getProjectBuildingRequest( session );
 
         try
         {
-            final List<File> pomFiles = Collections.singletonList( rootPom );
+            final List<File> pomFiles = Arrays.asList( rootPoms );
             final List<ProjectBuildingResult> results = projectBuilder.build( pomFiles, true, pbr );
 
             final List<MavenProject> projects = new ArrayList<MavenProject>( results.size() );
@@ -131,7 +131,7 @@ public class ProjectLoader
 
             if ( results == null )
             {
-                sb.append( "Cannot build reactor project instances for root-POM: " ).append( rootPom );
+                sb.append( "Cannot build reactor project instances for root-POM: " ).append( rootPoms );
 
                 final StringWriter sWriter = new StringWriter();
                 final PrintWriter pWriter = new PrintWriter( sWriter );

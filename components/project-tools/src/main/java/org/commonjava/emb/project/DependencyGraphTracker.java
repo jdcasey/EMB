@@ -78,8 +78,7 @@ public class DependencyGraphTracker
         return new HashSet<DependencyTracker>( depTrackers.values() );
     }
 
-    public DependencyTracker getDependencyState( final String groupId, final String artifactId,
-                                                       final String version )
+    public DependencyTracker getDependencyState( final String groupId, final String artifactId, final String version )
     {
         final String key = key( groupId, artifactId, version );
         // if ( LOGGER.isDebugEnabled() )
@@ -110,7 +109,7 @@ public class DependencyGraphTracker
         DependencyTracker state = depTrackers.get( key );
         if ( state == null )
         {
-            state = new DependencyTracker( node, depTrail );
+            state = new DependencyTracker( node, this );
             depTrackers.put( key, state );
             // if ( LOGGER.isDebugEnabled() )
             // {
@@ -149,7 +148,7 @@ public class DependencyGraphTracker
         DependencyTracker state = depTrackers.get( key );
         if ( state == null )
         {
-            state = new DependencyTracker( artifact );
+            state = new DependencyTracker( artifact, this );
             depTrackers.put( key, state );
         }
 
@@ -175,7 +174,7 @@ public class DependencyGraphTracker
         DependencyTracker state = depTrackers.get( key );
         if ( state == null )
         {
-            state = new DependencyTracker( a );
+            state = new DependencyTracker( a, this );
             depTrackers.put( key, state );
         }
 

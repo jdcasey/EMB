@@ -43,9 +43,7 @@ public class DependencyTracker
 
     private static final Logger LOGGER = Logger.getLogger( DependencyTracker.class );
 
-    private transient final Set<List<String>> depTrails = new HashSet<List<String>>();
-
-    private transient final Set<List<String>> parentTrails = new HashSet<List<String>>();
+    private final Set<DependencyNode> nodes = new LinkedHashSet<DependencyNode>();
 
     private Artifact latestArtifact;
 
@@ -57,9 +55,12 @@ public class DependencyTracker
 
     private String projectId;
 
-    public DependencyTracker( final DependencyNode node, final List<DependencyNode> depTrail )
+    private final DependencyGraphTracker graph;
+
+    public DependencyTracker( final DependencyNode node, final DependencyGraphTracker graph )
     {
-        depTrails.add( toTrail( depTrail ) );
+        this.graph = graph;
+        nodes.add( node );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );
@@ -72,28 +73,11 @@ public class DependencyTracker
         }
     }
 
-    public DependencyTracker( final Artifact artifact )
+    public DependencyTracker( final Artifact artifact, final DependencyGraphTracker graph )
     {
+        this.graph = graph;
         projectId = projectId( artifact );
         latestArtifact = artifact;
-    }
-
-    private List<String> toTrail( final List<DependencyNode> pt )
-    {
-        final List<String> trail = new ArrayList<String>( pt.size() );
-        for ( final DependencyNode node : pt )
-        {
-            if ( node.getDependency() == null || node.getDependency().getArtifact() == null )
-            {
-                trail.add( "[unknown]" );
-            }
-            else
-            {
-                trail.add( String.valueOf( node.getDependency().getArtifact() ) );
-            }
-        }
-
-        return trail;
     }
 
     static String projectId( final Artifact a )
@@ -109,13 +93,12 @@ public class DependencyTracker
             trail.add( key( project.getGroupId(), project.getArtifactId(), project.getVersion() ) );
         }
 
-        parentTrails.add( trail );
+        // parentTrails.add( trail );
     }
 
     public void merge( final DependencyNode node, final List<DependencyNode> depTrail )
     {
-        depTrails.add( toTrail( depTrail ) );
-
+        nodes.add( node );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );
@@ -189,16 +172,6 @@ public class DependencyTracker
         return latestResult;
     }
 
-    public Set<List<String>> getDependencyTrails()
-    {
-        return depTrails;
-    }
-
-    public Set<List<String>> getParentTrails()
-    {
-        return parentTrails;
-    }
-
     public synchronized Artifact getLatestArtifact()
     {
         return latestArtifact;
@@ -237,30 +210,30 @@ public class DependencyTracker
         final StringBuilder sb = new StringBuilder();
 
         sb.append( "Failed to resolve: " ).append( getProjectId() );
-        sb.append( "\nDependency of:" );
-
-        for ( final List<String> parentTrail : getDependencyTrails() )
-        {
-            int indents = 0;
-            for ( final String node : parentTrail )
-            {
-                sb.append( "\n" ).append( indents ).append( ": " );
-                for ( int i = 0; i < indents; i++ )
-                {
-                    sb.append( "  " );
-                }
-                sb.append( node );
-                indents++;
-
-                if ( indents > 6 )
-                {
-                    sb.append( "..." );
-                    break;
-                }
-            }
-
-            sb.append( "\n" );
-        }
+        // sb.append( "\nDependency of:" );
+        //
+        // for ( final List<String> parentTrail : getDependencyTrails() )
+        // {
+        // int indents = 0;
+        // for ( final String node : parentTrail )
+        // {
+        // sb.append( "\n" ).append( indents ).append( ": " );
+        // for ( int i = 0; i < indents; i++ )
+        // {
+        // sb.append( "  " );
+        // }
+        // sb.append( node );
+        // indents++;
+        //
+        // if ( indents > 6 )
+        // {
+        // sb.append( "..." );
+        // break;
+        // }
+        // }
+        //
+        // sb.append( "\n" );
+        // }
 
         sb.append( "\n\n" )
           .append( results.size() )
