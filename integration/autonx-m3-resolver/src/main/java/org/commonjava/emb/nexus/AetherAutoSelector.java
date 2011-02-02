@@ -41,22 +41,27 @@ public class AetherAutoSelector
     @Override
     public RemoteRepository getMirror( final RemoteRepository repository )
     {
-        if ( library.getLogger().isDebugEnabled() )
+        if ( getLogger().isDebugEnabled() )
         {
-            library.getLogger().debug( "AETHER-SELECT: " + repository.getUrl() );
+            getLogger().debug( "AETHER-SELECT: " + repository.getUrl() );
         }
 
         RemoteRepository mirror = null;
 
-        if ( !autonxConfig.isDisabled() )
+        if ( delegate != null )
+        {
+            mirror = delegate.getMirror( repository );
+        }
+
+        if ( mirror == null && !autonxConfig.isDisabled() )
         {
             final String repoUrl = repository.getUrl();
             final String mirrorUrl = autodetectedMirrors.get( repoUrl );
             if ( mirrorUrl != null )
             {
-                if ( library.getLogger().isDebugEnabled() )
+                if ( getLogger().isDebugEnabled() )
                 {
-                    library.getLogger().debug( "\t\t====> " + mirrorUrl );
+                    getLogger().debug( "\t\t====> " + mirrorUrl );
                 }
 
                 mirror = new RemoteRepository();
@@ -75,25 +80,17 @@ public class AetherAutoSelector
             }
             else
             {
-                if ( library.getLogger().isDebugEnabled() )
+                if ( getLogger().isDebugEnabled() )
                 {
-                    library.getLogger().debug( "AETHER-SELECT: no auto-mirror found." );
+                    getLogger().debug( "AETHER-SELECT: no auto-mirror found." );
                 }
             }
         }
         else
         {
-            if ( library.getLogger().isDebugEnabled() )
+            if ( getLogger().isDebugEnabled() )
             {
-                library.getLogger().debug( "AETHER-SELECT disabled." );
-            }
-        }
-
-        if ( mirror == null )
-        {
-            if ( delegate != null )
-            {
-                mirror = delegate.getMirror( repository );
+                getLogger().debug( "AETHER-SELECT disabled." );
             }
         }
 

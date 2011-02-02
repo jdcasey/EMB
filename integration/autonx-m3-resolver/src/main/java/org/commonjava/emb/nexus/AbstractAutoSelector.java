@@ -16,6 +16,7 @@
 
 package org.commonjava.emb.nexus;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
@@ -23,7 +24,7 @@ import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.nexus.conf.AutoNXConfiguration;
 import org.commonjava.emb.nexus.resolve.AutoMirrorResolver;
 import org.commonjava.emb.nexus.search.FailoverDiscovery;
-import org.commonjava.emb.nexus.search.NexusDiscoveryStrategy;
+import org.commonjava.emb.nexus.search.MirrorDiscoveryStrategy;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -45,8 +46,8 @@ abstract class AbstractAutoSelector
     @Requirement
     protected AutoNXConfiguration autonxConfig;
 
-    @Requirement( role = NexusDiscoveryStrategy.class )
-    private List<NexusDiscoveryStrategy> strategies;
+    @Requirement( role = MirrorDiscoveryStrategy.class )
+    private List<MirrorDiscoveryStrategy> strategies;
 
     @Requirement
     private FailoverDiscovery failover;
@@ -75,7 +76,7 @@ abstract class AbstractAutoSelector
                 else
                 {
                     LinkedHashSet<String> tmp = null;
-                    for ( final NexusDiscoveryStrategy strategy : strategies )
+                    for ( final MirrorDiscoveryStrategy strategy : strategies )
                     {
                         if ( strategy == null )
                         {
@@ -133,6 +134,11 @@ abstract class AbstractAutoSelector
         }
 
         initialized = true;
+    }
+
+    protected Logger getLogger()
+    {
+        return library.getLogger();
     }
 
 }

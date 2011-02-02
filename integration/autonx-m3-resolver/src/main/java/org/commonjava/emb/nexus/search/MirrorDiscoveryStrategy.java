@@ -20,7 +20,7 @@ import org.commonjava.emb.nexus.AutoNXException;
 
 import java.util.LinkedHashSet;
 
-public interface NexusDiscoveryStrategy
+public interface MirrorDiscoveryStrategy
 {
 
     LinkedHashSet<String> findNexusCandidates()

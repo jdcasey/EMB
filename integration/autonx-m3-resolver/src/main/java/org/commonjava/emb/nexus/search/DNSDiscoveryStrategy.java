@@ -31,9 +31,9 @@ import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-@Component( role = NexusDiscoveryStrategy.class, hint = "dns" )
+@Component( role = MirrorDiscoveryStrategy.class, hint = "dns" )
 public class DNSDiscoveryStrategy
-    implements NexusDiscoveryStrategy
+    implements MirrorDiscoveryStrategy
 {
 
     public LinkedHashSet<String> findNexusCandidates()

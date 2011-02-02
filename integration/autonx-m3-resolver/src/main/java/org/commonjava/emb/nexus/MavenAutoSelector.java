@@ -35,21 +35,22 @@ public class MavenAutoSelector
 
     public Mirror getMirror( final ArtifactRepository repository, final List<Mirror> mirrors )
     {
-        if ( library.getLogger().isDebugEnabled() )
+        if ( getLogger().isDebugEnabled() )
         {
-            library.getLogger().debug( "MAVEN-SELECT: " + repository.getUrl() );
+            getLogger().debug( "MAVEN-SELECT: " + repository.getUrl() );
         }
-        Mirror mirror = null;
 
-        if ( !autonxConfig.isDisabled() )
+        Mirror mirror = delegateSelector.getMirror( repository, mirrors );
+
+        if ( mirror == null && !autonxConfig.isDisabled() )
         {
             final String repoUrl = repository.getUrl();
             final String mirrorUrl = autodetectedMirrors.get( repoUrl );
             if ( mirrorUrl != null )
             {
-                if ( library.getLogger().isDebugEnabled() )
+                if ( getLogger().isDebugEnabled() )
                 {
-                    library.getLogger().debug( "\t\t====> " + mirrorUrl );
+                    getLogger().debug( "\t\t====> " + mirrorUrl );
                 }
 
                 mirror = new Mirror();
@@ -60,26 +61,20 @@ public class MavenAutoSelector
             }
             else
             {
-                if ( library.getLogger().isDebugEnabled() )
+                if ( getLogger().isDebugEnabled() )
                 {
-                    library.getLogger().debug( "MAVEN-SELECT: no auto-mirror found." );
+                    getLogger().debug( "MAVEN-SELECT: no auto-mirror found." );
                 }
             }
         }
         else
         {
-            if ( library.getLogger().isDebugEnabled() )
+            if ( getLogger().isDebugEnabled() )
             {
-                library.getLogger().debug( "MAVEN-SELECT disabled." );
+                getLogger().debug( "MAVEN-SELECT disabled." );
             }
         }
 
-        if ( mirror == null )
-        {
-            mirror = delegateSelector.getMirror( repository, mirrors );
-        }
-
-        // if useMirrors == false, this will be NULL...but the repository URL will have been modded.
         return mirror;
     }
 

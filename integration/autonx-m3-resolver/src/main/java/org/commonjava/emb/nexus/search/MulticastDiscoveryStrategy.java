@@ -34,7 +34,7 @@ import java.util.Properties;
 // usage/sysadmin implications of multicast...
 //@Component( role = NexusDiscoveryStrategy.class, hint = "multicast" )
 public class MulticastDiscoveryStrategy
-    implements NexusDiscoveryStrategy
+    implements MirrorDiscoveryStrategy
 {
 
     public static InetAddress MULTICAST;
