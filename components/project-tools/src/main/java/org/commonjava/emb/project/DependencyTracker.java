@@ -55,11 +55,11 @@ public class DependencyTracker
 
     private String projectId;
 
-    private final DependencyGraphTracker graph;
+    // private final DependencyGraphTracker graph;
 
     public DependencyTracker( final DependencyNode node, final DependencyGraphTracker graph )
     {
-        this.graph = graph;
+        // this.graph = graph;
         nodes.add( node );
         if ( node.getRepositories() != null )
         {
@@ -75,7 +75,7 @@ public class DependencyTracker
 
     public DependencyTracker( final Artifact artifact, final DependencyGraphTracker graph )
     {
-        this.graph = graph;
+        // this.graph = graph;
         projectId = projectId( artifact );
         latestArtifact = artifact;
     }
@@ -96,7 +96,7 @@ public class DependencyTracker
         // parentTrails.add( trail );
     }
 
-    public void merge( final DependencyNode node, final List<DependencyNode> depTrail )
+    public void merge( final DependencyNode node )
     {
         nodes.add( node );
         if ( node.getRepositories() != null )

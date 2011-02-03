@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -267,6 +266,8 @@ public class DependencyGraphResolver
     {
         private final LinkedList<DependencyNode> parents = new LinkedList<DependencyNode>();
 
+        private final Set<DependencyNode> seen = new HashSet<DependencyNode>();
+
         private final Set<Exclusion> exclusions = new HashSet<Exclusion>();
 
         private final Set<Exclusion> lastExclusions = new HashSet<Exclusion>();
@@ -292,6 +293,10 @@ public class DependencyGraphResolver
             {
                 return true;
             }
+            else if ( seen.contains( node ) )
+            {
+                return false;
+            }
 
             if ( LOGGER.isDebugEnabled() )
             {
@@ -306,9 +311,8 @@ public class DependencyGraphResolver
                 {
                     LOGGER.debug( "Enabling resolution for: " + node );
                 }
-                final List<DependencyNode> depTrail = new ArrayList<DependencyNode>( parents );
 
-                graphState.track( node, depTrail );
+                graphState.track( node );
                 if ( node.getDependency().getExclusions() != null )
                 {
                     for ( final Exclusion exclusion : node.getDependency().getExclusions() )
@@ -349,6 +353,8 @@ public class DependencyGraphResolver
                                     + node.getDependency().getArtifact() );
                 }
             }
+
+            seen.add( node );
 
             return result;
         }

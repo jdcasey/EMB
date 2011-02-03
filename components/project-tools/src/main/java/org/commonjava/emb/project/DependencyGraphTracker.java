@@ -27,7 +27,6 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -91,7 +90,7 @@ public class DependencyGraphTracker
         return state;
     }
 
-    public synchronized DependencyTracker track( final DependencyNode node, final List<DependencyNode> depTrail )
+    public synchronized DependencyTracker track( final DependencyNode node )
     {
         if ( node == null || node.getDependency() == null || node.getDependency().getArtifact() == null )
         {
@@ -119,7 +118,7 @@ public class DependencyGraphTracker
         }
         else
         {
-            state.merge( node, depTrail );
+            state.merge( node );
         }
 
         return state;
