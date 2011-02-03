@@ -36,6 +36,5 @@
   </build>
   <modules>
     <module>nexus-autonx-plugin</module>
-    <module>autonx-m3-resolver</module>
   </modules>
 </project>

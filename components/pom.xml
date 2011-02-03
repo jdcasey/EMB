@@ -74,7 +74,7 @@
     <module>maven-scm-support</module>
     <module>autoboxing-version-range</module>
     <module>project-tools</module>
-    <module>keychain</module>
+    <module>auto-mirror</module>
   </modules>
 
 </project>
