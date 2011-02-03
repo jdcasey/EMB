@@ -131,4 +131,9 @@ public class RouterMirrorsMapping
         return true;
     }
 
+    public boolean containsMirrorOf( final String url )
+    {
+        return mirrorsByUrl.containsKey( url );
+    }
+
 }

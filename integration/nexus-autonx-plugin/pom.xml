@@ -87,6 +87,11 @@
     </dependency>
     <!-- #ITSet ENDS -->
 
+    <dependency>
+    	<groupId>org.commonjava.emb.components</groupId>
+    	<artifactId>emb-auto-mirror</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <!-- #ITSet BEGINS -->
