@@ -68,7 +68,7 @@ public class MavenAutoSelector
             {
                 if ( getLogger().isDebugEnabled() )
                 {
-                    getLogger().debug( "\t\t====> " + rMirror );
+                    getLogger().debug( "\t==> " + rMirror );
                 }
 
                 mirror = new Mirror();
