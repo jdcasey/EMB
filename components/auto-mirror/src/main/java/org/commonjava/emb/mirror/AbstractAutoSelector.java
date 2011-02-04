@@ -27,7 +27,9 @@ import org.commonjava.emb.mirror.model.RouterMirrorsMapping;
 import org.commonjava.emb.mirror.resolve.AutoMirrorResolver;
 import org.commonjava.emb.mirror.search.RouterDiscoveryStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 abstract class AbstractAutoSelector
     implements Initializable
@@ -44,7 +46,7 @@ abstract class AbstractAutoSelector
     protected AutoMirrorConfiguration config;
 
     @Requirement( role = RouterDiscoveryStrategy.class )
-    private List<RouterDiscoveryStrategy> strategies;
+    private Map<String, RouterDiscoveryStrategy> strategies;
 
     @Requirement
     private AutoMirrorResolver mirrorResolver;
@@ -67,14 +69,43 @@ abstract class AbstractAutoSelector
                 }
                 else
                 {
-                    String routerUrl = null;
-                    for ( final RouterDiscoveryStrategy strategy : strategies )
+                    final String[] discoStrategies = config.getDiscoveryStrategies();
+                    final List<RouterDiscoveryStrategy> strats = new ArrayList<RouterDiscoveryStrategy>();
+                    if ( discoStrategies.length == 1 )
                     {
-                        if ( strategy == null )
+                        final String key = discoStrategies[0];
+                        if ( AutoMirrorConfiguration.NO_DISCOVERY_STRATEGIES.equalsIgnoreCase( key ) )
                         {
-                            continue;
+                            // NOP
                         }
+                        else if ( AutoMirrorConfiguration.ALL_DISCOVERY_STRATEGIES.equalsIgnoreCase( key ) )
+                        {
+                            strats.addAll( strategies.values() );
+                        }
+                        else
+                        {
+                            final RouterDiscoveryStrategy strat = getDiscoveryStrategy( key );
+                            if ( strat != null )
+                            {
+                                strats.add( strat );
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for ( final String key : discoStrategies )
+                        {
+                            final RouterDiscoveryStrategy strat = getDiscoveryStrategy( key );
+                            if ( strat != null )
+                            {
+                                strats.add( strat );
+                            }
+                        }
+                    }
 
+                    String routerUrl = null;
+                    for ( final RouterDiscoveryStrategy strategy : strats )
+                    {
                         routerUrl = strategy.findRouter();
                         if ( routerUrl != null && !routerUrl.trim().isEmpty() )
                         {
@@ -103,6 +134,22 @@ abstract class AbstractAutoSelector
         }
 
         initialized = true;
+    }
+
+    private RouterDiscoveryStrategy getDiscoveryStrategy( final String key )
+    {
+        RouterDiscoveryStrategy strat = strategies.get( key );
+        if ( strat == null )
+        {
+            strat = strategies.get( key.toLowerCase() );
+        }
+
+        if ( strat == null )
+        {
+            library.getLogger().warn( "Cannot find RouterDiscoveryStrategy with hint: '" + key + "'" );
+        }
+
+        return strat;
     }
 
     protected Logger getLogger()

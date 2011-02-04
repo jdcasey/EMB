@@ -8,6 +8,7 @@ import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.conf.EMBLibrary;
 import org.commonjava.emb.internal.plexus.EMBPlexusContainer;
+import org.commonjava.emb.mirror.conf.AutoMirrorConfiguration;
 import org.commonjava.emb.mirror.conf.AutoMirrorLibrary;
 import org.commonjava.emb.mirror.fixture.MirrorSelectorUser;
 import org.junit.Test;
@@ -22,14 +23,16 @@ public class AutoMirrorSelectorTest
         throws Throwable
     {
         final ContainerConfiguration config = new DefaultContainerConfiguration().setClassPathScanning( true );
-        final AutoMirrorLibrary lib = new AutoMirrorLibrary();
+
+        final AutoMirrorConfiguration autoMirrorConfig =
+            new AutoMirrorConfiguration().setDiscoveryStrategies( AutoMirrorConfiguration.NO_DISCOVERY_STRATEGIES );
+
+        final AutoMirrorLibrary lib = new AutoMirrorLibrary( autoMirrorConfig );
 
         final EMBConfiguration embConfig = new EMBConfiguration().withConfigurationDirectory( getResourceFile( "m2" ) );
 
-        lib.loadConfiguration( embConfig );
-
-        lib.getInstanceRegistry().add( EMBLibrary.class, "automirror", lib );
-        lib.getInstanceRegistry().add( lib.getConfiguration() );
+        lib.getInstanceRegistry().add( EMBLibrary.class, AutoMirrorLibrary.HINT, lib );
+        lib.getInstanceRegistry().add( autoMirrorConfig );
         lib.getInstanceRegistry().add( embConfig );
 
         final EMBPlexusContainer container =

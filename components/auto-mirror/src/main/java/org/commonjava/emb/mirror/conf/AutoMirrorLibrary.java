@@ -33,11 +33,21 @@ public class AutoMirrorLibrary
 
     public AutoMirrorLibrary()
     {
+        this( null );
+    }
+
+    public AutoMirrorLibrary( final AutoMirrorConfiguration config )
+    {
         super( HINT, "AutoMirror", new MavenPomVersionProvider( "org.commonjava.emb.components", "emb-auto-mirror" ),
                new AutoMirrorConfigLoader(),
                new ComponentSelector().setSelection( MirrorSelector.class, HINT )
                                       .setSelection( org.sonatype.aether.repository.MirrorSelector.class, HINT )
                                       .setSelection( LegacySupport.class, HINT ) );
+
+        if ( config != null )
+        {
+            setConfiguration( config );
+        }
     }
 
 }

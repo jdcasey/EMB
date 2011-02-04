@@ -43,6 +43,8 @@ public class AutoMirrorConfigLoader
 
     private static final String KEY_DISABLED = "disabled";
 
+    private static final String KEY_DISCOVERY_STRATEGIES = "discovery-strategies";
+
     public Class<? extends ExtensionConfiguration> getExtensionConfigurationClass()
     {
         return AutoMirrorConfiguration.class;
@@ -68,6 +70,12 @@ public class AutoMirrorConfigLoader
 
                 final String user = p.getProperty( KEY_ROUTER_USER );
                 final String pass = p.getProperty( KEY_ROUTER_PASSWORD );
+
+                final String[] strat =
+                    p.getProperty( KEY_DISCOVERY_STRATEGIES, AutoMirrorConfiguration.ALL_DISCOVERY_STRATEGIES )
+                     .split( "\\s*,\\s*" );
+
+                config.setDiscoveryStrategies( strat );
 
                 if ( isNotBlank( user ) && isNotBlank( pass ) )
                 {

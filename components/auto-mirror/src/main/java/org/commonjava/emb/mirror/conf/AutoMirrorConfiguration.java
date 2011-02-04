@@ -25,11 +25,17 @@ public class AutoMirrorConfiguration
 
     private static final String CANONICAL_ROUTER_URL = "http://repository.apache.org/router/mirrors.json";
 
+    public static final String ALL_DISCOVERY_STRATEGIES = "all";
+
+    public static final String NO_DISCOVERY_STRATEGIES = "none";
+
     private String routerUrl;
 
     private UsernamePasswordCredentials routerCredentials;
 
     private boolean disabled = false;
+
+    private String[] discoveryStrategies;
 
     public AutoMirrorConfiguration withRouterCredentials( final String user, final String password )
     {
@@ -67,6 +73,17 @@ public class AutoMirrorConfiguration
     public String getCanonicalRouterUrl()
     {
         return CANONICAL_ROUTER_URL;
+    }
+
+    public String[] getDiscoveryStrategies()
+    {
+        return discoveryStrategies;
+    }
+
+    public AutoMirrorConfiguration setDiscoveryStrategies( final String... strategies )
+    {
+        discoveryStrategies = strategies;
+        return this;
     }
 
 }
