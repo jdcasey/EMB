@@ -35,7 +35,7 @@ public class AutoMirrorConfiguration
 
     private boolean disabled = false;
 
-    private String[] discoveryStrategies;
+    private String[] discoveryStrategies = { ALL_DISCOVERY_STRATEGIES };
 
     public AutoMirrorConfiguration withRouterCredentials( final String user, final String password )
     {
@@ -77,7 +77,7 @@ public class AutoMirrorConfiguration
 
     public String[] getDiscoveryStrategies()
     {
-        return discoveryStrategies;
+        return discoveryStrategies == null ? new String[0] : discoveryStrategies;
     }
 
     public AutoMirrorConfiguration setDiscoveryStrategies( final String... strategies )

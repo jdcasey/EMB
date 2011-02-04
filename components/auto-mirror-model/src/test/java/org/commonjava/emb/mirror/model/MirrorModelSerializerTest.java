@@ -1,6 +1,7 @@
 package org.commonjava.emb.mirror.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -14,8 +15,7 @@ public class MirrorModelSerializerTest
     {
         final RouterMirrorsMapping mirrorMap =
             new RouterMirrorsMapping().addMirror( "http://repo1.maven.org/maven2",
-                                                 new RouterMirror( "central", "http://localhost:8081/nexus", 99,
-                                                                       true ) );
+                                                  new RouterMirror( "central", "http://localhost:8081/nexus", 99, true ) );
 
         final StringWriter sw = new StringWriter();
         RouterMirrorSerializer.serialize( mirrorMap, sw );
@@ -28,8 +28,7 @@ public class MirrorModelSerializerTest
     {
         final RouterMirrorsMapping mirrorMap =
             new RouterMirrorsMapping().addMirror( "http://repo1.maven.org/maven2",
-                                                 new RouterMirror( "central", "http://localhost:8081/nexus", 99,
-                                                                       true ) );
+                                                  new RouterMirror( "central", "http://localhost:8081/nexus", 99, true ) );
 
         System.out.println( RouterMirrorSerializer.serializeToString( mirrorMap ) );
     }
@@ -39,13 +38,13 @@ public class MirrorModelSerializerTest
     {
         final RouterMirrorsMapping mirrorMap =
             new RouterMirrorsMapping().addMirror( "http://repo1.maven.org/maven2",
-                                                 new RouterMirror( "central", "http://localhost:8081/nexus", 99,
-                                                                       true ) );
+                                                  new RouterMirror( "central", "http://localhost:8081/nexus", 99, true ) );
 
         final String ser = RouterMirrorSerializer.serializeToString( mirrorMap );
         final RouterMirrorsMapping result = RouterMirrorSerializer.deserialize( ser );
 
         assertEquals( mirrorMap, result );
+        assertTrue( result.getHighestPriorityMirror( "http://repo1.maven.org/maven2" ).isEnabled() );
     }
 
 }

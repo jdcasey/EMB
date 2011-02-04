@@ -44,6 +44,16 @@ public class MavenAutoSelector
 
         Mirror mirror = delegateSelector.getMirror( repository, mirrors );
 
+        if ( mirror != null )
+        {
+            if ( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug( "MAVEN-SELECT using mirror from settings.xml." );
+            }
+
+            return mirror;
+        }
+
         if ( mirror == null && !config.isDisabled() )
         {
             final String repoUrl = repository.getUrl();

@@ -133,6 +133,11 @@ abstract class AbstractAutoSelector
             }
         }
 
+        if ( mirrorMapping == null )
+        {
+            mirrorMapping = new RouterMirrorsMapping();
+        }
+
         initialized = true;
     }
 

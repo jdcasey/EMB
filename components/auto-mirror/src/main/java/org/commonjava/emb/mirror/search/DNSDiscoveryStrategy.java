@@ -74,7 +74,7 @@ public class DNSDiscoveryStrategy
                 final Attributes attrs;
                 try
                 {
-                    attrs = jndiContext.getAttributes( "_nexus." + domain, new String[] { "TXT" } );
+                    attrs = jndiContext.getAttributes( "_maven." + domain, new String[] { "TXT" } );
                 }
                 catch ( final NamingException e )
                 {

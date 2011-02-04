@@ -16,14 +16,14 @@ package org.commonjava.emb.mirror.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class RouterMirrorsMapping
 {
 
     @SerializedName( "rows" )
-    private final Map<String, RouterMirrors> mirrorsByUrl = new HashMap<String, RouterMirrors>();
+    private final Map<String, RouterMirrors> mirrorsByUrl = new LinkedHashMap<String, RouterMirrors>();
 
     public RouterMirrorsMapping addMirrorCollection( final String url, final RouterMirrors collection )
     {
@@ -33,7 +33,7 @@ public class RouterMirrorsMapping
 
     public RouterMirror getSelectedMirror( final String url )
     {
-        final RouterMirrors mirrors = mirrorsByUrl.get( url );
+        final RouterMirrors mirrors = getMirrorsFor( url );
         if ( mirrors != null )
         {
             return mirrors.getSelectedMirror();
@@ -44,7 +44,7 @@ public class RouterMirrorsMapping
 
     public RouterMirror getHighestPriorityMirror( final String url )
     {
-        final RouterMirrors mirrors = mirrorsByUrl.get( url );
+        final RouterMirrors mirrors = getMirrorsFor( url );
         if ( mirrors != null )
         {
             return mirrors.getHighestPriorityMirror();
@@ -55,7 +55,7 @@ public class RouterMirrorsMapping
 
     public RouterMirror getWeightedRandomSuggestion( final String url )
     {
-        final RouterMirrors mirrors = mirrorsByUrl.get( url );
+        final RouterMirrors mirrors = getMirrorsFor( url );
         if ( mirrors != null )
         {
             return mirrors.getWeightedRandomSuggestion();
@@ -76,7 +76,7 @@ public class RouterMirrorsMapping
 
     public synchronized RouterMirrorsMapping addMirror( final String url, final RouterMirror mirror )
     {
-        RouterMirrors collection = mirrorsByUrl.get( url );
+        RouterMirrors collection = getMirrorsFor( url );
         if ( collection == null )
         {
             collection = new RouterMirrors();
@@ -89,7 +89,20 @@ public class RouterMirrorsMapping
 
     public RouterMirrors getMirrorsFor( final String url )
     {
-        return mirrorsByUrl.get( url );
+        RouterMirrors mirrors = mirrorsByUrl.get( url );
+        if ( mirrors == null )
+        {
+            if ( url.endsWith( "/" ) )
+            {
+                mirrors = mirrorsByUrl.get( url.substring( 0, url.length() - 1 ) );
+            }
+            else
+            {
+                mirrors = mirrorsByUrl.get( url + "/" );
+            }
+        }
+
+        return mirrors;
     }
 
     @Override
@@ -133,7 +146,7 @@ public class RouterMirrorsMapping
 
     public boolean containsMirrorOf( final String url )
     {
-        return mirrorsByUrl.containsKey( url );
+        return getMirrorsFor( url ) != null;
     }
 
 }

@@ -55,6 +55,16 @@ public class AetherAutoSelector
             mirror = delegate.getMirror( repository );
         }
 
+        if ( mirror != null )
+        {
+            if ( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug( "AETHER-SELECT using mirror from settings.xml." );
+            }
+
+            return mirror;
+        }
+
         if ( mirror == null && !config.isDisabled() )
         {
             final String repoUrl = repository.getUrl();
@@ -82,7 +92,10 @@ public class AetherAutoSelector
                 mirror.setPolicy( false, repository.getPolicy( false ) );
 
                 final UsernamePasswordCredentials creds = config.getRouterCredentials();
-                mirror.setAuthentication( new Authentication( creds.getUserName(), creds.getPassword() ) );
+                if ( creds != null )
+                {
+                    mirror.setAuthentication( new Authentication( creds.getUserName(), creds.getPassword() ) );
+                }
 
                 mirror.setMirroredRepositories( Collections.singletonList( repository ) );
             }

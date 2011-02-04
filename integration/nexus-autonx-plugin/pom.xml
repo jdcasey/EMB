@@ -89,7 +89,7 @@
 
     <dependency>
     	<groupId>org.commonjava.emb.components</groupId>
-    	<artifactId>emb-auto-mirror</artifactId>
+    	<artifactId>emb-auto-mirror-model</artifactId>
     	<version>${project.version}</version>
     </dependency>
   </dependencies>

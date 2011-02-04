@@ -34,8 +34,11 @@ public class RouterMirrors
 
     public synchronized RouterMirrors addMirror( final RouterMirror mirror )
     {
-        mirrors.add( mirror );
-        indexGrabBag = null;
+        if ( !mirrors.contains( mirror ) )
+        {
+            mirrors.add( mirror );
+            indexGrabBag = null;
+        }
 
         return this;
     }

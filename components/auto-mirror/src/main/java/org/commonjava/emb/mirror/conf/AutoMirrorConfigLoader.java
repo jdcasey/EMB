@@ -19,6 +19,7 @@ package org.commonjava.emb.mirror.conf;
 import static org.codehaus.plexus.util.IOUtil.close;
 import static org.codehaus.plexus.util.StringUtils.isNotBlank;
 
+import org.apache.log4j.Logger;
 import org.commonjava.emb.conf.EMBConfiguration;
 import org.commonjava.emb.conf.ext.ExtensionConfiguration;
 import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
@@ -45,6 +46,8 @@ public class AutoMirrorConfigLoader
 
     private static final String KEY_DISCOVERY_STRATEGIES = "discovery-strategies";
 
+    private final Logger logger = Logger.getLogger( AutoMirrorLibrary.HINT );
+
     public Class<? extends ExtensionConfiguration> getExtensionConfigurationClass()
     {
         return AutoMirrorConfiguration.class;
@@ -58,6 +61,7 @@ public class AutoMirrorConfigLoader
 
         if ( configFile.exists() )
         {
+            logger.info( "Loading configuration file: " + configFile );
             FileInputStream stream = null;
             try
             {
@@ -92,6 +96,10 @@ public class AutoMirrorConfigLoader
             {
                 close( stream );
             }
+        }
+        else
+        {
+            logger.info( "Cannot find configuration file: " + configFile + ". Using defaults." );
         }
 
         return config;
