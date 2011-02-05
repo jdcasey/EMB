@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project;
-
-import static org.apache.maven.artifact.ArtifactUtils.key;
+package org.commonjava.emb.project.graph;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;
@@ -25,6 +23,7 @@ import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.commonjava.emb.project.ProjectToolsSession;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
@@ -65,19 +64,18 @@ public class DependencyGraphResolver
     @Requirement
     private RepositorySystem repositorySystem;
 
-    public DependencyGraphTracker resolveGraph( final Collection<MavenProject> rootProjects,
-                                                RepositorySystemSession rss, final ProjectToolsSession session )
+    public DependencyGraph resolveGraph( final Collection<MavenProject> rootProjects, RepositorySystemSession rss,
+                                         final ProjectToolsSession session )
     {
         rss = prepareForGraphResolution( rss );
 
-        final DependencyGraphTracker graphState =
-            accumulate( session, rss, rootProjects, session.getRemoteRepositoriesArray() );
+        final DependencyGraph depGraph = accumulate( session, rss, rootProjects, session.getRemoteRepositoriesArray() );
 
-        resolve( rss, rootProjects, graphState );
+        resolve( rss, rootProjects, depGraph );
 
-        LOGGER.info( "Graph state contains: " + graphState.size() + " nodes." );
+        LOGGER.info( "Graph state contains: " + depGraph.size() + " nodes." );
 
-        return graphState;
+        return depGraph;
     }
 
     // TODO: Allow fine-tuning of scopes resolved...
@@ -90,27 +88,21 @@ public class DependencyGraphResolver
     }
 
     private void resolve( final RepositorySystemSession session, final Collection<MavenProject> rootProjects,
-                          final DependencyGraphTracker graphState )
+                          final DependencyGraph depGraph )
     {
-        final Set<String> rootProjectIds = new HashSet<String>();
-        for ( final MavenProject project : rootProjects )
-        {
-            rootProjectIds.add( key( project.getGroupId(), project.getArtifactId(), project.getVersion() ) );
-        }
-
         final Set<DependencyResolveWorker> workers = new HashSet<DependencyResolveWorker>();
-        for ( final DependencyTracker depState : graphState.getDependencyTrackers() )
+        for ( final DepGraphNode node : depGraph )
         {
-            if ( depState == null || depState.hasErrors() || rootProjectIds.contains( depState.getProjectId() ) )
+            if ( node == null || node.hasErrors() || node.isPreResolved() )
             {
                 continue;
             }
 
             if ( LOGGER.isDebugEnabled() )
             {
-                LOGGER.debug( "Resolving: " + depState.getLatestArtifact() );
+                LOGGER.debug( "Resolving: " + node.getLatestArtifact() );
             }
-            workers.add( new DependencyResolveWorker( depState, session, repositorySystem ) );
+            workers.add( new DependencyResolveWorker( node, session, repositorySystem ) );
         }
 
         runResolve( workers );
@@ -178,14 +170,14 @@ public class DependencyGraphResolver
         }
     }
 
-    private DependencyGraphTracker accumulate( final ProjectToolsSession session, final RepositorySystemSession rss,
-                                               final Collection<MavenProject> projects,
-                                               final RemoteRepository... remoteRepositories )
+    private DependencyGraph accumulate( final ProjectToolsSession session, final RepositorySystemSession rss,
+                                        final Collection<MavenProject> projects,
+                                        final RemoteRepository... remoteRepositories )
     {
         final ArtifactTypeRegistry stereotypes = rss.getArtifactTypeRegistry();
 
-        final DependencyGraphTracker graphState = session.getGraphTracker();
-        final GraphAccumulator accumulator = new GraphAccumulator( graphState );
+        final DependencyGraph depGraph = session.getDependencyGraph();
+        final GraphAccumulator accumulator = new GraphAccumulator( depGraph );
 
         for ( final MavenProject project : projects )
         {
@@ -252,13 +244,13 @@ public class DependencyGraphResolver
                 // + project.getId() + ": " + e.getMessage(), e );
             }
 
-            graphState.addGraphRoot( project, result.getRoot() );
+            depGraph.addRoot( result.getRoot(), project );
             result.getRoot().accept( accumulator );
 
             accumulator.resetForNextRun();
         }
 
-        return graphState;
+        return depGraph;
     }
 
     private static final class GraphAccumulator
@@ -272,11 +264,11 @@ public class DependencyGraphResolver
 
         private final Set<Exclusion> lastExclusions = new HashSet<Exclusion>();
 
-        private final DependencyGraphTracker graphState;
+        private final DependencyGraph depGraph;
 
-        GraphAccumulator( final DependencyGraphTracker graphState )
+        GraphAccumulator( final DependencyGraph depGraph )
         {
-            this.graphState = graphState;
+            this.depGraph = depGraph;
         }
 
         void resetForNextRun()
@@ -312,7 +304,9 @@ public class DependencyGraphResolver
                     LOGGER.debug( "Enabling resolution for: " + node );
                 }
 
-                graphState.track( node );
+                final DependencyNode parent = parents.isEmpty() ? null : parents.getFirst();
+                depGraph.addDependency( parent, node );
+
                 if ( node.getDependency().getExclusions() != null )
                 {
                     for ( final Exclusion exclusion : node.getDependency().getExclusions() )
@@ -426,7 +420,7 @@ public class DependencyGraphResolver
         implements Runnable
     {
 
-        private final DependencyTracker depState;
+        private final DepGraphNode depState;
 
         private final RepositorySystemSession session;
 
@@ -436,7 +430,7 @@ public class DependencyGraphResolver
 
         private CountDownLatch latch;
 
-        DependencyResolveWorker( final DependencyTracker depState, final RepositorySystemSession session,
+        DependencyResolveWorker( final DepGraphNode depState, final RepositorySystemSession session,
                                  final RepositorySystem repositorySystem )
         {
             this.depState = depState;
@@ -479,7 +473,7 @@ public class DependencyGraphResolver
             }
             finally
             {
-                depState.setResult( result );
+                depState.merge( result );
                 if ( latch != null )
                 {
                     latch.countDown();

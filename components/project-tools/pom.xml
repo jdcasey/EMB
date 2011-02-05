@@ -71,5 +71,10 @@
     	<artifactId>maven-aether-provider</artifactId>
     	<scope>compile</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.commonjava.emb.components</groupId>
+    	<artifactId>emb-graph-support</artifactId>
+    	<version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

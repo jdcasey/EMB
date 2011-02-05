@@ -36,6 +36,8 @@ import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.commonjava.emb.EMBException;
+import org.commonjava.emb.project.graph.DependencyGraph;
+import org.commonjava.emb.project.graph.DependencyGraphResolver;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.ArtifactRequest;
@@ -78,8 +80,8 @@ public class ProjectLoader
     @Requirement
     private ProjectToolsSessionInjector sessionInjector;
 
-    public DependencyGraphTracker resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
-                                                              final boolean includeModuleProjects )
+    public DependencyGraph resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
+                                                       final boolean includeModuleProjects )
         throws EMBException
     {
         List<MavenProject> projects;
@@ -94,7 +96,7 @@ public class ProjectLoader
 
         dependencyGraphResolver.resolveGraph( projects, sessionInjector.getRepositorySystemSession( session ), session );
 
-        return session.getGraphTracker();
+        return session.getDependencyGraph();
     }
 
     public List<MavenProject> buildReactorProjectInstances( final ProjectToolsSession session, final File... rootPoms )
@@ -189,36 +191,32 @@ public class ProjectLoader
 
     private void addProjects( final ProjectToolsSession session, final List<MavenProject> projects )
     {
-        final DependencyGraphTracker graphState = session.getGraphTracker();
+        final DependencyGraph depGraph = session.getDependencyGraph();
         for ( final MavenProject project : projects )
         {
-            final LinkedList<MavenProject> parentage = new LinkedList<MavenProject>();
-            parentage.addFirst( project );
-
-            MavenProject parent = project.getParent();
+            final LinkedList<Artifact> parentage = new LinkedList<Artifact>();
+            MavenProject parent = project;
             while ( parent != null )
             {
-                parentage.addFirst( parent );
+                final org.apache.maven.artifact.Artifact pomArtifact =
+                    mavenRepositorySystem.createArtifact( project.getGroupId(), project.getArtifactId(),
+                                                          project.getVersion(), "pom" );
+
+                final Artifact aetherPomArtifact = RepositoryUtils.toArtifact( pomArtifact );
+
+                parentage.addFirst( aetherPomArtifact );
+
                 parent = parent.getParent();
             }
 
-            MavenProject current = parentage.removeFirst();
+            Artifact current = parentage.removeFirst();
             while ( !parentage.isEmpty() )
             {
-                DependencyTracker depState = graphState.getDependencyState( current );
+                final Artifact next = parentage.getFirst();
 
-                if ( depState == null )
-                {
-                    final org.apache.maven.artifact.Artifact pomArtifact =
-                        mavenRepositorySystem.createArtifact( current.getGroupId(), current.getArtifactId(),
-                                                              current.getVersion(), "pom" );
-
-                    final Artifact aetherPomArtifact = RepositoryUtils.toArtifact( pomArtifact );
-
-                    depState = graphState.track( aetherPomArtifact );
-                }
-
-                depState.addParentTrail( parentage );
+                // This is WEIRD, but the parent POM is actually a dependency of the current one,
+                // since it's required in order to build the current project...
+                depGraph.addDependency( next, current, true, true );
 
                 if ( !parentage.isEmpty() )
                 {

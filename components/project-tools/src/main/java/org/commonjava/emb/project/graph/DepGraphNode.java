@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project;
-
-import static org.apache.maven.artifact.ArtifactUtils.key;
+package org.commonjava.emb.project.graph;
 
 import org.apache.log4j.Logger;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -37,13 +35,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DependencyTracker
+public class DepGraphNode
     implements Iterable<Throwable>
 {
 
-    private static final Logger LOGGER = Logger.getLogger( DependencyTracker.class );
+    private static final Logger LOGGER = Logger.getLogger( DepGraphNode.class );
 
-    private final Set<DependencyNode> nodes = new LinkedHashSet<DependencyNode>();
+    private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
 
     private Artifact latestArtifact;
 
@@ -53,52 +51,48 @@ public class DependencyTracker
 
     private final Map<String, ArtifactResult> results = new HashMap<String, ArtifactResult>();
 
-    private String projectId;
+    private String key;
 
-    // private final DependencyGraphTracker graph;
+    private final boolean preResolved;
 
-    public DependencyTracker( final DependencyNode node, final DependencyGraphTracker graph )
+    public DepGraphNode( final DependencyNode node )
     {
-        // this.graph = graph;
-        nodes.add( node );
-        if ( node.getRepositories() != null )
-        {
-            remoteRepositories.addAll( node.getRepositories() );
-        }
+        this( node, false );
+    }
+
+    protected DepGraphNode( final DependencyNode node, final boolean preResolved )
+    {
+        merge( node );
 
         if ( node.getDependency() != null )
         {
             latestArtifact = node.getDependency().getArtifact();
-            projectId = projectId( latestArtifact );
+            key = key( latestArtifact );
         }
+
+        this.preResolved = preResolved;
     }
 
-    public DependencyTracker( final Artifact artifact, final DependencyGraphTracker graph )
+    public DepGraphNode( final Artifact artifact, final boolean preResolved )
     {
-        // this.graph = graph;
-        projectId = projectId( artifact );
+        key = key( artifact );
         latestArtifact = artifact;
+        this.preResolved = preResolved;
     }
 
-    static String projectId( final Artifact a )
+    static String key( final Artifact a )
     {
-        return key( a.getGroupId(), a.getArtifactId(), a.getBaseVersion() );
+        return ArtifactUtils.key( a.getGroupId(), a.getArtifactId(), a.getBaseVersion() );
     }
 
-    public void addParentTrail( final List<MavenProject> descendants )
+    public boolean isPreResolved()
     {
-        final List<String> trail = new ArrayList<String>( descendants.size() );
-        for ( final MavenProject project : descendants )
-        {
-            trail.add( key( project.getGroupId(), project.getArtifactId(), project.getVersion() ) );
-        }
-
-        // parentTrails.add( trail );
+        return preResolved;
     }
 
     public void merge( final DependencyNode node )
     {
-        nodes.add( node );
+        nodes.add( new DisconnectedDepNode( node ) );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );
@@ -110,17 +104,7 @@ public class DependencyTracker
         }
     }
 
-    public ArtifactResult getResult( final String extension )
-    {
-        return results.get( extension );
-    }
-
-    public Collection<ArtifactResult> getResults()
-    {
-        return new HashSet<ArtifactResult>( results.values() );
-    }
-
-    public synchronized void setResult( final ArtifactResult result )
+    public synchronized void merge( final ArtifactResult result )
     {
         if ( result.getArtifact() != null && result.getArtifact().getFile() != null )
         {
@@ -148,8 +132,8 @@ public class DependencyTracker
         }
         else
         {
-            LOGGER.error( "PANIC: Cannot find artifact extension to file artifact result (project: " + getProjectId()
-                            + ": " + result );
+            LOGGER.error( "PANIC: Cannot find artifact extension to file artifact result (project: " + getKey() + ": "
+                            + result );
         }
 
         if ( ext != null )
@@ -167,6 +151,16 @@ public class DependencyTracker
         }
     }
 
+    public ArtifactResult getResult( final String extension )
+    {
+        return results.get( extension );
+    }
+
+    public Collection<ArtifactResult> getResults()
+    {
+        return new HashSet<ArtifactResult>( results.values() );
+    }
+
     public synchronized ArtifactResult getLatestResult()
     {
         return latestResult;
@@ -182,9 +176,9 @@ public class DependencyTracker
         return remoteRepositories;
     }
 
-    public String getProjectId()
+    public String getKey()
     {
-        return projectId;
+        return key;
     }
 
     public synchronized boolean hasErrors()
@@ -209,7 +203,7 @@ public class DependencyTracker
     {
         final StringBuilder sb = new StringBuilder();
 
-        sb.append( "Failed to resolve: " ).append( getProjectId() );
+        sb.append( "Failed to resolve: " ).append( getKey() );
         // sb.append( "\nDependency of:" );
         //
         // for ( final List<String> parentTrail : getDependencyTrails() )
@@ -305,7 +299,7 @@ public class DependencyTracker
         builder.append( "\n    latestResult=" );
         builder.append( latestResult );
         builder.append( "\n    projectId=" );
-        builder.append( projectId );
+        builder.append( key );
         builder.append( "\n    results=" );
         builder.append( results );
         builder.append( "\n)" );
@@ -315,5 +309,10 @@ public class DependencyTracker
     public void removeResult( final String ext )
     {
         results.remove( ext );
+    }
+
+    public void merge( final Artifact child )
+    {
+        merge( new ArtifactOnlyDependencyNode( child ) );
     }
 }

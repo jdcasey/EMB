@@ -23,6 +23,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.commonjava.emb.project.graph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -42,7 +43,7 @@ public class SimpleProjectToolsSession
 
     private final Repository[] resolveRepositories;
 
-    private DependencyGraphTracker graphState;
+    private DependencyGraph dependencyGraph;
 
     private transient List<ArtifactRepository> remoteArtifactRepositories;
 
@@ -284,28 +285,28 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getGraphTracker()
+     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencyGraph()
      */
     @Override
-    public synchronized DependencyGraphTracker getGraphTracker()
+    public synchronized DependencyGraph getDependencyGraph()
     {
-        if ( graphState == null )
+        if ( dependencyGraph == null )
         {
-            graphState = new DependencyGraphTracker();
+            dependencyGraph = new DependencyGraph();
         }
 
-        return graphState;
+        return dependencyGraph;
     }
 
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.DependencyGraphTracker)
+     * @see org.commonjava.emb.project.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.graph.DependencyGraphTracker)
      */
     @Override
-    public ProjectToolsSession setGraphTracker( final DependencyGraphTracker graphState )
+    public ProjectToolsSession setDependencyGraph( final DependencyGraph dependencyGraph )
     {
-        this.graphState = graphState;
+        this.dependencyGraph = dependencyGraph;
         return this;
     }
 
@@ -318,7 +319,7 @@ public class SimpleProjectToolsSession
     public ProjectToolsSession copy()
     {
         final SimpleProjectToolsSession copy = new SimpleProjectToolsSession( workdir, resolveRepositories );
-        copy.graphState = graphState;
+        copy.dependencyGraph = dependencyGraph;
 
         copy.projectBuildingRequest =
             projectBuildingRequest == null ? null : new DefaultProjectBuildingRequest( projectBuildingRequest );

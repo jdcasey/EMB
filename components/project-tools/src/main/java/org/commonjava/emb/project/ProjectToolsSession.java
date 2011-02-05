@@ -20,6 +20,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.commonjava.emb.project.graph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -67,9 +68,9 @@ public interface ProjectToolsSession
 
     MavenProject getReactorProject( final Artifact artifact );
 
-    DependencyGraphTracker getGraphTracker();
+    DependencyGraph getDependencyGraph();
 
-    ProjectToolsSession setGraphTracker( final DependencyGraphTracker graphState );
+    ProjectToolsSession setDependencyGraph( final DependencyGraph dependencyGraph );
 
     ProjectToolsSession copy();
 
