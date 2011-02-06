@@ -119,6 +119,8 @@ public class ProjectLoader
             }
 
             session.setReactorProjects( projects );
+
+            LOGGER.info( "Adding projects to dependency graph:\n\t" + StringUtils.join( projects.iterator(), "\n\t" ) );
             addProjects( session, projects );
 
             return projects;
@@ -216,6 +218,7 @@ public class ProjectLoader
 
                 // This is WEIRD, but the parent POM is actually a dependency of the current one,
                 // since it's required in order to build the current project...
+                LOGGER.info( "Marking parent POM: " + current + " as dependency of POM: " + next );
                 depGraph.addDependency( next, current, true, true );
 
                 if ( !parentage.isEmpty() )

@@ -23,6 +23,7 @@ import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.emb.project.ProjectToolsSession;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -67,10 +68,13 @@ public class DependencyGraphResolver
     public DependencyGraph resolveGraph( final Collection<MavenProject> rootProjects, RepositorySystemSession rss,
                                          final ProjectToolsSession session )
     {
+        LOGGER.info( "Preparing for dependency-graph accumulation..." );
         rss = prepareForGraphResolution( rss );
 
+        LOGGER.info( "Accumulating dependency graph..." );
         final DependencyGraph depGraph = accumulate( session, rss, rootProjects, session.getRemoteRepositoriesArray() );
 
+        LOGGER.info( "Resolving dependencies in graph..." );
         resolve( rss, rootProjects, depGraph );
 
         LOGGER.info( "Graph state contains: " + depGraph.size() + " nodes." );
@@ -181,12 +185,14 @@ public class DependencyGraphResolver
 
         for ( final MavenProject project : projects )
         {
+            LOGGER.info( "Collecting dependencies for: " + project );
             final CollectRequest request = new CollectRequest();
             request.setRequestContext( "project" );
             request.setRepositories( Arrays.asList( remoteRepositories ) );
 
             if ( project.getDependencyArtifacts() == null )
             {
+                LOGGER.info( "Adding dependencies to collection request..." );
                 for ( final Dependency dependency : project.getDependencies() )
                 {
                     request.addDependency( RepositoryUtils.toDependency( dependency, stereotypes ) );
@@ -194,18 +200,22 @@ public class DependencyGraphResolver
             }
             else
             {
+                LOGGER.info( "Mapping project dependencies by management key..." );
                 final Map<String, Dependency> dependencies = new HashMap<String, Dependency>();
                 for ( final Dependency dependency : project.getDependencies() )
                 {
                     final String key = dependency.getManagementKey();
                     dependencies.put( key, dependency );
                 }
+
+                LOGGER.info( "Adding dependencies to collection request..." );
                 for ( final org.apache.maven.artifact.Artifact artifact : project.getDependencyArtifacts() )
                 {
                     final String key = artifact.getDependencyConflictId();
                     final Dependency dependency = dependencies.get( key );
                     final Collection<org.apache.maven.model.Exclusion> exclusions =
                         dependency != null ? dependency.getExclusions() : null;
+
                     org.sonatype.aether.graph.Dependency dep = RepositoryUtils.toDependency( artifact, exclusions );
                     if ( !JavaScopes.SYSTEM.equals( dep.getScope() ) && dep.getArtifact().getFile() != null )
                     {
@@ -221,12 +231,14 @@ public class DependencyGraphResolver
             final DependencyManagement depMngt = project.getDependencyManagement();
             if ( depMngt != null )
             {
+                LOGGER.info( "Adding managed dependencies to collection request..." );
                 for ( final Dependency dependency : depMngt.getDependencies() )
                 {
                     request.addManagedDependency( RepositoryUtils.toDependency( dependency, stereotypes ) );
                 }
             }
 
+            LOGGER.info( "Collecting dependencies..." );
             CollectResult result;
             try
             {
@@ -245,6 +257,8 @@ public class DependencyGraphResolver
             }
 
             depGraph.addRoot( result.getRoot(), project );
+
+            LOGGER.info( "Adding collected dependencies to consolidated dependency graph..." );
             result.getRoot().accept( accumulator );
 
             accumulator.resetForNextRun();
@@ -283,10 +297,12 @@ public class DependencyGraphResolver
         {
             if ( node == null || node.getDependency() == null || node.getDependency().getArtifact() == null )
             {
+                LOGGER.info( "Invalid node: " + node );
                 return true;
             }
             else if ( seen.contains( node ) )
             {
+                LOGGER.info( "SEEN: " + node );
                 return false;
             }
 
@@ -305,6 +321,8 @@ public class DependencyGraphResolver
                 }
 
                 final DependencyNode parent = parents.isEmpty() ? null : parents.getFirst();
+
+                LOGGER.info( "Adding dependency from: " + parent + " to: " + node );
                 depGraph.addDependency( parent, node );
 
                 if ( node.getDependency().getExclusions() != null )
@@ -318,6 +336,7 @@ public class DependencyGraphResolver
                     }
                 }
 
+                LOGGER.info( "Pushing node: " + node + " onto parents stack." );
                 parents.addFirst( node );
 
                 final StringBuilder builder = new StringBuilder();
@@ -348,6 +367,7 @@ public class DependencyGraphResolver
                 }
             }
 
+            LOGGER.info( "Pushing node: " + node + " onto seen stack." );
             seen.add( node );
 
             return result;
@@ -381,15 +401,21 @@ public class DependencyGraphResolver
         @Override
         public boolean visitLeave( final DependencyNode node )
         {
-            for ( final Exclusion exclusion : lastExclusions )
+            if ( node == null )
             {
-                exclusions.remove( exclusion );
+                return true;
             }
-
-            lastExclusions.clear();
 
             if ( !parents.isEmpty() && node == parents.getFirst() )
             {
+                LOGGER.info( "Removing exclusions from last node: " + node );
+                for ( final Exclusion exclusion : lastExclusions )
+                {
+                    exclusions.remove( exclusion );
+                }
+
+                lastExclusions.clear();
+
                 final StringBuilder builder = new StringBuilder();
                 for ( int i = 0; i < parents.size(); i++ )
                 {
@@ -403,7 +429,11 @@ public class DependencyGraphResolver
             }
             else
             {
-                LOGGER.info( "\n\nTRAVERSAL LEAK!!! " + node + "\n\n" );
+                LOGGER.info( "TRAVERSAL LEAK!!!\nLeaving node: "
+                                + node
+                                + "\nParent nodes:"
+                                + ( parents.isEmpty() ? " -NONE-" : "\n\t"
+                                                + StringUtils.join( parents.iterator(), "\n\t" ) ) + "\n\n" );
             }
 
             if ( LOGGER.isDebugEnabled() )

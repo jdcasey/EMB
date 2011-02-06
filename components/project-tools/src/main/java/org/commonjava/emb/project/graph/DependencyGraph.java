@@ -88,10 +88,19 @@ public class DependencyGraph
         return node;
     }
 
+    /**
+     * Add a dependency edge between the nodes representing the two given {@link DependencyNode} instances.
+     * 
+     * @param parent
+     *            The parent, which has the dependency on the child.
+     * @param child
+     *            The child, which is depended upon by the parent.
+     * 
+     * @return An array of graph nodes, with the parent node in index 0, and the child node in index 1. <br/>
+     *         <b>NOTE:</b> If the parent parameter is null, the node at index 0 will be null as well.
+     */
     public DepGraphNode[] addDependency( final DependencyNode parent, final DependencyNode child )
     {
-        final DepGraphNode from = findOrAdd( new DepGraphNode( parent ) );
-
         final DepGraphNode newTo = new DepGraphNode( child );
         final DepGraphNode to = findOrAdd( newTo );
 
@@ -101,7 +110,13 @@ public class DependencyGraph
             to.merge( child );
         }
 
-        graph.connect( from, to );
+        DepGraphNode from = null;
+        if ( parent != null )
+        {
+            from = findOrAdd( new DepGraphNode( parent ) );
+
+            graph.connect( from, to );
+        }
 
         return new DepGraphNode[] { from, to };
     }
