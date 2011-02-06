@@ -75,6 +75,8 @@
     <module>autoboxing-version-range</module>
     <module>project-tools</module>
     <module>graph-support</module>
+    <module>auto-mirror</module>
+    <module>auto-mirror-model</module>
   </modules>
 
 </project>

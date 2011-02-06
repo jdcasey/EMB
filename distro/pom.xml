@@ -27,7 +27,7 @@
   
   <modules>
     <module>distro-commons</module>
-    <module>autonx</module>
+    <module>automirror</module>
     <module>vanilla</module>
   </modules>
 </project>

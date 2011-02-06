@@ -38,7 +38,8 @@ public class EMBConfiguration
 
     public static final String STANDARD_LOG_HANDLE_LOADER = "emb-loader";
 
-    private static final File DEFAULT_CONFIGURATION_DIRECTORY = new File( System.getProperty( "user.home" ), ".m2" );
+    private static final File DEFAULT_CONFIGURATION_DIRECTORY =
+        new File( System.getProperty( "user.home" ), ".m2/conf" );
 
     private ComponentSelector componentSelector;
 

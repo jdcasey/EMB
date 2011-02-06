@@ -18,6 +18,9 @@
 
 package org.commonjava.emb.nexus.plugin.autoconf;
 
+import org.commonjava.emb.mirror.model.RouterMirror;
+import org.commonjava.emb.mirror.model.RouterMirrorSerializer;
+import org.commonjava.emb.mirror.model.RouterMirrorsMapping;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -38,9 +41,7 @@ import org.sonatype.plexus.rest.resource.PlexusResource;
 import javax.inject.Named;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Named( "autoNXMirrorList" )
 public class AutoNXMirrorListResource
@@ -88,7 +89,7 @@ public class AutoNXMirrorListResource
             logger.debug( "Found " + ( groups == null ? "NO" : groups.size() ) + " group repositories." );
         }
 
-        final Map<String, String> mappings = new HashMap<String, String>();
+        final RouterMirrorsMapping mappings = new RouterMirrorsMapping();
 
         if ( ( repos == null || repos.isEmpty() ) && ( groups == null || groups.isEmpty() ) )
         {
@@ -135,9 +136,9 @@ public class AutoNXMirrorListResource
                             continue;
                         }
 
-                        if ( !mappings.containsKey( mr.getRemoteUrl() ) )
+                        if ( !mappings.containsMirrorOf( mr.getRemoteUrl() ) )
                         {
-                            mappings.put( mr.getRemoteUrl(), url );
+                            mappings.addMirror( mr.getRemoteUrl(), new RouterMirror( repo.getId(), url, 100, true ) );
                         }
                     }
                 }
@@ -158,21 +159,16 @@ public class AutoNXMirrorListResource
                     logger.debug( "Processing M2 repository: " + repo.getId() );
                 }
 
-                if ( !mappings.containsKey( repo.getRemoteUrl() ) )
+                if ( !mappings.containsMirrorOf( repo.getRemoteUrl() ) )
                 {
-                    mappings.put( repo.getRemoteUrl(), getLocalUrl( request, repo ) );
+                    mappings.addMirror( repo.getRemoteUrl(), new RouterMirror( repo.getId(),
+                                                                               getLocalUrl( request, repo ), 100, true ) );
                 }
             }
         }
 
-        final StringBuilder listing = new StringBuilder();
-        for ( final Map.Entry<String, String> mapping : mappings.entrySet() )
-        {
-            listing.append( mapping.getKey() ).append( '=' ).append( mapping.getValue() ).append( '\n' );
-        }
-
-        return new StringRepresentation( listing.toString(), variant == null ? MediaType.TEXT_PLAIN
-                        : variant.getMediaType() );
+        return new StringRepresentation( RouterMirrorSerializer.serializeToString( mappings ),
+                                         variant == null ? MediaType.APPLICATION_JSON : variant.getMediaType() );
     }
 
     private String getLocalUrl( final Request request, final Repository repo )
@@ -194,6 +190,6 @@ public class AutoNXMirrorListResource
     @Override
     public List<Variant> getVariants()
     {
-        return Collections.singletonList( new Variant( MediaType.TEXT_PLAIN ) );
+        return Collections.singletonList( new Variant( MediaType.APPLICATION_JSON ) );
     }
 }

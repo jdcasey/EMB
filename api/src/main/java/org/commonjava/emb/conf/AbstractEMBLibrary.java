@@ -130,6 +130,11 @@ public abstract class AbstractEMBLibrary
         }
     }
 
+    protected void setConfiguration( final ExtensionConfiguration config )
+    {
+        this.config = config;
+    }
+
     public ExtensionConfiguration getConfiguration()
     {
         return config;
