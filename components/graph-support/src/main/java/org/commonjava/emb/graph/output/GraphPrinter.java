@@ -33,8 +33,6 @@ public class GraphPrinter<V, E>
 
     private int indentCounter = 0;
 
-    private final boolean printEdges;
-
     private final List<Object> lines = new ArrayList<Object>();
 
     private final VertexPrinter<V> vPrinter;
@@ -43,18 +41,26 @@ public class GraphPrinter<V, E>
 
     public GraphPrinter()
     {
-        this( null, false, new VertexPrinter.ToStringPrinter<V>(), new EdgePrinter.ToStringPrinter<E>() );
+        this( null, new VertexPrinter.ToStringPrinter<V>(), null );
     }
 
     public GraphPrinter( final boolean printEdges )
     {
-        this( null, printEdges, new VertexPrinter.ToStringPrinter<V>(), new EdgePrinter.ToStringPrinter<E>() );
+        this( null, new VertexPrinter.ToStringPrinter<V>(), printEdges ? new EdgePrinter.ToStringPrinter<E>() : null );
     }
 
-    public GraphPrinter( final String indent, final boolean printEdges, final VertexPrinter<V> vPrinter,
-                         final EdgePrinter<E> ePrinter )
+    public GraphPrinter( final VertexPrinter<V> vPrinter )
     {
-        this.printEdges = printEdges;
+        this( null, vPrinter, null );
+    }
+
+    public GraphPrinter( final EdgePrinter<E> ePrinter )
+    {
+        this( null, null, ePrinter );
+    }
+
+    public GraphPrinter( final String indent, final VertexPrinter<V> vPrinter, final EdgePrinter<E> ePrinter )
+    {
         this.vPrinter = vPrinter;
         this.ePrinter = ePrinter;
         this.indent = indent == null ? "  " : indent;
@@ -123,7 +129,7 @@ public class GraphPrinter<V, E>
     @Override
     public void edgeTraversed( final EdgeTraversalEvent<V, E> e )
     {
-        if ( printEdges )
+        if ( ePrinter != null )
         {
             newLine();
             indentLine();

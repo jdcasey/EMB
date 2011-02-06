@@ -46,7 +46,7 @@ public class DependencyGraph
 
     public DepGraphRootNode addRoot( final DependencyNode root, final MavenProject project )
     {
-        final DepGraphRootNode newRoot = new DepGraphRootNode( root );
+        final DepGraphRootNode newRoot = new DepGraphRootNode( root, project );
         final DepGraphRootNode rootNode = (DepGraphRootNode) findOrAdd( newRoot );
 
         if ( rootNode != newRoot )
@@ -55,11 +55,6 @@ public class DependencyGraph
         }
 
         roots.add( rootNode );
-
-        if ( project != null )
-        {
-            rootNode.setProject( project );
-        }
 
         return rootNode;
     }

@@ -19,7 +19,7 @@ package org.commonjava.emb.graph.output;
 
 public interface EdgePrinter<E>
 {
-    static final class ToStringPrinter<T>
+    public static final class ToStringPrinter<T>
         implements EdgePrinter<T>
     {
         @Override

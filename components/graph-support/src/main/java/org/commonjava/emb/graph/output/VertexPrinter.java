@@ -21,7 +21,7 @@ public interface VertexPrinter<V>
 {
 
     public class NOPPrinter<T>
-        extends Abstract<T>
+        extends AbstractVertexPrinter<T>
     {
         @Override
         public String vertexStarted( final T vertex )
@@ -30,7 +30,17 @@ public interface VertexPrinter<V>
         }
     }
 
-    abstract static class Abstract<T>
+    public static final class ToStringPrinter<T>
+        extends AbstractVertexPrinter<T>
+    {
+        @Override
+        public String vertexStarted( final T vertex )
+        {
+            return vertex == null ? "-null-" : vertex.toString();
+        }
+    };
+
+    public abstract static class AbstractVertexPrinter<T>
         implements VertexPrinter<T>
     {
         @Override
@@ -39,16 +49,6 @@ public interface VertexPrinter<V>
             return null;
         }
     }
-
-    static final class ToStringPrinter<T>
-        extends Abstract<T>
-    {
-        @Override
-        public String vertexStarted( final T vertex )
-        {
-            return vertex == null ? "-null-" : vertex.toString();
-        }
-    };
 
     String vertexStarted( V vertex );
 

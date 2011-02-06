@@ -401,12 +401,12 @@ public class DependencyGraphResolver
         @Override
         public boolean visitLeave( final DependencyNode node )
         {
-            if ( node == null )
+            if ( node == null || parents.isEmpty() )
             {
                 return true;
             }
 
-            if ( !parents.isEmpty() && node == parents.getFirst() )
+            if ( node == parents.getFirst() )
             {
                 LOGGER.info( "Removing exclusions from last node: " + node );
                 for ( final Exclusion exclusion : lastExclusions )
@@ -429,11 +429,8 @@ public class DependencyGraphResolver
             }
             else
             {
-                LOGGER.info( "TRAVERSAL LEAK!!!\nLeaving node: "
-                                + node
-                                + "\nParent nodes:"
-                                + ( parents.isEmpty() ? " -NONE-" : "\n\t"
-                                                + StringUtils.join( parents.iterator(), "\n\t" ) ) + "\n\n" );
+                LOGGER.info( "TRAVERSAL LEAK!!!\nLeaving node: " + node + "\nParent nodes:\n\t"
+                                + StringUtils.join( parents.iterator(), "\n\t" ) + "\n\n" );
             }
 
             if ( LOGGER.isDebugEnabled() )
@@ -503,6 +500,9 @@ public class DependencyGraphResolver
             }
             finally
             {
+                // FIXME: Do we need to detect whether resolution already happened for this artifact before we try to
+                // resolve it
+                // again??
                 depState.merge( result );
                 if ( latch != null )
                 {

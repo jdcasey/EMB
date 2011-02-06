@@ -57,17 +57,28 @@ public class DepGraphNode
 
     public DepGraphNode( final DependencyNode node )
     {
-        this( node, false );
+        this( node, null, false );
     }
 
-    protected DepGraphNode( final DependencyNode node, final boolean preResolved )
+    protected DepGraphNode( final DependencyNode node, final String key, final boolean preResolved )
     {
         merge( node );
 
-        if ( node.getDependency() != null )
+        if ( key == null )
         {
-            latestArtifact = node.getDependency().getArtifact();
-            key = key( latestArtifact );
+            if ( latestArtifact != null )
+            {
+                this.key = key( latestArtifact );
+            }
+            else
+            {
+                throw new NullPointerException(
+                                                "Cannot calculate node key. DependencyNode parameter does not contain a valid artifact!" );
+            }
+        }
+        else
+        {
+            this.key = key;
         }
 
         this.preResolved = preResolved;

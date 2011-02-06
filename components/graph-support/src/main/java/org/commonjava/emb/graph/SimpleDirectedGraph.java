@@ -62,7 +62,7 @@ public class SimpleDirectedGraph<V>
     }
 
     public static final class Printer<T>
-        extends GraphPrinter<String, DirectionalEdge<String>>
+        extends GraphPrinter<T, DirectionalEdge<T>>
     {
 
         public Printer()
@@ -74,10 +74,20 @@ public class SimpleDirectedGraph<V>
             super( printEdges );
         }
 
-        public Printer( final String indent, final boolean printEdges, final VertexPrinter<String> vPrinter,
-                        final EdgePrinter<DirectionalEdge<String>> ePrinter )
+        public Printer( final VertexPrinter<T> vPrinter )
         {
-            super( indent, printEdges, vPrinter, ePrinter );
+            super( vPrinter );
+        }
+
+        public Printer( final EdgePrinter<DirectionalEdge<T>> ePrinter )
+        {
+            super( ePrinter );
+        }
+
+        public Printer( final String indent, final VertexPrinter<T> vPrinter,
+                        final EdgePrinter<DirectionalEdge<T>> ePrinter )
+        {
+            super( indent, vPrinter, ePrinter );
         }
 
     }

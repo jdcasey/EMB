@@ -17,6 +17,7 @@
 
 package org.commonjava.emb.project.graph;
 
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.aether.graph.DependencyNode;
 
@@ -24,21 +25,17 @@ public class DepGraphRootNode
     extends DepGraphNode
 {
 
-    private MavenProject project;
+    private final MavenProject project;
 
-    public DepGraphRootNode( final DependencyNode node )
+    public DepGraphRootNode( final DependencyNode node, final MavenProject project )
     {
-        super( node, true );
+        super( node, ArtifactUtils.key( project.getGroupId(), project.getArtifactId(), project.getVersion() ), true );
+        this.project = project;
     }
 
     public MavenProject getProject()
     {
         return project;
-    }
-
-    public void setProject( final MavenProject project )
-    {
-        this.project = project;
     }
 
 }

@@ -32,7 +32,7 @@ public class SimpleDirectedGraphTest
         graph.connect( "from", "to" ).connect( "to", "onward" );
 
         final Printer<String> printer =
-            new Printer<String>( "  ", true, null, new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>() );
+            new Printer<String>( new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>() );
 
         GraphWalker.walkPath( graph, "from", printer );
 
