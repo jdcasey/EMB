@@ -20,16 +20,6 @@ package org.commonjava.emb.graph.output;
 public interface VertexPrinter<V>
 {
 
-    public class NOPPrinter<T>
-        extends AbstractVertexPrinter<T>
-    {
-        @Override
-        public String vertexStarted( final T vertex )
-        {
-            return "";
-        }
-    }
-
     public static final class ToStringPrinter<T>
         extends AbstractVertexPrinter<T>
     {
@@ -48,10 +38,20 @@ public interface VertexPrinter<V>
         {
             return null;
         }
+
+        public String vertexSkipped( final T vertex )
+        {
+            return null;
+        }
     }
 
+    /**
+     * Write the header to signal the start of a new vertex traversal. <b>NEVER</b> <code>null</code>.
+     */
     String vertexStarted( V vertex );
 
     String vertexFinished( V vertex );
+
+    String vertexSkipped( V vertex );
 
 }

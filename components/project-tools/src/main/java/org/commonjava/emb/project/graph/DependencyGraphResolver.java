@@ -23,7 +23,6 @@ import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.util.StringUtils;
 import org.commonjava.emb.project.ProjectToolsSession;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -68,16 +67,28 @@ public class DependencyGraphResolver
     public DependencyGraph resolveGraph( final Collection<MavenProject> rootProjects, RepositorySystemSession rss,
                                          final ProjectToolsSession session )
     {
-        LOGGER.info( "Preparing for dependency-graph accumulation..." );
+        if ( LOGGER.isDebugEnabled() )
+        {
+            LOGGER.debug( "Preparing for dependency-graph accumulation..." );
+        }
         rss = prepareForGraphResolution( rss );
 
-        LOGGER.info( "Accumulating dependency graph..." );
+        if ( LOGGER.isDebugEnabled() )
+        {
+            LOGGER.debug( "Accumulating dependency graph..." );
+        }
         final DependencyGraph depGraph = accumulate( session, rss, rootProjects, session.getRemoteRepositoriesArray() );
 
-        LOGGER.info( "Resolving dependencies in graph..." );
+        if ( LOGGER.isDebugEnabled() )
+        {
+            LOGGER.debug( "Resolving dependencies in graph..." );
+        }
         resolve( rss, rootProjects, depGraph );
 
-        LOGGER.info( "Graph state contains: " + depGraph.size() + " nodes." );
+        if ( LOGGER.isDebugEnabled() )
+        {
+            LOGGER.debug( "Graph state contains: " + depGraph.size() + " nodes." );
+        }
 
         return depGraph;
     }
@@ -185,14 +196,20 @@ public class DependencyGraphResolver
 
         for ( final MavenProject project : projects )
         {
-            LOGGER.info( "Collecting dependencies for: " + project );
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "Collecting dependencies for: " + project );
+            }
             final CollectRequest request = new CollectRequest();
             request.setRequestContext( "project" );
             request.setRepositories( Arrays.asList( remoteRepositories ) );
 
             if ( project.getDependencyArtifacts() == null )
             {
-                LOGGER.info( "Adding dependencies to collection request..." );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Adding dependencies to collection request..." );
+                }
                 for ( final Dependency dependency : project.getDependencies() )
                 {
                     request.addDependency( RepositoryUtils.toDependency( dependency, stereotypes ) );
@@ -200,7 +217,10 @@ public class DependencyGraphResolver
             }
             else
             {
-                LOGGER.info( "Mapping project dependencies by management key..." );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Mapping project dependencies by management key..." );
+                }
                 final Map<String, Dependency> dependencies = new HashMap<String, Dependency>();
                 for ( final Dependency dependency : project.getDependencies() )
                 {
@@ -208,7 +228,10 @@ public class DependencyGraphResolver
                     dependencies.put( key, dependency );
                 }
 
-                LOGGER.info( "Adding dependencies to collection request..." );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Adding dependencies to collection request..." );
+                }
                 for ( final org.apache.maven.artifact.Artifact artifact : project.getDependencyArtifacts() )
                 {
                     final String key = artifact.getDependencyConflictId();
@@ -231,14 +254,20 @@ public class DependencyGraphResolver
             final DependencyManagement depMngt = project.getDependencyManagement();
             if ( depMngt != null )
             {
-                LOGGER.info( "Adding managed dependencies to collection request..." );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Adding managed dependencies to collection request..." );
+                }
                 for ( final Dependency dependency : depMngt.getDependencies() )
                 {
                     request.addManagedDependency( RepositoryUtils.toDependency( dependency, stereotypes ) );
                 }
             }
 
-            LOGGER.info( "Collecting dependencies..." );
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "Collecting dependencies..." );
+            }
             CollectResult result;
             try
             {
@@ -256,12 +285,17 @@ public class DependencyGraphResolver
                 // + project.getId() + ": " + e.getMessage(), e );
             }
 
-            depGraph.addRoot( result.getRoot(), project );
+            final DependencyNode root = result.getRoot();
+            final DepGraphRootNode rootNode = depGraph.addRoot( root, project );
 
-            LOGGER.info( "Adding collected dependencies to consolidated dependency graph..." );
+            accumulator.resetForNextRun( root, rootNode );
+
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "Adding collected dependencies to consolidated dependency graph..." );
+            }
             result.getRoot().accept( accumulator );
 
-            accumulator.resetForNextRun();
         }
 
         return depGraph;
@@ -272,22 +306,26 @@ public class DependencyGraphResolver
     {
         private final LinkedList<DependencyNode> parents = new LinkedList<DependencyNode>();
 
-        private final Set<DependencyNode> seen = new HashSet<DependencyNode>();
-
         private final Set<Exclusion> exclusions = new HashSet<Exclusion>();
 
         private final Set<Exclusion> lastExclusions = new HashSet<Exclusion>();
 
         private final DependencyGraph depGraph;
 
+        private DependencyNode root;
+
+        private DepGraphRootNode rootNode;
+
         GraphAccumulator( final DependencyGraph depGraph )
         {
             this.depGraph = depGraph;
         }
 
-        void resetForNextRun()
+        void resetForNextRun( final DependencyNode root, final DepGraphRootNode rootNode )
         {
             parents.clear();
+            this.root = root;
+            this.rootNode = rootNode;
             exclusions.clear();
             lastExclusions.clear();
         }
@@ -295,15 +333,18 @@ public class DependencyGraphResolver
         @Override
         public boolean visitEnter( final DependencyNode node )
         {
-            if ( node == null || node.getDependency() == null || node.getDependency().getArtifact() == null )
+            if ( node == root )
             {
-                LOGGER.info( "Invalid node: " + node );
+                parents.addFirst( root );
                 return true;
             }
-            else if ( seen.contains( node ) )
+            else if ( node == null || node.getDependency() == null || node.getDependency().getArtifact() == null )
             {
-                LOGGER.info( "SEEN: " + node );
-                return false;
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Invalid node: " + node );
+                }
+                return true;
             }
 
             if ( LOGGER.isDebugEnabled() )
@@ -320,10 +361,27 @@ public class DependencyGraphResolver
                     LOGGER.debug( "Enabling resolution for: " + node );
                 }
 
-                final DependencyNode parent = parents.isEmpty() ? null : parents.getFirst();
+                final DependencyNode parent = parents.getFirst();
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Adding dependency from: " + parent + " to: " + node );
+                }
 
-                LOGGER.info( "Adding dependency from: " + parent + " to: " + node );
-                depGraph.addDependency( parent, node );
+                // TODO: don't traverse beyond this node if it's already been considered...though we still need to
+                // connect it
+                // to the parent node (see below).
+                result = !depGraph.contains( node );
+
+                // result = true;
+
+                if ( parent == root )
+                {
+                    depGraph.addDependency( rootNode, node );
+                }
+                else
+                {
+                    depGraph.addDependency( parent, node );
+                }
 
                 if ( node.getDependency().getExclusions() != null )
                 {
@@ -336,7 +394,10 @@ public class DependencyGraphResolver
                     }
                 }
 
-                LOGGER.info( "Pushing node: " + node + " onto parents stack." );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Pushing node: " + node + " onto parents stack." );
+                }
                 parents.addFirst( node );
 
                 final StringBuilder builder = new StringBuilder();
@@ -346,9 +407,10 @@ public class DependencyGraphResolver
                 }
                 builder.append( ">>>" );
                 builder.append( node );
-                LOGGER.info( builder.toString() );
-
-                result = true;
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( builder.toString() );
+                }
             }
             else
             {
@@ -366,9 +428,6 @@ public class DependencyGraphResolver
                                     + node.getDependency().getArtifact() );
                 }
             }
-
-            LOGGER.info( "Pushing node: " + node + " onto seen stack." );
-            seen.add( node );
 
             return result;
         }
@@ -408,7 +467,11 @@ public class DependencyGraphResolver
 
             if ( node == parents.getFirst() )
             {
-                LOGGER.info( "Removing exclusions from last node: " + node );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Removing exclusions from last node: " + node );
+                }
+
                 for ( final Exclusion exclusion : lastExclusions )
                 {
                     exclusions.remove( exclusion );
@@ -423,14 +486,29 @@ public class DependencyGraphResolver
                 }
                 builder.append( "<<<" );
                 builder.append( node );
-                LOGGER.info( builder.toString() );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( builder.toString() );
+                }
 
                 parents.removeFirst();
             }
             else
             {
-                LOGGER.info( "TRAVERSAL LEAK!!!\nLeaving node: " + node + "\nParent nodes:\n\t"
-                                + StringUtils.join( parents.iterator(), "\n\t" ) + "\n\n" );
+                final int idx = parents.indexOf( node );
+                if ( idx > -1 )
+                {
+                    if ( LOGGER.isDebugEnabled() )
+                    {
+                        LOGGER.debug( "TRAVERSAL LEAK. Removing " + ( idx + 1 )
+                                        + " unaccounted-for parents that have finished traversal." );
+                    }
+
+                    for ( int i = 0; i <= idx; i++ )
+                    {
+                        parents.removeFirst();
+                    }
+                }
             }
 
             if ( LOGGER.isDebugEnabled() )

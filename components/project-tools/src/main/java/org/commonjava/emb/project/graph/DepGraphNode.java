@@ -143,8 +143,11 @@ public class DepGraphNode
         }
         else
         {
-            LOGGER.error( "PANIC: Cannot find artifact extension to file artifact result (project: " + getKey() + ": "
-                            + result );
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "PANIC: Cannot find artifact extension to file artifact result (project: " + getKey()
+                                + ": " + result );
+            }
         }
 
         if ( ext != null )
@@ -152,7 +155,10 @@ public class DepGraphNode
             final ArtifactResult existing = results.get( ext );
             if ( existing != null && existing.getArtifact() != null )
             {
-                LOGGER.warn( "PANIC: Result-map already contains result with resolved artifact for: " + ext );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "PANIC: Result-map already contains result with resolved artifact for: " + ext );
+                }
             }
             else
             {
@@ -203,11 +209,6 @@ public class DepGraphNode
         }
 
         return false;
-    }
-
-    public void logErrors()
-    {
-        LOGGER.error( renderErrors() );
     }
 
     private String renderErrors()
@@ -325,5 +326,44 @@ public class DepGraphNode
     public void merge( final Artifact child )
     {
         merge( new ArtifactOnlyDependencyNode( child ) );
+    }
+
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ( ( key == null ) ? 0 : key.hashCode() );
+        return result;
+    }
+
+    @Override
+    public boolean equals( final Object obj )
+    {
+        if ( this == obj )
+        {
+            return true;
+        }
+        if ( obj == null )
+        {
+            return false;
+        }
+        if ( getClass() != obj.getClass() )
+        {
+            return false;
+        }
+        final DepGraphNode other = (DepGraphNode) obj;
+        if ( key == null )
+        {
+            if ( other.key != null )
+            {
+                return false;
+            }
+        }
+        else if ( !key.equals( other.key ) )
+        {
+            return false;
+        }
+        return true;
     }
 }

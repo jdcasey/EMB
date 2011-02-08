@@ -120,7 +120,11 @@ public class ProjectLoader
 
             session.setReactorProjects( projects );
 
-            LOGGER.info( "Adding projects to dependency graph:\n\t" + StringUtils.join( projects.iterator(), "\n\t" ) );
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "Adding projects to dependency graph:\n\t"
+                                + StringUtils.join( projects.iterator(), "\n\t" ) );
+            }
             addProjects( session, projects );
 
             return projects;
@@ -218,7 +222,10 @@ public class ProjectLoader
 
                 // This is WEIRD, but the parent POM is actually a dependency of the current one,
                 // since it's required in order to build the current project...
-                LOGGER.info( "Marking parent POM: " + current + " as dependency of POM: " + next );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Marking parent POM: " + current + " as dependency of POM: " + next );
+                }
                 depGraph.addDependency( next, current, true, true );
 
                 if ( !parentage.isEmpty() )
@@ -393,7 +400,10 @@ public class ProjectLoader
     {
         if ( LOGGER.isInfoEnabled() )
         {
-            LOGGER.info( "Finding projectIds contained within reactor for: " + rootPom );
+            if ( LOGGER.isDebugEnabled() )
+            {
+                LOGGER.debug( "Finding projectIds contained within reactor for: " + rootPom );
+            }
         }
 
         final Map<File, Model> models = new LinkedHashMap<File, Model>();
@@ -436,7 +446,10 @@ public class ProjectLoader
             final String key = ArtifactUtils.key( groupId, artifactId, version );
             if ( LOGGER.isInfoEnabled() )
             {
-                LOGGER.info( "Found: " + key );
+                if ( LOGGER.isDebugEnabled() )
+                {
+                    LOGGER.debug( "Found: " + key );
+                }
             }
 
             projectIds.add( key );

@@ -67,20 +67,48 @@ public class DependencyGraph
         return node;
     }
 
-    private DepGraphNode findOrAdd( DepGraphNode node )
+    private DepGraphNode findOrAdd( final DepGraphNode node )
+    {
+        DepGraphNode result = find( node );
+
+        if ( result == null )
+        {
+            graph.addVertex( node );
+            result = node;
+        }
+
+        return result;
+    }
+
+    private DepGraphNode find( final DepGraphNode node )
     {
         final List<DepGraphNode> nodes = new ArrayList<DepGraphNode>( graph.vertexSet() );
         final int idx = nodes.indexOf( node );
         if ( idx > -1 )
         {
-            node = nodes.get( idx );
-        }
-        else
-        {
-            graph.addVertex( node );
+            return nodes.get( idx );
         }
 
-        return node;
+        return null;
+    }
+
+    public DepGraphNode[] addDependency( final DepGraphNode parentNode, final DependencyNode child )
+    {
+        final DepGraphNode newChildNode = new DepGraphNode( child );
+        final DepGraphNode childNode = findOrAdd( newChildNode );
+
+        // if we're reusing an existing node, merge the new info from the child.
+        if ( childNode != newChildNode )
+        {
+            childNode.merge( child );
+        }
+
+        if ( parentNode != null )
+        {
+            graph.connect( parentNode, childNode );
+        }
+
+        return new DepGraphNode[] { parentNode, childNode };
     }
 
     /**
@@ -96,24 +124,13 @@ public class DependencyGraph
      */
     public DepGraphNode[] addDependency( final DependencyNode parent, final DependencyNode child )
     {
-        final DepGraphNode newTo = new DepGraphNode( child );
-        final DepGraphNode to = findOrAdd( newTo );
-
-        // if we're reusing an existing node, merge the new info from the child.
-        if ( to != newTo )
-        {
-            to.merge( child );
-        }
-
-        DepGraphNode from = null;
+        DepGraphNode parentNode = null;
         if ( parent != null )
         {
-            from = findOrAdd( new DepGraphNode( parent ) );
-
-            graph.connect( from, to );
+            parentNode = findOrAdd( new DepGraphNode( parent ) );
         }
 
-        return new DepGraphNode[] { from, to };
+        return addDependency( parentNode, child );
     }
 
     public DepGraphNode[] addDependency( final Artifact parent, final Artifact child, final boolean parentPreResolved,
@@ -154,6 +171,11 @@ public class DependencyGraph
     public SimpleDirectedGraph<DepGraphNode> getGraph()
     {
         return graph;
+    }
+
+    public boolean contains( final DependencyNode dep )
+    {
+        return find( new DepGraphNode( dep ) ) != null;
     }
 
 }

@@ -94,10 +94,10 @@ public class GraphPrinter<V, E>
     {
         if ( vPrinter != null )
         {
+            final V vertex = e.getVertex();
+
             newLine();
             indentLine();
-
-            final V vertex = e.getVertex();
 
             builder.append( vPrinter.vertexStarted( vertex ) );
             lines.add( vertex );
@@ -118,7 +118,7 @@ public class GraphPrinter<V, E>
                 newLine();
                 indentLine();
 
-                builder.append( vPrinter.vertexStarted( vertex ) );
+                builder.append( ending );
                 lines.add( "end" );
             }
         }
@@ -170,6 +170,14 @@ public class GraphPrinter<V, E>
         final int idx = lines.indexOf( vertex );
 
         // builder.append( vertex );
+        if ( vPrinter != null )
+        {
+            final String skip = vPrinter.vertexSkipped( vertex );
+            if ( skip != null )
+            {
+                builder.append( skip ).append( ' ' );
+            }
+        }
         builder.append( "-DUPLICATE- (see line: " ).append( idx + 1 ).append( ")" );
 
         // we need some placeholder here, without screwing up indexOf() operations for the vertex...
