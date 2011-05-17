@@ -41,7 +41,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.app.AbstractEMBApplication;
+import org.commonjava.emb.app.AbstractMAEApplication;
 import org.commonjava.emb.project.ProjectLoader;
 import org.commonjava.emb.project.ProjectToolsSession;
 import org.commonjava.emb.project.SimpleProjectToolsSession;
@@ -60,7 +60,7 @@ import java.util.Set;
 
 @Component( role = TestFixture.class )
 public final class TestFixture
-    extends AbstractEMBApplication
+    extends AbstractMAEApplication
 {
 
     @Requirement
