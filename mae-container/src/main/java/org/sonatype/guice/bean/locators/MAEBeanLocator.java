@@ -15,9 +15,9 @@ package org.sonatype.guice.bean.locators;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultRankingFunction;
 import org.sonatype.guice.bean.locators.InjectorPublisher;
-import org.sonatype.guice.bean.locators.LocatedBeans;
+import org.sonatype.guice.bean.locators.XLocatedBeans;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
-import org.sonatype.guice.bean.locators.RankedBindings;
+import org.sonatype.guice.bean.locators.XRankedBindings;
 import org.sonatype.guice.bean.locators.RankedList;
 import org.sonatype.guice.bean.locators.RankingFunction;
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
@@ -52,7 +52,7 @@ public final class MAEBeanLocator
 
     private final RankedList<BindingPublisher> publishers = new RankedList<BindingPublisher>();
 
-    private final Map<TypeLiteral, RankedBindings> bindingsCache = new HashMap<TypeLiteral, RankedBindings>();
+    private final Map<TypeLiteral, XRankedBindings> bindingsCache = new HashMap<TypeLiteral, XRankedBindings>();
 
     private final List<XWatchedBeans> watchedBeans = new ArrayList<XWatchedBeans>();
 
@@ -62,7 +62,7 @@ public final class MAEBeanLocator
 
     public synchronized Iterable<BeanEntry> locate( final Key key )
     {
-        return new LocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
+        return new XLocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
     }
 
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
@@ -125,17 +125,17 @@ public final class MAEBeanLocator
     }
 
     /**
-     * Returns the {@link RankedBindings} tracking the given type; creates one if it doesn't already exist.
+     * Returns the {@link XRankedBindings} tracking the given type; creates one if it doesn't already exist.
      * 
      * @param type The required type
      * @return Sequence of ranked bindings
      */
-    private <T> RankedBindings<T> bindingsForType( final TypeLiteral<T> type )
+    private <T> XRankedBindings<T> bindingsForType( final TypeLiteral<T> type )
     {
-        RankedBindings<T> bindings = bindingsCache.get( type );
+        XRankedBindings<T> bindings = bindingsCache.get( type );
         if ( null == bindings )
         {
-            bindings = new RankedBindings<T>( type, publishers );
+            bindings = new XRankedBindings<T>( type, publishers );
             bindingsCache.put( type, bindings );
         }
         return bindings;
@@ -150,9 +150,9 @@ public final class MAEBeanLocator
      */
     private void distribute( final BindingEvent event, final BindingPublisher publisher, final int rank )
     {
-        for ( final Iterator<RankedBindings> itr = bindingsCache.values().iterator(); itr.hasNext(); )
+        for ( final Iterator<XRankedBindings> itr = bindingsCache.values().iterator(); itr.hasNext(); )
         {
-            final RankedBindings bindings = itr.next();
+            final XRankedBindings bindings = itr.next();
             if ( bindings.isActive() )
             {
                 notify( bindings, event, publisher, rank );
