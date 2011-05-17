@@ -27,7 +27,6 @@
   
   <modules>
     <module>distro-commons</module>
-    <module>automirror</module>
     <module>vanilla</module>
   </modules>
 </project>
