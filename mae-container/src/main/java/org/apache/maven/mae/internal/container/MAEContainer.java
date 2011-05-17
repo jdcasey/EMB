@@ -41,6 +41,7 @@ import org.apache.maven.mae.internal.container.InstanceRegistry;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultRankingFunction;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
@@ -124,7 +125,7 @@ public final class MAEContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
-    final MutableBeanLocator qualifiedBeanLocator = new MAEBeanLocator();
+    final MAEBeanLocator qualifiedBeanLocator = new MAEBeanLocator();
 
     final Context context;
 
@@ -277,25 +278,41 @@ public final class MAEContainer
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
-        return new EntryListAdapter<String, Object>( locate( role, null ) );
+        qualifiedBeanLocator.setExcludeLiterals( true );
+        List<Object> adapter = new EntryListAdapter<String, Object>( locate( role, null ) );
+        qualifiedBeanLocator.setExcludeLiterals( false );
+        
+        return adapter;
     }
 
-    public <T> List<T> lookupList( final Class<T> role )
+    public synchronized <T> List<T> lookupList( final Class<T> role )
         throws ComponentLookupException
     {
-        return new EntryListAdapter<String, T>( locate( null, role ) );
+        qualifiedBeanLocator.setExcludeLiterals( true );
+        List<T> adapter = new EntryListAdapter<String, T>( locate( null, role ) );
+        qualifiedBeanLocator.setExcludeLiterals( false );
+        
+        return adapter;
     }
 
     public Map<String, Object> lookupMap( final String role )
         throws ComponentLookupException
     {
-        return new EntryMapAdapter<String, Object>( locate( role, null ) );
+        qualifiedBeanLocator.setExcludeLiterals( true );
+        Map<String, Object> adapter = new EntryMapAdapter<String, Object>( locate( role, null ) );
+        qualifiedBeanLocator.setExcludeLiterals( false );
+        
+        return adapter;
     }
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
         throws ComponentLookupException
     {
-        return new EntryMapAdapter<String, T>( locate( null, role ) );
+        qualifiedBeanLocator.setExcludeLiterals( true );
+        Map<String, T> adapter = new EntryMapAdapter<String, T>( locate( null, role ) );
+        qualifiedBeanLocator.setExcludeLiterals( false );
+        
+        return adapter;
     }
 
     // ----------------------------------------------------------------------

@@ -55,14 +55,27 @@ public final class MAEBeanLocator
     private final Map<TypeLiteral, XRankedBindings> bindingsCache = new HashMap<TypeLiteral, XRankedBindings>();
 
     private final List<XWatchedBeans> watchedBeans = new ArrayList<XWatchedBeans>();
-
+    
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+    
+    private boolean excludeLiterals = false;
+
+    public MAEBeanLocator setExcludeLiterals( boolean excludeLiterals )
+    {
+        this.excludeLiterals = excludeLiterals;
+        return this;
+    }
+    
+    public boolean isExcludeLiterals()
+    {
+        return excludeLiterals;
+    }
 
     public synchronized Iterable<BeanEntry> locate( final Key key )
     {
-        return new XLocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
+        return new XLocatedBeans( key, bindingsForType( key.getTypeLiteral() ), excludeLiterals );
     }
 
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )

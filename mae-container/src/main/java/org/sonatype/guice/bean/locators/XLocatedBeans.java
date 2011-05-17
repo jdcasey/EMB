@@ -19,10 +19,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.maven.mae.internal.container.ComponentKey;
 import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
+
+import javax.inject.Named;
 
 /**
  * Provides a sequence of {@link BeanEntry}s by iterating over qualified {@link Binding}s.
@@ -44,14 +47,17 @@ final class XLocatedBeans<Q extends Annotation, T>
 
     Map<Binding<T>, BeanEntry<Q, T>> beanCache;
 
+    private final boolean excludeLiterals;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    XLocatedBeans( final Key<T> key, final XRankedBindings<T> bindings )
+    XLocatedBeans( final Key<T> key, final XRankedBindings<T> bindings, boolean excludeLiterals )
     {
         this.key = key;
         this.bindings = bindings;
+        this.excludeLiterals = excludeLiterals;
 
         strategy = QualifyingStrategy.selectFor( key );
 
@@ -163,7 +169,21 @@ final class XLocatedBeans<Q extends Annotation, T>
                 }
                 @SuppressWarnings( "unchecked" )
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
-                if ( null != qualifier )
+                
+                String name = null;
+                if ( excludeLiterals )
+                {
+                    if ( qualifier instanceof Named )
+                    {
+                        name = ((Named)qualifier).value();
+                    }
+                    else if ( qualifier instanceof com.google.inject.name.Named )
+                    {
+                        name = ((com.google.inject.name.Named)qualifier).value();
+                    }
+                }
+                
+                if ( null != qualifier && ( null == name || !ComponentKey.isLiteral( name ) ) )
                 {
                     nextBean = cacheBean( qualifier, binding, itr.rank() );
                     return true;
