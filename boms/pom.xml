@@ -17,32 +17,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-      <artifactId>emb</artifactId>
-      <groupId>org.commonjava.emb</groupId>
-      <version>0.6-SNAPSHOT</version>
+    <artifactId>mae</artifactId>
+    <groupId>org.apache.maven.mae</groupId>
+    <version>0.6-SNAPSHOT</version>
   </parent>
   
-  <groupId>org.commonjava.emb</groupId>
-  <artifactId>emb-boms</artifactId>
+  <artifactId>mae-boms</artifactId>
   <packaging>pom</packaging>
   
-  <name>EMB Bill-of-Materials POMs</name>
-  
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven</artifactId>
-        <version>${mavenVersion}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+  <name>Maven App Engine: Bill-of-Materials POMs</name>
   
   <modules>
-    <module>app-bom</module>
-    <module>library-bom</module>
+    <module>mae-app-bom</module>
+    <module>mae-library-bom</module>
   </modules>
   
 </project>

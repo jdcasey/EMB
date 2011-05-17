@@ -16,7 +16,7 @@
 
 package org.commonjava.emb.version.autobox.lib;
 
-import org.commonjava.emb.conf.ext.ExtensionConfiguration;
+import org.apache.maven.mae.conf.ext.ExtensionConfiguration;
 
 public class AutoboxingConfig
     implements ExtensionConfiguration

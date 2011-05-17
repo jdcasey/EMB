@@ -16,14 +16,14 @@
 
 package org.commonjava.emb.version.autobox.lib;
 
+import org.apache.maven.mae.conf.AbstractMAELibrary;
+import org.apache.maven.mae.conf.MAELibrary;
+import org.apache.maven.mae.conf.MavenPomVersionProvider;
 import org.commonjava.atservice.annotation.Service;
-import org.commonjava.emb.conf.AbstractEMBLibrary;
-import org.commonjava.emb.conf.EMBLibrary;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
 
-@Service( EMBLibrary.class )
+@Service( MAELibrary.class )
 public class AutoboxingLibrary
-    extends AbstractEMBLibrary
+    extends AbstractMAELibrary
 {
 
     public AutoboxingLibrary()

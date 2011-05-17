@@ -4,38 +4,53 @@
   
   <!-- Setup Sonatype OSS deployment mechanism -->
   <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>5</version>
+    <groupId>org.apache.maven</groupId>
+    <artifactId>maven-parent</artifactId>
+    <version>19</version>
   </parent>
   
-  <groupId>org.commonjava.emb</groupId>
-  <artifactId>emb</artifactId>
+  <groupId>org.apache.maven.mae</groupId>
+  <artifactId>mae</artifactId>
   <version>0.6-SNAPSHOT</version>
   
   <packaging>pom</packaging>
   
+  <name>Maven App Engine</name>
+  
+  <dependencyManagement>
+  	<dependencies>
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven</artifactId>
+        <version>${mavenVersion}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
   <properties>
-  	<mavenVersion>3.0.2</mavenVersion>
+  	<mavenVersion>3.0.4-SNAPSHOT</mavenVersion>
   	<plexusVersion>1.5.4</plexusVersion>
+  	<sisuVersion>2.1.1</sisuVersion>
   </properties>
   
   <modules>
     <module>boms</module>
-    <module>api</module>
-    <module>infrastructure</module>
-    <module>booter</module>
-    <module>components</module>
+    <module>mae-api</module>
+    <module>mae-container</module>
+    <module>mae-booter</module>
+    <!-- <module>components</module>
     <module>events</module>
     <module>integration</module>
-    <module>distro</module>
-    <module>apps</module>
+    <module>distro</module> -->
+    <module>mae-app</module>
   </modules>
   
   <scm>
-    <connection>scm:git:http://jdcasey@github.com/jdcasey/EMB.git</connection>
-    <developerConnection>scm:git:git@github.com:jdcasey/EMB.git</developerConnection>
-    <url>http://github.com/jdcasey/EMB</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/maven/sandbox/trunk/mae</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/maven/sandbox/trunk/mae</developerConnection>
+    <url>http://svn.apache.org/viewvc/maven/sandbox/trunk/mae</url>
   </scm>
   
   <dependencies>
