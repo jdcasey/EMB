@@ -41,7 +41,6 @@ import org.apache.maven.mae.internal.container.InstanceRegistry;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultRankingFunction;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
@@ -278,41 +277,25 @@ public final class MAEContainer
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
-        qualifiedBeanLocator.setExcludeLiterals( true );
-        List<Object> adapter = new EntryListAdapter<String, Object>( locate( role, null ) );
-        qualifiedBeanLocator.setExcludeLiterals( false );
-        
-        return adapter;
+        return new EntryListAdapter<String, Object>( locate( role, null ) );
     }
 
     public synchronized <T> List<T> lookupList( final Class<T> role )
         throws ComponentLookupException
     {
-        qualifiedBeanLocator.setExcludeLiterals( true );
-        List<T> adapter = new EntryListAdapter<String, T>( locate( null, role ) );
-        qualifiedBeanLocator.setExcludeLiterals( false );
-        
-        return adapter;
+        return new EntryListAdapter<String, T>( locate( null, role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
         throws ComponentLookupException
     {
-        qualifiedBeanLocator.setExcludeLiterals( true );
-        Map<String, Object> adapter = new EntryMapAdapter<String, Object>( locate( role, null ) );
-        qualifiedBeanLocator.setExcludeLiterals( false );
-        
-        return adapter;
+        return new EntryMapAdapter<String, Object>( locate( role, null ) );
     }
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
         throws ComponentLookupException
     {
-        qualifiedBeanLocator.setExcludeLiterals( true );
-        Map<String, T> adapter = new EntryMapAdapter<String, T>( locate( null, role ) );
-        qualifiedBeanLocator.setExcludeLiterals( false );
-        
-        return adapter;
+        return new EntryMapAdapter<String, T>( locate( null, role ) );
     }
 
     // ----------------------------------------------------------------------
@@ -372,7 +355,6 @@ public final class MAEContainer
         }
     }
 
-    @SuppressWarnings( "deprecation" )
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...

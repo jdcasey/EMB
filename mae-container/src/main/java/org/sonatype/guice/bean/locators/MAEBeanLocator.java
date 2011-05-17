@@ -60,22 +60,9 @@ public final class MAEBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
     
-    private boolean excludeLiterals = false;
-
-    public MAEBeanLocator setExcludeLiterals( boolean excludeLiterals )
-    {
-        this.excludeLiterals = excludeLiterals;
-        return this;
-    }
-    
-    public boolean isExcludeLiterals()
-    {
-        return excludeLiterals;
-    }
-
     public synchronized Iterable<BeanEntry> locate( final Key key )
     {
-        return new XLocatedBeans( key, bindingsForType( key.getTypeLiteral() ), excludeLiterals );
+        return new XLocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
     }
 
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )

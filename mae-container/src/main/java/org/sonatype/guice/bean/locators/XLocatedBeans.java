@@ -47,17 +47,14 @@ final class XLocatedBeans<Q extends Annotation, T>
 
     Map<Binding<T>, BeanEntry<Q, T>> beanCache;
 
-    private final boolean excludeLiterals;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    XLocatedBeans( final Key<T> key, final XRankedBindings<T> bindings, boolean excludeLiterals )
+    XLocatedBeans( final Key<T> key, final XRankedBindings<T> bindings )
     {
         this.key = key;
         this.bindings = bindings;
-        this.excludeLiterals = excludeLiterals;
 
         strategy = QualifyingStrategy.selectFor( key );
 
@@ -171,7 +168,7 @@ final class XLocatedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 
                 String name = null;
-                if ( excludeLiterals )
+                if ( key.getAnnotation() == null )
                 {
                     if ( qualifier instanceof Named )
                     {
