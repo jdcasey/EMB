@@ -19,14 +19,14 @@ package org.commonjava.emb.project;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
+import org.apache.maven.mae.MAEException;
+import org.apache.maven.mae.boot.embed.MAEEmbedder;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.EMBException;
-import org.commonjava.emb.boot.embed.EMBEmbedder;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.impl.internal.EnhancedLocalRepositoryManager;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -41,7 +41,7 @@ public class ProjectToolsSessionInjector
 {
 
     @Requirement
-    private EMBEmbedder emb;
+    private MAEEmbedder embedder;
 
     @Requirement
     private RepositorySystem mavenRepositorySystem;
@@ -54,7 +54,7 @@ public class ProjectToolsSessionInjector
         {
             if ( pbr == null )
             {
-                pbr = emb.serviceManager().createProjectBuildingRequest();
+                pbr = embedder.serviceManager().createProjectBuildingRequest();
 
                 pbr.setProcessPlugins( false );
                 pbr.setResolveDependencies( false );
@@ -76,7 +76,7 @@ public class ProjectToolsSessionInjector
                 pbr.setRepositorySession( getRepositorySystemSession( session ) );
             }
         }
-        catch ( final EMBException e )
+        catch ( final MAEException e )
         {
             throw new ProjectToolsException( "Failed to create project-building request: %s", e, e.getMessage() );
         }
@@ -90,7 +90,7 @@ public class ProjectToolsSessionInjector
     }
 
     public RepositorySystemSession getRepositorySystemSession( final ProjectToolsSession session )
-        throws EMBException
+        throws MAEException
     {
         final File localRepo = session.getLocalRepositoryDirectory();
         localRepo.mkdirs();
@@ -99,7 +99,7 @@ public class ProjectToolsSessionInjector
         if ( sess == null )
         {
             final DefaultRepositorySystemSession rss =
-                new DefaultRepositorySystemSession( emb.serviceManager().createAetherRepositorySystemSession() );
+                new DefaultRepositorySystemSession( embedder.serviceManager().createAetherRepositorySystemSession() );
 
             // session.setWorkspaceReader( new ImportWorkspaceReader( workspace ) );
             rss.setConfigProperty( ProjectToolsSession.SESSION_KEY, session );

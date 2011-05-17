@@ -16,10 +16,10 @@
 
 package org.commonjava.emb.project;
 
-import org.commonjava.emb.EMBException;
+import org.apache.maven.mae.MAEException;
 
 public class ProjectToolsException
-    extends EMBException
+    extends MAEException
 {
 
     private static final long serialVersionUID = 1L;

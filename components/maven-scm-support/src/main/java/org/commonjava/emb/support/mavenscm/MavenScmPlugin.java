@@ -16,7 +16,7 @@
 
 package org.commonjava.emb.support.mavenscm;
 
-import org.commonjava.emb.PluginGoal;
+import org.apache.maven.mae.PluginGoal;
 
 public class MavenScmPlugin
     extends PluginGoal

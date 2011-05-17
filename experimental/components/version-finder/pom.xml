@@ -41,8 +41,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-api</artifactId>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

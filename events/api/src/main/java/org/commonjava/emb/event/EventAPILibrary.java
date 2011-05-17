@@ -16,14 +16,14 @@
 
 package org.commonjava.emb.event;
 
+import org.apache.maven.mae.conf.AbstractMAELibrary;
+import org.apache.maven.mae.conf.MAELibrary;
+import org.apache.maven.mae.conf.MavenPomVersionProvider;
 import org.commonjava.atservice.annotation.Service;
-import org.commonjava.emb.conf.AbstractEMBLibrary;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
-import org.commonjava.emb.conf.EMBLibrary;
 
-@Service( EMBLibrary.class )
+@Service( MAELibrary.class )
 public class EventAPILibrary
-    extends AbstractEMBLibrary
+    extends AbstractMAELibrary
 {
     public EventAPILibrary()
     {

@@ -33,9 +33,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.emb</groupId>
-        <artifactId>emb-library-bom</artifactId>
-        <version>${project.version}</version>
+        <groupId>org.apache.maven.mae</groupId>
+        <artifactId>mae-library-bom</artifactId>
+        <version>${maeVersion}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

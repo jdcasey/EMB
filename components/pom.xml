@@ -37,8 +37,8 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.commonjava.emb</groupId>
-        <artifactId>emb-library-bom</artifactId>
+        <groupId>org.apache.maven.mae</groupId>
+        <artifactId>mae-library-bom</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
@@ -48,8 +48,8 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-api</artifactId>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-api</artifactId>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -75,8 +75,6 @@
     <module>autoboxing-version-range</module>
     <module>project-tools</module>
     <module>graph-support</module>
-    <module>auto-mirror</module>
-    <module>auto-mirror-model</module>
   </modules>
 
 </project>

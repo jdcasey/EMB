@@ -16,16 +16,16 @@
 
 package org.commonjava.emb.support.mavenscm;
 
+import org.apache.maven.mae.conf.AbstractMAELibrary;
+import org.apache.maven.mae.conf.MAELibrary;
+import org.apache.maven.mae.conf.MavenPomVersionProvider;
+import org.apache.maven.mae.internal.container.ComponentKey;
 import org.apache.maven.scm.manager.ScmManager;
 import org.commonjava.atservice.annotation.Service;
-import org.commonjava.emb.conf.AbstractEMBLibrary;
-import org.commonjava.emb.conf.EMBLibrary;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
-import org.commonjava.emb.plexus.ComponentKey;
 
-@Service( EMBLibrary.class )
+@Service( MAELibrary.class )
 public class MavenSCMExportLibrary
-    extends AbstractEMBLibrary
+    extends AbstractMAELibrary
 {
 
     public MavenSCMExportLibrary()

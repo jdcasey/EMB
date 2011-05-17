@@ -16,20 +16,15 @@
   <packaging>pom</packaging>
   
   <properties>
-  	<mavenVersion>3.0.2</mavenVersion>
-  	<plexusVersion>1.5.4</plexusVersion>
+    <maeVersion>3.0.3-SNAPSHOT</maeVersion>
+  	<mavenVersion>3.0.3</mavenVersion>
+  	<plexusVersion>1.5.5</plexusVersion>
   </properties>
   
   <modules>
-    <module>boms</module>
-    <module>api</module>
-    <module>infrastructure</module>
-    <module>booter</module>
     <module>components</module>
     <module>events</module>
-    <module>integration</module>
     <module>distro</module>
-    <module>apps</module>
   </modules>
   
   <scm>

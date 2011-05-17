@@ -40,15 +40,15 @@
     	<scope>compile</scope>
     </dependency>
     <dependency>
-    	<groupId>org.commonjava.emb</groupId>
-    	<artifactId>emb-booter</artifactId>
-    	<version>${project.version}</version>
+    	<groupId>org.apache.maven.mae</groupId>
+    	<artifactId>mae-booter</artifactId>
+    	<version>${maeVersion}</version>
     	<scope>compile</scope>
     </dependency>
     <dependency>
-    	<groupId>org.commonjava.emb</groupId>
-    	<artifactId>emb-app</artifactId>
-    	<version>${project.version}</version>
+    	<groupId>org.apache.maven.mae</groupId>
+    	<artifactId>mae-app</artifactId>
+    	<version>${maeVersion}</version>
     	<scope>test</scope>
     </dependency>
     <dependency>

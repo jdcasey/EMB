@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.mae.MAEException;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProblem;
@@ -35,7 +36,6 @@ import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.commonjava.emb.EMBException;
 import org.commonjava.emb.project.graph.DependencyGraph;
 import org.commonjava.emb.project.graph.DependencyGraphResolver;
 import org.sonatype.aether.RepositorySystem;
@@ -82,7 +82,7 @@ public class ProjectLoader
 
     public DependencyGraph resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
                                                        final boolean includeModuleProjects )
-        throws EMBException
+        throws MAEException
     {
         List<MavenProject> projects;
         if ( includeModuleProjects )

@@ -40,9 +40,9 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-booter</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-booter</artifactId>
+      <version>${maeVersion}</version>
     </dependency>
     <dependency>
       <groupId>commons-cli</groupId>

@@ -17,10 +17,10 @@
 package org.commonjava.emb.version.autobox.lib;
 
 import org.apache.commons.io.IOUtils;
-import org.commonjava.emb.conf.EMBConfiguration;
-import org.commonjava.emb.conf.ext.ExtensionConfiguration;
-import org.commonjava.emb.conf.ext.ExtensionConfigurationException;
-import org.commonjava.emb.conf.ext.ExtensionConfigurationLoader;
+import org.apache.maven.mae.conf.MAEConfiguration;
+import org.apache.maven.mae.conf.ext.ExtensionConfiguration;
+import org.apache.maven.mae.conf.ext.ExtensionConfigurationException;
+import org.apache.maven.mae.conf.ext.ExtensionConfigurationLoader;
 import org.commonjava.emb.version.autobox.qual.DefaultQualifiers;
 import org.commonjava.emb.version.autobox.qual.Qualifiers;
 
@@ -54,7 +54,7 @@ public class AutoboxingConfigReader
     }
 
     @Override
-    public ExtensionConfiguration loadConfiguration( final EMBConfiguration embConfig )
+    public ExtensionConfiguration loadConfiguration( final MAEConfiguration embConfig )
         throws ExtensionConfigurationException
     {
         if ( config != null )

@@ -26,6 +26,12 @@ import org.apache.log4j.spi.Configurator;
 import org.apache.log4j.spi.LoggerRepository;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.mae.MAEException;
+import org.apache.maven.mae.boot.embed.MAEEmbedder;
+import org.apache.maven.mae.boot.embed.MAEEmbedderBuilder;
+import org.apache.maven.mae.boot.embed.MAEEmbeddingException;
+import org.apache.maven.mae.conf.MavenPomVersionProvider;
+import org.apache.maven.mae.conf.VersionProvider;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
@@ -35,13 +41,7 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.EMBException;
 import org.commonjava.emb.app.AbstractEMBApplication;
-import org.commonjava.emb.boot.embed.EMBEmbedder;
-import org.commonjava.emb.boot.embed.EMBEmbedderBuilder;
-import org.commonjava.emb.boot.embed.EMBEmbeddingException;
-import org.commonjava.emb.conf.MavenPomVersionProvider;
-import org.commonjava.emb.conf.VersionProvider;
 import org.commonjava.emb.project.ProjectLoader;
 import org.commonjava.emb.project.ProjectToolsSession;
 import org.commonjava.emb.project.SimpleProjectToolsSession;
@@ -64,7 +64,7 @@ public final class TestFixture
 {
 
     @Requirement
-    private EMBEmbedder emb;
+    private MAEEmbedder embedder;
 
     @Requirement
     private ProjectBuilder projectBuilder;
@@ -91,7 +91,7 @@ public final class TestFixture
     private static int instances = 0;
 
     private TestFixture()
-        throws EMBException, IOException
+        throws MAEException, IOException
     {
         setupDebugLogging();
 
@@ -125,7 +125,7 @@ public final class TestFixture
     }
 
     public static TestFixture getInstance()
-        throws EMBException, IOException
+        throws MAEException, IOException
     {
         if ( fixture == null )
         {
@@ -206,9 +206,9 @@ public final class TestFixture
         return pom;
     }
 
-    public EMBEmbedder emb()
+    public MAEEmbedder embedder()
     {
-        return emb;
+        return embedder;
     }
 
     public void shutdown()
@@ -261,7 +261,7 @@ public final class TestFixture
 
     @Override
     protected void afterLoading()
-        throws EMBException
+        throws MAEException
     {
         super.afterLoading();
         try
@@ -270,12 +270,12 @@ public final class TestFixture
         }
         catch ( final IOException e )
         {
-            throw new EMBException( "Failed to initialize: %s", e, e.getMessage() );
+            throw new MAEException( "Failed to initialize: %s", e, e.getMessage() );
         }
     }
 
     private void initFiles()
-        throws EMBException, IOException
+        throws MAEException, IOException
     {
         if ( localRepoDir == null || !localRepoDir.isDirectory() )
         {
@@ -285,7 +285,7 @@ public final class TestFixture
             }
             catch ( final IOException e )
             {
-                throw new EMBEmbeddingException( "Failed to create test local-repository directory.\nReason: %s", e,
+                throw new MAEEmbeddingException( "Failed to create test local-repository directory.\nReason: %s", e,
                                                  e.getMessage() );
             }
         }
@@ -298,7 +298,7 @@ public final class TestFixture
             }
             catch ( final IOException e )
             {
-                throw new EMBEmbeddingException( "Failed to create temporary projects directory.\nReason: %s", e,
+                throw new MAEEmbeddingException( "Failed to create temporary projects directory.\nReason: %s", e,
                                                  e.getMessage() );
             }
         }
@@ -313,22 +313,22 @@ public final class TestFixture
         }
         catch ( final MalformedURLException e )
         {
-            throw new EMBEmbeddingException( "Failed to create test remote-repository instance.\nReason: %s", e,
+            throw new MAEEmbeddingException( "Failed to create test remote-repository instance.\nReason: %s", e,
                                              e.getMessage() );
         }
     }
 
     private void initObjects()
-        throws EMBException
+        throws MAEException
     {
         try
         {
-            remoteRepository = emb.serviceManager().mavenRepositorySystem().buildArtifactRepository( rawRemoteRepo );
-            localRepository = emb.serviceManager().mavenRepositorySystem().createLocalRepository( localRepoDir );
+            remoteRepository = embedder.serviceManager().mavenRepositorySystem().buildArtifactRepository( rawRemoteRepo );
+            localRepository = embedder.serviceManager().mavenRepositorySystem().createLocalRepository( localRepoDir );
         }
         catch ( final InvalidRepositoryException e )
         {
-            throw new EMBEmbeddingException( "Failed to create  repository instances. Reason: %s", e, e.getMessage() );
+            throw new MAEEmbeddingException( "Failed to create  repository instances. Reason: %s", e, e.getMessage() );
         }
     }
 
@@ -353,8 +353,8 @@ public final class TestFixture
     }
 
     @Override
-    protected void configureBuilder( final EMBEmbedderBuilder builder )
-        throws EMBException
+    protected void configureBuilder( final MAEEmbedderBuilder builder )
+        throws MAEException
     {
         super.configureBuilder( builder );
 

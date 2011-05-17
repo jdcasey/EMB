@@ -18,9 +18,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.commonjava.emb</groupId>
-        <artifactId>emb-app-bom</artifactId>
-        <version>${project.version}</version>
+        <groupId>org.apache.maven.mae</groupId>
+        <artifactId>mae-app-bom</artifactId>
+        <version>${maeVersion}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -36,18 +36,18 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-app</artifactId>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-app</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-api</artifactId>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-api</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.commonjava.emb</groupId>
-      <artifactId>emb-booter</artifactId>
+      <groupId>org.apache.maven.mae</groupId>
+      <artifactId>mae-booter</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
