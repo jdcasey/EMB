@@ -59,19 +59,14 @@ public abstract class AbstractEMBApplication
         return this;
     }
 
-    private EMBEmbedderBuilder builder()
-    {
-        return new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
-    }
-
     @Override
     public EMBApplication load()
         throws EMBException
     {
-        return doLoad( null );
+        return doLoad();
     }
 
-    private synchronized EMBApplication doLoad( final EMBApplicationConfiguration configuration )
+    private synchronized EMBApplication doLoad()
         throws EMBException
     {
         if ( loaded )
@@ -79,14 +74,10 @@ public abstract class AbstractEMBApplication
             return this;
         }
 
-        final EMBEmbedderBuilder builder = builder();
+        final EMBEmbedderBuilder builder = new EMBEmbedderBuilder().withLibraryLoader( new InstanceLibraryLoader( additionalLibraries ) );
 
         beforeLoading();
         configureBuilder( builder );
-        if ( configuration != null )
-        {
-            configuration.configureBuilder( builder );
-        }
 
         builder.build();
         for ( final ComponentKey<?> key : getInstanceRegistry().getInstances().keySet() )

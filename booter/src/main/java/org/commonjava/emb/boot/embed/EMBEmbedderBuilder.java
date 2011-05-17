@@ -63,7 +63,6 @@ import java.util.List;
 import java.util.Set;
 
 public class EMBEmbedderBuilder
-    implements EMBOptions
 {
 
     private static final EMBLibraryLoader CORE_LOADER = new EMBLibraryLoader()
@@ -838,97 +837,6 @@ public class EMBEmbedderBuilder
     public String[] debugLogHandles()
     {
         return debugLogHandles;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.commonjava.emb.boot.embed.EMBOptions#mergeIn(org.commonjava.emb.boot.embed.EMBOptions)
-     */
-    @Override
-    public EMBOptions mergeIn( final EMBOptions options )
-    {
-        // EMBConfiguration embConfiguration();
-        final EMBConfiguration config = options.embConfiguration();
-        if ( config != null )
-        {
-            withEMBConfiguration( config );
-        }
-
-        // boolean isServiceLibraryLoaderUsed();
-        if ( !options.isServiceLibraryLoaderUsed() )
-        {
-            withServiceLibraryLoader( false );
-        }
-
-        // boolean showVersion();
-        if ( options.showVersion() )
-        {
-            withVersion( true );
-        }
-
-        // File logFile();
-        final File logFile = options.logFile();
-        if ( logFile != null && logFile != logFile() )
-        {
-            withLogFile( logFile );
-        }
-
-        // boolean shouldBeQuiet();
-        if ( options.shouldBeQuiet() )
-        {
-            withQuietMode( true );
-        }
-        // boolean shouldShowDebug();
-        if ( options.shouldShowDebug() )
-        {
-            withDebugMode( true );
-        }
-
-        // boolean shouldShowErrors();
-        if ( options.shouldShowErrors() )
-        {
-            withErrorMode( true );
-        }
-
-        // PrintStream standardOut();
-        if ( options.standardOut() != System.out )
-        {
-            withStandardOut( options.standardOut() );
-        }
-
-        // PrintStream standardErr();
-        if ( options.standardErr() != System.err )
-        {
-            withStandardErr( options.standardErr() );
-        }
-
-        // InputStream standardIn();
-        if ( options.standardIn() != System.in )
-        {
-            withStandardIn( options.standardIn() );
-        }
-
-        // String[] debugLogHandles();
-        final Set<String> lh = new LinkedHashSet<String>();
-        String[] handles = debugLogHandles();
-        if ( handles != null )
-        {
-            lh.addAll( Arrays.asList( handles ) );
-        }
-
-        handles = options.debugLogHandles();
-        if ( handles != null )
-        {
-            lh.addAll( Arrays.asList( handles ) );
-        }
-
-        if ( !lh.isEmpty() )
-        {
-            withDebugLogHandles( lh.toArray( new String[] {} ) );
-        }
-
-        return this;
     }
 
 }
