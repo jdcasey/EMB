@@ -19,6 +19,7 @@ package org.commonjava.emb.project;
 import static org.apache.maven.artifact.ArtifactUtils.key;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
@@ -56,6 +57,8 @@ public class SimpleProjectToolsSession
     private transient LinkedHashMap<String, MavenProject> reactorProjects = new LinkedHashMap<String, MavenProject>();
 
     private final File localRepositoryDirectory;
+
+    private MavenExecutionRequest executionRequest;
 
     public SimpleProjectToolsSession( final File workdir, final Repository... resolveRepositories )
     {
@@ -347,6 +350,26 @@ public class SimpleProjectToolsSession
     public File getLocalRepositoryDirectory()
     {
         return localRepositoryDirectory;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setExecutionRequest(org.apache.maven.execution.MavenExecutionRequest)
+     */
+    public ProjectToolsSession setExecutionRequest( MavenExecutionRequest request )
+    {
+        this.executionRequest = request;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getExecutionRequest()
+     */
+    @Override
+    public MavenExecutionRequest getExecutionRequest()
+    {
+        return executionRequest;
     }
 
 }

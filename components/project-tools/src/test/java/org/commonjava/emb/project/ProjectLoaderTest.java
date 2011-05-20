@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
-public class ProjectManagerTest
+public class ProjectLoaderTest
 {
 
     private static TestFixture fixture;

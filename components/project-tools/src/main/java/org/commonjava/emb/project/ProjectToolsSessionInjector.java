@@ -99,7 +99,7 @@ public class ProjectToolsSessionInjector
         if ( sess == null )
         {
             final DefaultRepositorySystemSession rss =
-                new DefaultRepositorySystemSession( embedder.serviceManager().createAetherRepositorySystemSession() );
+                new DefaultRepositorySystemSession( embedder.serviceManager().createAetherRepositorySystemSession( session.getExecutionRequest() ) );
 
             // session.setWorkspaceReader( new ImportWorkspaceReader( workspace ) );
             rss.setConfigProperty( ProjectToolsSession.SESSION_KEY, session );
