@@ -37,7 +37,7 @@ public class DepGraphNode
 
 //    private static final Logger LOGGER = Logger.getLogger( DepGraphNode.class );
 
-    private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
+//    private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
 
     private Artifact latestArtifact;
 
@@ -101,7 +101,7 @@ public class DepGraphNode
 
     public void merge( final DependencyNode node )
     {
-        nodes.add( new DisconnectedDepNode( node ) );
+//        nodes.add( new DisconnectedDepNode( node ) );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );
