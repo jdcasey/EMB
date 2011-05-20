@@ -60,6 +60,8 @@ public class SimpleProjectToolsSession
 
     private MavenExecutionRequest executionRequest;
 
+    private int resolveThreads = 4;
+
     public SimpleProjectToolsSession( final File workdir, final Repository... resolveRepositories )
     {
         this( workdir, new File( workdir, "local-repository" ), resolveRepositories );
@@ -370,6 +372,27 @@ public class SimpleProjectToolsSession
     public MavenExecutionRequest getExecutionRequest()
     {
         return executionRequest;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setResolveThreads(int)
+     */
+    @Override
+    public ProjectToolsSession setResolveThreads( int threads )
+    {
+        this.resolveThreads = threads;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getResolveThreads()
+     */
+    @Override
+    public int getResolveThreads()
+    {
+        return resolveThreads;
     }
 
 }

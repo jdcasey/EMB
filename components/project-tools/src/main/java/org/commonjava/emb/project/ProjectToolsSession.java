@@ -80,5 +80,9 @@ public interface ProjectToolsSession
     ProjectToolsSession setExecutionRequest( MavenExecutionRequest request );
 
     MavenExecutionRequest getExecutionRequest();
+    
+    ProjectToolsSession setResolveThreads( int threads );
+
+    int getResolveThreads();
 
 }

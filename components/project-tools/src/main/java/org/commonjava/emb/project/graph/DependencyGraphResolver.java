@@ -83,7 +83,7 @@ public class DependencyGraphResolver
         {
             LOGGER.info( "Resolving dependencies in graph..." );
         }
-        resolve( rss, rootProjects, depGraph );
+        resolve( rss, rootProjects, depGraph, session );
 
         if ( LOGGER.isDebugEnabled() )
         {
@@ -103,7 +103,7 @@ public class DependencyGraphResolver
     }
 
     private void resolve( final RepositorySystemSession session, final Collection<MavenProject> rootProjects,
-                          final DependencyGraph depGraph )
+                          final DependencyGraph depGraph, ProjectToolsSession toolsSession )
     {
         final Set<DependencyResolveWorker> workers = new HashSet<DependencyResolveWorker>();
         for ( final DepGraphNode node : depGraph )
@@ -120,7 +120,7 @@ public class DependencyGraphResolver
             workers.add( new DependencyResolveWorker( node, session, repositorySystem ) );
         }
 
-        runResolve( workers );
+        runResolve( workers, toolsSession );
         // for ( final DependencyResolveWorker worker : workers )
         // {
         // worker.run();
@@ -132,9 +132,9 @@ public class DependencyGraphResolver
         }
     }
 
-    private void runResolve( final Set<DependencyResolveWorker> workers )
+    private void runResolve( final Set<DependencyResolveWorker> workers, final ProjectToolsSession session )
     {
-        final ExecutorService executorService = Executors.newFixedThreadPool( 1 );
+        final ExecutorService executorService = Executors.newFixedThreadPool( session.getResolveThreads() );
 
         final CountDownLatch latch = new CountDownLatch( workers.size() );
         for ( final DependencyResolveWorker worker : workers )
