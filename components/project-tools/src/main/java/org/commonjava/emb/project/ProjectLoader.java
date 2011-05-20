@@ -39,6 +39,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.commonjava.emb.project.graph.DependencyGraph;
 import org.commonjava.emb.project.graph.DependencyGraphResolver;
 import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
@@ -80,6 +81,26 @@ public class ProjectLoader
     @Requirement
     private ProjectToolsSessionInjector sessionInjector;
 
+    public DependencyGraph loadProjectDependencyGraph( final File rootPom, final ProjectToolsSession session,
+                                                       final boolean includeModuleProjects )
+        throws MAEException
+    {
+        List<MavenProject> projects;
+        if ( includeModuleProjects )
+        {
+            projects = buildReactorProjectInstances( session, rootPom );
+        }
+        else
+        {
+            projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
+        }
+
+        DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, sessionInjector.getRepositorySystemSession( session ), session );
+        session.setDependencyGraph( depGraph );
+
+        return depGraph;
+    }
+
     public DependencyGraph resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
                                                        final boolean includeModuleProjects )
         throws MAEException
@@ -94,9 +115,13 @@ public class ProjectLoader
             projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
         }
 
-        dependencyGraphResolver.resolveGraph( projects, sessionInjector.getRepositorySystemSession( session ), session );
+        RepositorySystemSession rss = sessionInjector.getRepositorySystemSession( session );
+        DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, rss, session );
+        dependencyGraphResolver.resolveGraph( depGraph, projects, rss, session );
+        
+        session.setDependencyGraph( depGraph );
 
-        return session.getDependencyGraph();
+        return depGraph;
     }
 
     public List<MavenProject> buildReactorProjectInstances( final ProjectToolsSession session, final File... rootPoms )
