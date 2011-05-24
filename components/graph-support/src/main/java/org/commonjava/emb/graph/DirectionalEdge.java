@@ -41,9 +41,14 @@ public class DirectionalEdge<V>
     {
         return to;
     }
+    
+    public interface DirectionalEdgeFactory<V, E extends DirectionalEdge<V>>
+        extends EdgeFactory<V, E>
+    {
+    }
 
-    public static final class DirectionalEdgeFactory<V>
-        implements EdgeFactory<V, DirectionalEdge<V>>
+    public static final class SimpleDirectionalEdgeFactory<V>
+        implements DirectionalEdgeFactory<V, DirectionalEdge<V>>
     {
         @Override
         public DirectionalEdge<V> createEdge( final V from, final V to )

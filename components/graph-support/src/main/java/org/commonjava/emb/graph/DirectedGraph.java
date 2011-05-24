@@ -23,18 +23,18 @@ import org.commonjava.emb.graph.output.VertexPrinter;
 import org.commonjava.emb.graph.traverse.GraphVisitor;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
-public class SimpleDirectedGraph<V>
-    extends DefaultDirectedGraph<V, DirectionalEdge<V>>
+public class DirectedGraph<V, E extends DirectionalEdge<V>>
+    extends DefaultDirectedGraph<V, E>
 {
 
     private static final long serialVersionUID = 1L;
 
-    public SimpleDirectedGraph()
+    public DirectedGraph( DirectionalEdge.DirectionalEdgeFactory<V, E> factory )
     {
-        super( new DirectionalEdge.SimpleDirectionalEdgeFactory<V>() );
+        super( factory );
     }
 
-    public SimpleDirectedGraph<V> connect( final V from, final V to )
+    public DirectedGraph<V, E> connect( final V from, final V to )
     {
         if ( !containsVertex( from ) )
         {
@@ -46,7 +46,7 @@ public class SimpleDirectedGraph<V>
             addVertex( to );
         }
 
-        final DirectionalEdge<V> edge = getEdgeFactory().createEdge( from, to );
+        final E edge = getEdgeFactory().createEdge( from, to );
         if ( !containsEdge( edge ) )
         {
             addEdge( from, to, edge );
