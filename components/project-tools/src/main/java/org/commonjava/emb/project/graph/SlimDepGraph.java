@@ -46,7 +46,7 @@ public class SlimDepGraph
         List<DependencyNode> children = new ArrayList<DependencyNode>();
         for ( SlimDependencyEdge edge : allEdges )
         {
-            if ( edge.getFrom() == node )
+            if ( edge.getFrom() == node && edge.getTo() != node )
             {
                 children.add( edge );
             }

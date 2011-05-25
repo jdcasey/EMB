@@ -70,7 +70,7 @@ public class SlimDependencyNode
 
     public List<RemoteRepository> getRepositories()
     {
-        return Collections.unmodifiableList( repositories );
+        return repositories == null ? null : Collections.unmodifiableList( repositories );
     }
 
     public synchronized void setRepositories( List<RemoteRepository> repositories )
