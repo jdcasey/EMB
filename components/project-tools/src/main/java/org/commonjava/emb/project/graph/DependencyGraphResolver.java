@@ -558,6 +558,7 @@ public class DependencyGraphResolver
         public void run()
         {
             final Artifact artifact = depState.getLatestArtifact();
+            
             try
             {
                 final ArtifactRequest request =

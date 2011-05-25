@@ -21,13 +21,14 @@ import org.commonjava.emb.graph.traverse.GraphVisitor;
 import org.jgrapht.event.EdgeTraversalEvent;
 import org.jgrapht.event.VertexTraversalEvent;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GraphPrinter<V, E>
     extends GraphVisitor<V, E>
 {
-    private final StringBuilder builder = new StringBuilder();
+    private PrintWriter printWriter;
 
     private final String indent;
 
@@ -39,53 +40,50 @@ public class GraphPrinter<V, E>
 
     private final EdgePrinter<E> ePrinter;
 
-    public GraphPrinter()
+    public GraphPrinter( final PrintWriter printWriter )
     {
-        this( null, new VertexPrinter.ToStringPrinter<V>(), null );
+        this( null, new VertexPrinter.ToStringPrinter<V>(), null, printWriter );
     }
 
-    public GraphPrinter( final boolean printEdges )
+    public GraphPrinter( final boolean printEdges, final PrintWriter printWriter )
     {
-        this( null, new VertexPrinter.ToStringPrinter<V>(), printEdges ? new EdgePrinter.ToStringPrinter<E>() : null );
+        this( null, new VertexPrinter.ToStringPrinter<V>(), printEdges ? new EdgePrinter.ToStringPrinter<E>() : null,
+              printWriter );
     }
 
-    public GraphPrinter( final VertexPrinter<V> vPrinter )
+    public GraphPrinter( final VertexPrinter<V> vPrinter, final PrintWriter printWriter )
     {
-        this( null, vPrinter, null );
+        this( null, vPrinter, null, printWriter );
     }
 
-    public GraphPrinter( final EdgePrinter<E> ePrinter )
+    public GraphPrinter( final EdgePrinter<E> ePrinter, final PrintWriter printWriter )
     {
-        this( null, null, ePrinter );
+        this( null, null, ePrinter, printWriter );
     }
 
-    public GraphPrinter( final String indent, final VertexPrinter<V> vPrinter, final EdgePrinter<E> ePrinter )
+    public GraphPrinter( final String indent, final VertexPrinter<V> vPrinter, final EdgePrinter<E> ePrinter,
+                         final PrintWriter printWriter )
     {
         this.vPrinter = vPrinter;
         this.ePrinter = ePrinter;
+        this.printWriter = printWriter;
         this.indent = indent == null ? "  " : indent;
     }
 
-    public GraphPrinter<V, E> clear()
+    public GraphPrinter<V, E> reset( PrintWriter printWriter )
     {
-        builder.setLength( 0 );
+        this.printWriter = printWriter;
         indentCounter = 0;
         lines.clear();
 
         return this;
     }
 
-    @Override
-    public String toString()
-    {
-        return builder.toString();
-    }
-
     private void indentLine()
     {
         for ( int i = 0; i < indentCounter; i++ )
         {
-            builder.append( indent );
+            printWriter.append( indent );
         }
     }
 
@@ -99,7 +97,7 @@ public class GraphPrinter<V, E>
             newLine();
             indentLine();
 
-            builder.append( vPrinter.vertexStarted( vertex ) );
+            printWriter.append( vPrinter.vertexStarted( vertex ) );
             lines.add( vertex );
         }
 
@@ -118,7 +116,7 @@ public class GraphPrinter<V, E>
                 newLine();
                 indentLine();
 
-                builder.append( ending );
+                printWriter.append( ending );
                 lines.add( "end" );
             }
         }
@@ -136,29 +134,26 @@ public class GraphPrinter<V, E>
 
             final E edge = e.getEdge();
 
-            builder.append( '(' ).append( ePrinter.printEdge( edge ) ).append( ')' );
+            printWriter.append( '(' ).append( ePrinter.printEdge( edge ) ).append( ')' );
             lines.add( edge );
         }
     }
 
     private void newLine()
     {
-        if ( builder.length() > 0 )
-        {
-            builder.append( '\n' );
-        }
+        printWriter.append( '\n' );
 
         final int sz = lines.size() + 1;
-        builder.append( sz ).append( ":" );
+        printWriter.append( Integer.toString( sz ) ).append( ":" );
         if ( sz < 100 )
         {
-            builder.append( ' ' );
+            printWriter.append( ' ' );
             if ( sz < 10 )
             {
-                builder.append( ' ' );
+                printWriter.append( ' ' );
             }
         }
-        builder.append( ">" ).append( indentCounter ).append( ' ' );
+        printWriter.append( ">" ).append( Integer.toString( indentCounter ) ).append( ' ' );
     }
 
     @Override
@@ -175,10 +170,10 @@ public class GraphPrinter<V, E>
             final String skip = vPrinter.vertexSkipped( vertex );
             if ( skip != null )
             {
-                builder.append( skip ).append( ' ' );
+                printWriter.append( skip ).append( ' ' );
             }
         }
-        builder.append( "-DUPLICATE- (see line: " ).append( idx + 1 ).append( ")" );
+        printWriter.append( "-DUPLICATE- (see line: " ).append( Integer.toString( idx + 1 ) ).append( ")" );
 
         // we need some placeholder here, without screwing up indexOf() operations for the vertex...
         lines.add( idx );

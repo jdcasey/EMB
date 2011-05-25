@@ -109,7 +109,7 @@ public class SlimDependencyEdge
 
     public Artifact getArtifact()
     {
-        return graph.getArtfiact( artifact );
+        return graph.getArtifact( artifact );
     }
 
     /**

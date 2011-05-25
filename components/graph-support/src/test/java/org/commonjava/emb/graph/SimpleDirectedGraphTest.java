@@ -22,6 +22,9 @@ import org.commonjava.emb.graph.output.EdgePrinter;
 import org.commonjava.emb.graph.traverse.GraphWalker;
 import org.junit.Test;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class SimpleDirectedGraphTest
 {
 
@@ -30,13 +33,15 @@ public class SimpleDirectedGraphTest
     {
         final SimpleDirectedGraph<String> graph = new SimpleDirectedGraph<String>();
         graph.connect( "from", "to" ).connect( "to", "onward" );
+        
+        StringWriter sw = new StringWriter();
 
         final Printer<String> printer =
-            new Printer<String>( new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>() );
+            new Printer<String>( new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>(), new PrintWriter( sw ) );
 
         GraphWalker.walkPath( graph, "from", printer );
 
-        System.out.println( printer );
+        System.out.println( sw );
     }
 
 }

@@ -53,6 +53,8 @@ public class DepGraphNode
     
     private Set<Throwable> errors = new HashSet<Throwable>();
 
+    private DependencyNode latestDependencyNode;
+
     public DepGraphNode( final DependencyNode node )
     {
         this( node, null, false );
@@ -99,8 +101,10 @@ public class DepGraphNode
         return preResolved;
     }
 
-    public void merge( final DependencyNode node )
+    public synchronized void merge( final DependencyNode node )
     {
+        latestDependencyNode = node;
+        
 //        nodes.add( new DisconnectedDepNode( node ) );
         if ( node.getRepositories() != null )
         {
@@ -122,13 +126,18 @@ public class DepGraphNode
 
         latestResult = result;
     }
+    
+    public DependencyNode getLatestDependencyNode()
+    {
+        return latestDependencyNode;
+    }
 
-    public synchronized ArtifactResult getLatestResult()
+    public ArtifactResult getLatestResult()
     {
         return latestResult;
     }
 
-    public synchronized Artifact getLatestArtifact()
+    public Artifact getLatestArtifact()
     {
         return latestArtifact;
     }

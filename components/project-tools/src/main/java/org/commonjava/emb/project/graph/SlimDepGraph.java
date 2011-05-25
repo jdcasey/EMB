@@ -25,6 +25,7 @@ import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import java.util.Set;
 public class SlimDepGraph
 {
     
+    private static final List<Artifact> NO_ARTIFACTS = Collections.emptyList();
+
     private DirectedGraph<SlimDependencyNode, SlimDependencyEdge> graph =
         new DirectedGraph<SlimDependencyNode, SlimDependencyEdge>( new SlimDependencyEdge.Factory( this ) );
     
@@ -40,7 +43,7 @@ public class SlimDepGraph
     
     private List<RemoteRepository> repositories = new ArrayList<RemoteRepository>();
 
-    public List<DependencyNode> childrenOf( SlimDependencyNode node )
+    public synchronized List<DependencyNode> childrenOf( SlimDependencyNode node )
     {
         Set<SlimDependencyEdge> allEdges = graph.edgesOf( node );
         List<DependencyNode> children = new ArrayList<DependencyNode>();
@@ -91,6 +94,11 @@ public class SlimDepGraph
 
     public synchronized List<Artifact> getArtifacts( List<String> ids )
     {
+        if ( ids == null )
+        {
+            return NO_ARTIFACTS;
+        }
+        
         List<Artifact> result = new ArrayList<Artifact>( ids.size() );
         for ( String id : ids )
         {
@@ -100,7 +108,7 @@ public class SlimDepGraph
         return result;
     }
 
-    public Artifact getArtfiact( String id )
+    public Artifact getArtifact( String id )
     {
         return artifacts.get( id );
     }
@@ -112,7 +120,7 @@ public class SlimDepGraph
             graph.addVertex( from );
         }
         
-        if ( !graph.containsVertex( to ) )
+        if ( from != to && !graph.containsVertex( to ) )
         {
             graph.addVertex( to );
         }
@@ -134,4 +142,8 @@ public class SlimDepGraph
         return null;
     }
 
+    public SlimDependencyNode getNode( Artifact artifact )
+    {
+        return getNode( toId( artifact ) );
+    }
 }

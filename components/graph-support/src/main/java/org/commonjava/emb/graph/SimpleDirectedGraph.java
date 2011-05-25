@@ -23,6 +23,8 @@ import org.commonjava.emb.graph.output.VertexPrinter;
 import org.commonjava.emb.graph.traverse.GraphVisitor;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
+import java.io.PrintWriter;
+
 public class SimpleDirectedGraph<V>
     extends DefaultDirectedGraph<V, DirectionalEdge<V>>
 {
@@ -65,29 +67,30 @@ public class SimpleDirectedGraph<V>
         extends GraphPrinter<T, DirectionalEdge<T>>
     {
 
-        public Printer()
+        public Printer( final PrintWriter printWriter )
         {
+            super( printWriter );
         }
 
-        public Printer( final boolean printEdges )
+        public Printer( final boolean printEdges, final PrintWriter printWriter )
         {
-            super( printEdges );
+            super( printEdges, printWriter );
         }
 
-        public Printer( final VertexPrinter<T> vPrinter )
+        public Printer( final VertexPrinter<T> vPrinter, final PrintWriter printWriter )
         {
-            super( vPrinter );
+            super( vPrinter, printWriter );
         }
 
-        public Printer( final EdgePrinter<DirectionalEdge<T>> ePrinter )
+        public Printer( final EdgePrinter<DirectionalEdge<T>> ePrinter, final PrintWriter printWriter )
         {
-            super( ePrinter );
+            super( ePrinter, printWriter );
         }
 
         public Printer( final String indent, final VertexPrinter<T> vPrinter,
-                        final EdgePrinter<DirectionalEdge<T>> ePrinter )
+                        final EdgePrinter<DirectionalEdge<T>> ePrinter, final PrintWriter printWriter )
         {
-            super( indent, vPrinter, ePrinter );
+            super( indent, vPrinter, ePrinter, printWriter );
         }
 
     }
