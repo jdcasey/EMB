@@ -30,6 +30,8 @@ public class SlimDependencyNode
 
     public static final String UNKNOWN_ROOT_ID = "anonymous-root".intern();
 
+    private static final List<RemoteRepository> NO_REPOSITORIES = Collections.emptyList();
+
     private SlimDepGraph graph;
 
     private List<String> aliases;
@@ -70,7 +72,7 @@ public class SlimDependencyNode
 
     public List<RemoteRepository> getRepositories()
     {
-        return repositories == null ? null : Collections.unmodifiableList( repositories );
+        return repositories == null ? NO_REPOSITORIES : Collections.unmodifiableList( repositories );
     }
 
     public synchronized void setRepositories( List<RemoteRepository> repositories )
