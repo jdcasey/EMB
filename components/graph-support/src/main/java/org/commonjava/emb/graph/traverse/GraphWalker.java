@@ -31,6 +31,8 @@ public final class GraphWalker
                                                     final GraphVisitor<V, E> visitor )
     {
         final LinkedHashSet<V> encounters = new LinkedHashSet<V>();
+        encounters.add( start );
+        
         walkEdgesOf( graph, start, visitor, encounters );
 
         return encounters;
@@ -52,14 +54,13 @@ public final class GraphWalker
             visitor.edgeTraversed( new EdgeTraversalEvent<V, E>( graph, edge ) );
             if ( !progress.contains( to ) )
             {
+                progress.add( to );
                 walkEdgesOf( graph, to, visitor, progress );
             }
             else
             {
                 visitor.skippedVertexTraversal( to );
             }
-
-            progress.add( to );
         }
         visitor.vertexFinished( new VertexTraversalEvent<V>( graph, from ) );
     }

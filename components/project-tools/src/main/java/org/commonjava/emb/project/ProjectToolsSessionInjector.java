@@ -16,6 +16,7 @@
 
 package org.commonjava.emb.project;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.repository.MavenArtifactRepository;
@@ -29,6 +30,8 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.impl.internal.EnhancedLocalRepositoryManager;
+import org.sonatype.aether.repository.AuthenticationSelector;
+import org.sonatype.aether.repository.ProxySelector;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
@@ -39,6 +42,8 @@ import java.util.List;
 @Component( role = ProjectToolsSessionInjector.class )
 public class ProjectToolsSessionInjector
 {
+
+    private static final Logger LOGGER = Logger.getLogger( ProjectToolsSessionInjector.class );
 
     @Requirement
     private MAEEmbedder embedder;
@@ -64,8 +69,7 @@ public class ProjectToolsSessionInjector
 
                 final RepositorySystemSession rss = getRepositorySystemSession( session );
                 pbr.setRepositorySession( rss );
-                pbr.setLocalRepository( mavenRepositorySystem.createLocalRepository( rss.getLocalRepository()
-                                                                                        .getBasedir() ) );
+                pbr.setLocalRepository( mavenRepositorySystem.createLocalRepository( rss.getLocalRepository().getBasedir() ) );
                 pbr.setRemoteRepositories( getArtifactRepositories( session ) );
 
                 session.setProjectBuildingRequest( pbr );
@@ -83,7 +87,7 @@ public class ProjectToolsSessionInjector
         catch ( final InvalidRepositoryException e )
         {
             throw new ProjectToolsException( "Failed to create local-repository instance. Reason: %s", e,
-                                                   e.getMessage() );
+                                             e.getMessage() );
         }
 
         return pbr;
@@ -99,7 +103,8 @@ public class ProjectToolsSessionInjector
         if ( sess == null )
         {
             final DefaultRepositorySystemSession rss =
-                new DefaultRepositorySystemSession( embedder.serviceManager().createAetherRepositorySystemSession( session.getExecutionRequest() ) );
+                new DefaultRepositorySystemSession(
+                                                    embedder.serviceManager().createAetherRepositorySystemSession( session.getExecutionRequest() ) );
 
             // session.setWorkspaceReader( new ImportWorkspaceReader( workspace ) );
             rss.setConfigProperty( ProjectToolsSession.SESSION_KEY, session );
@@ -123,15 +128,42 @@ public class ProjectToolsSessionInjector
         {
             result = new ArrayList<RemoteRepository>();
 
+            boolean selectorsEnabled = false;
+            AuthenticationSelector authSelector = null;
+            ProxySelector proxySelector = null;
+            if ( session.getRepositorySystemSession() != null )
+            {
+                selectorsEnabled = true;
+                authSelector = session.getRepositorySystemSession().getAuthenticationSelector();
+                proxySelector = session.getRepositorySystemSession().getProxySelector();
+            }
+            else
+            {
+                LOGGER.warn( "Cannot set proxy or authentication information on new RemoteRepositories; " +
+                		"RepositorySystemSession is not available in ProjectToolsSession instance." );
+            }
+
             for ( final ArtifactRepository repo : getArtifactRepositories( session ) )
             {
+                RemoteRepository r = null;
                 if ( repo instanceof RemoteRepository )
                 {
-                    result.add( (RemoteRepository) repo );
+                    r = (RemoteRepository) repo;
                 }
                 else if ( repo instanceof MavenArtifactRepository )
                 {
-                    result.add( new RemoteRepository( repo.getId(), "default", repo.getUrl() ) );
+                    r = new RemoteRepository( repo.getId(), "default", repo.getUrl() );
+                }
+
+                if ( r != null )
+                {
+                    if ( selectorsEnabled )
+                    {
+                        r.setAuthentication( authSelector.getAuthentication( r ) );
+                        r.setProxy( proxySelector.getProxy( r ) );
+                    }
+
+                    result.add( r );
                 }
             }
 
@@ -162,8 +194,8 @@ public class ProjectToolsSessionInjector
                     catch ( final InvalidRepositoryException e )
                     {
                         throw new ProjectToolsException(
-                                                               "Failed to create remote artifact repository instance from: %s\nReason: %s",
-                                                               e, repo, e.getMessage() );
+                                                         "Failed to create remote artifact repository instance from: %s\nReason: %s",
+                                                         e, repo, e.getMessage() );
                     }
                 }
             }
@@ -175,7 +207,7 @@ public class ProjectToolsSessionInjector
             catch ( final InvalidRepositoryException e )
             {
                 throw new ProjectToolsException( "Failed to create default (central) repository instance: %s", e,
-                                                       e.getMessage() );
+                                                 e.getMessage() );
             }
 
             session.setRemoteArtifactRepositories( repos );
