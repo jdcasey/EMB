@@ -16,7 +16,7 @@
   <packaging>pom</packaging>
   
   <properties>
-    <maeVersion>3.0.3-SNAPSHOT</maeVersion>
+    <maeVersion>1.0-alpha-1-SNAPSHOT</maeVersion>
   	<mavenVersion>3.0.3</mavenVersion>
   	<plexusVersion>1.5.5</plexusVersion>
   </properties>
