@@ -17,9 +17,5 @@
       <artifactId>jgrapht-jdk1.5</artifactId>
       <version>0.7.3</version>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
   </dependencies>
 </project>

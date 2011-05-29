@@ -27,6 +27,7 @@ import org.apache.log4j.spi.LoggerRepository;
 import org.apache.maven.artifact.InvalidRepositoryException;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.mae.MAEException;
+import org.apache.maven.mae.app.AbstractMAEApplication;
 import org.apache.maven.mae.boot.embed.MAEEmbedder;
 import org.apache.maven.mae.boot.embed.MAEEmbedderBuilder;
 import org.apache.maven.mae.boot.embed.MAEEmbeddingException;
@@ -41,7 +42,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.app.AbstractMAEApplication;
 import org.commonjava.emb.project.ProjectLoader;
 import org.commonjava.emb.project.ProjectToolsSession;
 import org.commonjava.emb.project.SimpleProjectToolsSession;
@@ -260,10 +260,10 @@ public final class TestFixture
     }
 
     @Override
-    protected void afterLoading()
+    protected void afterLoading( MAEEmbedder embedder )
         throws MAEException
     {
-        super.afterLoading();
+        super.afterLoading( embedder );
         try
         {
             initFiles();
