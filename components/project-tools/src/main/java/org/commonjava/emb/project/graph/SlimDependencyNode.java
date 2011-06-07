@@ -20,9 +20,7 @@ package org.commonjava.emb.project.graph;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class SlimDependencyNode
@@ -30,59 +28,39 @@ public class SlimDependencyNode
 
     public static final String UNKNOWN_ROOT_ID = "anonymous-root".intern();
 
-    private static final List<RemoteRepository> NO_REPOSITORIES = Collections.emptyList();
-
     private SlimDepGraph graph;
 
-    private List<String> aliases;
+    private final String key;
 
-    private List<RemoteRepository> repositories;
-
-    private final String artifactId;
-
-    public SlimDependencyNode( String artifactId, SlimDepGraph graph )
+    public SlimDependencyNode( String key, SlimDepGraph graph )
     {
-        this.artifactId = artifactId;
+        this.key = key;
         this.graph = graph;
     }
 
     public Collection<Artifact> getAliases()
     {
-        return graph.getArtifacts( aliases );
+        return graph.getAliases( key );
     }
 
     public synchronized void setAliases( Collection<Artifact> aliases )
     {
-        this.aliases = new ArrayList<String>();
-        for ( Artifact artifact : aliases )
-        {
-            this.aliases.add( graph.store( artifact ) );
-        }
+        graph.setAliases( key, aliases );
     }
 
     public synchronized void addAlias( Artifact artifact )
     {
-        if ( this.aliases == null )
-        {
-            this.aliases = new ArrayList<String>();
-        }
-
-        this.aliases.add( graph.store( artifact ) );
+        graph.addAlias( key, artifact );
     }
 
     public List<RemoteRepository> getRepositories()
     {
-        return repositories == null ? NO_REPOSITORIES : Collections.unmodifiableList( repositories );
+        return graph.getRepositories( key );
     }
 
     public synchronized void setRepositories( List<RemoteRepository> repositories )
     {
-        this.repositories = new ArrayList<RemoteRepository>();
-        for ( RemoteRepository repo : repositories )
-        {
-            this.repositories.add( graph.intern( repo ) );
-        }
-        this.repositories = repositories;
+        graph.setRepositories( key, repositories );
     }
 
     @Override
@@ -90,7 +68,7 @@ public class SlimDependencyNode
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ( ( artifactId == null ) ? 0 : artifactId.hashCode() );
+        result = prime * result + ( ( key == null ) ? 0 : key.hashCode() );
         return result;
     }
 
@@ -104,12 +82,12 @@ public class SlimDependencyNode
         if ( getClass() != obj.getClass() )
             return false;
         SlimDependencyNode other = (SlimDependencyNode) obj;
-        if ( artifactId == null )
+        if ( key == null )
         {
-            if ( other.artifactId != null )
+            if ( other.key != null )
                 return false;
         }
-        else if ( !artifactId.equals( other.artifactId ) )
+        else if ( !key.equals( other.key ) )
             return false;
         return true;
     }
@@ -117,6 +95,6 @@ public class SlimDependencyNode
     @Override
     public String toString()
     {
-        return "SlimDependencyNode [artifactId=" + artifactId + "]";
+        return "SlimDependencyNode [artifactId=" + key + "]";
     }
 }

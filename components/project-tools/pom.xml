@@ -72,5 +72,9 @@
     	<artifactId>emb-graph-support</artifactId>
     	<version>${project.version}</version>
     </dependency>
+    <dependency>
+    	<groupId>commons-lang</groupId>
+    	<artifactId>commons-lang</artifactId>
+    </dependency>
   </dependencies>
 </project>

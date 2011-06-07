@@ -25,8 +25,10 @@ import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +45,12 @@ public class SlimDepGraph
     
     private List<RemoteRepository> repositories = new ArrayList<RemoteRepository>();
 
+    private Map<String, Set<Artifact>> relocations = new HashMap<String, Set<Artifact>>();
+
+    private Map<String, Set<Artifact>> aliases = new HashMap<String, Set<Artifact>>();
+
+    private Map<String, Set<RemoteRepository>> repositoryMap = new HashMap<String, Set<RemoteRepository>>();
+
     public synchronized List<DependencyNode> childrenOf( SlimDependencyNode node )
     {
         Set<SlimDependencyEdge> allEdges = graph.edgesOf( node );
@@ -58,23 +66,23 @@ public class SlimDepGraph
         return children;
     }
     
-    public synchronized void set( Artifact artifact )
+    public synchronized void setArtifact( Artifact artifact )
     {
-        String key = toId( artifact );
-        artifacts.put( key, artifact );
+        String id = toId( artifact );
+        artifacts.put( id, artifact );
     }
-
-    public synchronized String store( Artifact artifact )
+    
+    public synchronized Artifact intern( Artifact artifact )
     {
-        String key = toId( artifact );
-        Artifact result = artifacts.get( key );
+        String id = toId( artifact );
+        Artifact result = artifacts.get( id );
         if ( result == null )
         {
-            artifacts.put( key, artifact );
+            artifacts.put( id, artifact );
             result = artifact;
         }
         
-        return key;
+        return result;
     }
 
     public synchronized RemoteRepository intern( RemoteRepository repo )
@@ -131,9 +139,9 @@ public class SlimDepGraph
         }
     }
 
-    public SlimDependencyNode getNode( String key )
+    public SlimDependencyNode getNode( String id )
     {
-        SlimDependencyNode node = new SlimDependencyNode( key, this );
+        SlimDependencyNode node = new SlimDependencyNode( id, this );
         if ( graph.containsVertex( node ) )
         {
             return node;
@@ -145,5 +153,97 @@ public class SlimDepGraph
     public SlimDependencyNode getNode( Artifact artifact )
     {
         return getNode( toId( artifact ) );
+    }
+
+    public List<Artifact> getRelocations( String id )
+    {
+        Set<Artifact> r = relocations.get( id );
+        return r == null ? null : new ArrayList<Artifact>( r );
+    }
+
+    public synchronized void addRelocation( String id, Artifact relocation )
+    {
+        Set<Artifact> r = relocations.get( id );
+        if ( r == null )
+        {
+            r = new LinkedHashSet<Artifact>();
+            relocations.put( id, r );
+        }
+        
+        r.add( intern( relocation ) );
+    }
+
+    public synchronized void setRelocations( String id, List<Artifact> relocations )
+    {
+        if ( relocations == null )
+        {
+//            this.relocations.remove( id );
+            return;
+        }
+        
+        Set<Artifact> r = new LinkedHashSet<Artifact>();
+        for ( Artifact artifact : relocations )
+        {
+            r.add( intern( artifact ) );
+        }
+        
+        this.relocations.put( id, r );
+    }
+
+    public Collection<Artifact> getAliases( String id )
+    {
+        return aliases.get( id );
+    }
+
+    public synchronized void addAlias( String id, Artifact alias )
+    {
+        Set<Artifact> a = aliases.get( id );
+        if ( a == null )
+        {
+            a = new LinkedHashSet<Artifact>();
+            aliases.put( id, a );
+        }
+        
+        a.add( intern( alias ) );
+    }
+
+    public synchronized void setAliases( String id, Collection<Artifact> aliases )
+    {
+        if ( aliases == null )
+        {
+//            this.aliases.remove( id );
+            return;
+        }
+        
+        Set<Artifact> a = new LinkedHashSet<Artifact>();
+        for ( Artifact artifact : aliases )
+        {
+            a.add( intern( artifact ) );
+        }
+        
+        this.aliases.put( id, a );
+    }
+
+    public List<RemoteRepository> getRepositories( String id )
+    {
+        Set<RemoteRepository> repos = repositoryMap.get( id );
+        return repos == null ? null : new ArrayList<RemoteRepository>( repos );
+    }
+
+    public synchronized void setRepositories( String id, List<RemoteRepository> repositories )
+    {
+        if ( repositories == null )
+        {
+//            repositoryMap.remove( id );
+            return;
+        }
+        
+        Set<RemoteRepository> repos = new LinkedHashSet<RemoteRepository>();
+        for ( RemoteRepository repo : repositories )
+        {
+            repos.add( intern( repo ) );
+        }
+        
+        repositoryMap.put( id, repos );
     }
 }

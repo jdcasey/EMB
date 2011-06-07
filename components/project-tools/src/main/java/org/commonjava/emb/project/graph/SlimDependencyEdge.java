@@ -26,7 +26,6 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.version.Version;
 import org.sonatype.aether.version.VersionConstraint;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,9 +41,7 @@ public class SlimDependencyEdge
 
     private Dependency dependency;
 
-    private String artifact;
-
-    private List<String> relocations;
+    private String key;
 
     private VersionConstraint versionConstraint;
 
@@ -93,7 +90,7 @@ public class SlimDependencyEdge
     @Override
     public Dependency getDependency()
     {
-        return dependency;
+        return dependency == null ? null : dependency.setArtifact( graph.intern( dependency.getArtifact() ) );
     }
 
     /**
@@ -104,12 +101,16 @@ public class SlimDependencyEdge
     @Override
     public void setArtifact( Artifact artifact )
     {
-        this.artifact = graph.store( artifact );
+        graph.setArtifact( artifact );
+        if ( dependency != null )
+        {
+            dependency = dependency.setArtifact( artifact );
+        }
     }
 
     public Artifact getArtifact()
     {
-        return graph.getArtifact( artifact );
+        return graph.getArtifact( key );
     }
 
     /**
@@ -120,7 +121,7 @@ public class SlimDependencyEdge
     @Override
     public List<Artifact> getRelocations()
     {
-        return graph.getArtifacts( relocations );
+        return graph.getRelocations( key );
     }
 
     /**
@@ -270,26 +271,17 @@ public class SlimDependencyEdge
 
     public void setDependency( Dependency dependency )
     {
-        this.dependency = dependency;
+        this.dependency = dependency == null ? null : dependency.setArtifact( graph.intern( dependency.getArtifact() ) );
     }
 
     public synchronized void setRelocations( List<Artifact> relocations )
     {
-        this.relocations = new ArrayList<String>();
-        for ( Artifact artifact : relocations )
-        {
-            this.relocations.add( graph.store( artifact ) );
-        }
+        graph.setRelocations( key, relocations );
     }
 
     public synchronized void addRelocation( Artifact relocation )
     {
-        if ( relocations == null )
-        {
-            relocations = new ArrayList<String>();
-        }
-
-        relocations.add( graph.store( relocation ) );
+        graph.addRelocation( key, relocation );
     }
 
     public void setVersionConstraint( VersionConstraint versionConstraint )

@@ -61,7 +61,7 @@ public class ProjectToolsSessionInjector
             {
                 pbr = embedder.serviceManager().createProjectBuildingRequest();
 
-                pbr.setProcessPlugins( false );
+                pbr.setProcessPlugins( session.isProcessPomPlugins() );
                 pbr.setResolveDependencies( false );
                 pbr.setSystemProperties( System.getProperties() );
                 pbr.setInactiveProfileIds( new ArrayList<String>() );

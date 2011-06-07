@@ -96,6 +96,8 @@ public final class TestFixture
         setupDebugLogging();
 
         initFiles();
+//        withVirtualComponent( ProjectToolsSession.class );
+//        setVirtualInstance( ProjectToolsSession.class,  )
     }
 
     public static void setupDebugLogging()

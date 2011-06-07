@@ -62,6 +62,8 @@ public class SimpleProjectToolsSession
 
     private int resolveThreads = 4;
 
+    private boolean resolvePlugins;
+    
     public SimpleProjectToolsSession( final File workdir, final Repository... resolveRepositories )
     {
         this( workdir, new File( workdir, "local-repository" ), resolveRepositories );
@@ -393,6 +395,27 @@ public class SimpleProjectToolsSession
     public int getResolveThreads()
     {
         return resolveThreads;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#isProcessPomPlugins()
+     */
+    @Override
+    public boolean isProcessPomPlugins()
+    {
+        return resolvePlugins;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setProcessPomPlugins(boolean)
+     */
+    @Override
+    public ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins )
+    {
+        this.resolvePlugins = resolvePlugins;
+        return this;
     }
 
 }

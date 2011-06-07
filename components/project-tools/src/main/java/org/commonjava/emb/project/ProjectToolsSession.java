@@ -84,5 +84,9 @@ public interface ProjectToolsSession
     ProjectToolsSession setResolveThreads( int threads );
 
     int getResolveThreads();
+    
+    boolean isProcessPomPlugins();
+    
+    ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins );
 
 }
