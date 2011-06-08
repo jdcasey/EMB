@@ -24,7 +24,7 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.commonjava.emb.project.graph.DependencyGraph;
+import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;

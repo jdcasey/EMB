@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project.depgraph;
 
 import org.apache.maven.artifact.ArtifactUtils;
 import org.sonatype.aether.artifact.Artifact;

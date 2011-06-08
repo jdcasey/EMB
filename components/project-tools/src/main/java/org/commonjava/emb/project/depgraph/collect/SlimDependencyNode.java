@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project.depgraph.collect;
 
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -23,7 +23,7 @@ import org.sonatype.aether.repository.RemoteRepository;
 import java.util.Collection;
 import java.util.List;
 
-public class SlimDependencyNode
+class SlimDependencyNode
 {
 
     public static final String UNKNOWN_ROOT_ID = "anonymous-root".intern();
@@ -32,33 +32,33 @@ public class SlimDependencyNode
 
     private final String key;
 
-    public SlimDependencyNode( String key, SlimDepGraph graph )
+    SlimDependencyNode( String key, SlimDepGraph graph )
     {
         this.key = key;
         this.graph = graph;
     }
 
-    public Collection<Artifact> getAliases()
+    Collection<Artifact> getAliases()
     {
         return graph.getAliases( key );
     }
 
-    public synchronized void setAliases( Collection<Artifact> aliases )
+    void setAliases( Collection<Artifact> aliases )
     {
         graph.setAliases( key, aliases );
     }
 
-    public synchronized void addAlias( Artifact artifact )
+    void addAlias( Artifact artifact )
     {
         graph.addAlias( key, artifact );
     }
 
-    public List<RemoteRepository> getRepositories()
+    List<RemoteRepository> getRepositories()
     {
         return graph.getRepositories( key );
     }
 
-    public synchronized void setRepositories( List<RemoteRepository> repositories )
+    void setRepositories( List<RemoteRepository> repositories )
     {
         graph.setRepositories( key, repositories );
     }

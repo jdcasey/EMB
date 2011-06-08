@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project.depgraph;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;

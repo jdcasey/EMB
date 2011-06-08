@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project.depgraph;
 
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;

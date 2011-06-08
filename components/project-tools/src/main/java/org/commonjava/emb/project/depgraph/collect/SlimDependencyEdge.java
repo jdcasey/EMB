@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project.depgraph.collect;
 
 import org.commonjava.emb.graph.DirectionalEdge;
 import org.sonatype.aether.artifact.Artifact;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SlimDependencyEdge
+class SlimDependencyEdge
     extends DirectionalEdge<SlimDependencyNode>
     implements DependencyNode
 {
@@ -57,17 +57,17 @@ public class SlimDependencyEdge
 
     private Map<Object, Object> data;
 
-    public SlimDependencyEdge( SlimDependencyNode from, SlimDependencyNode to, SlimDepGraph graph )
+    SlimDependencyEdge( SlimDependencyNode from, SlimDependencyNode to, SlimDepGraph graph )
     {
         super( from, to );
-        graph.addEdge( from, to, this );
+        graph.addEdge( this );
         this.graph = graph;
     }
 
-    public SlimDependencyEdge( SlimDependencyNode root, SlimDepGraph graph )
+    SlimDependencyEdge( SlimDependencyNode root, SlimDepGraph graph )
     {
         super( root, root );
-        graph.addEdge( root, root, this );
+        graph.addEdge( this );
         this.graph = graph;
     }
 
@@ -108,7 +108,7 @@ public class SlimDependencyEdge
         }
     }
 
-    public Artifact getArtifact()
+    Artifact getArtifact()
     {
         return graph.getArtifact( key );
     }
@@ -157,7 +157,7 @@ public class SlimDependencyEdge
         this.scope = scope.intern();
     }
 
-    public String getScope()
+    String getScope()
     {
         return scope;
     }
@@ -269,37 +269,37 @@ public class SlimDependencyEdge
         return visitor.visitLeave( this );
     }
 
-    public void setDependency( Dependency dependency )
+    void setDependency( Dependency dependency )
     {
         this.dependency = dependency == null ? null : dependency.setArtifact( graph.intern( dependency.getArtifact() ) );
     }
 
-    public synchronized void setRelocations( List<Artifact> relocations )
+    void setRelocations( List<Artifact> relocations )
     {
         graph.setRelocations( key, relocations );
     }
 
-    public synchronized void addRelocation( Artifact relocation )
+    void addRelocation( Artifact relocation )
     {
         graph.addRelocation( key, relocation );
     }
 
-    public void setVersionConstraint( VersionConstraint versionConstraint )
+    void setVersionConstraint( VersionConstraint versionConstraint )
     {
         this.versionConstraint = versionConstraint;
     }
 
-    public void setVersion( Version version )
+    void setVersion( Version version )
     {
         this.version = version;
     }
 
-    public void setPreManagedVersion( String preManagedVersion )
+    void setPreManagedVersion( String preManagedVersion )
     {
         this.preManagedVersion = preManagedVersion;
     }
 
-    public void setPreManagedScope( String preManagedScope )
+    void setPreManagedScope( String preManagedScope )
     {
         this.preManagedScope = preManagedScope;
     }
@@ -315,13 +315,13 @@ public class SlimDependencyEdge
         return getTo().getAliases();
     }
 
-    public static final class Factory
+    static final class Factory
         implements DirectionalEdgeFactory<SlimDependencyNode, SlimDependencyEdge>
     {
         
         private final SlimDepGraph graph;
 
-        public Factory( SlimDepGraph graph )
+        Factory( SlimDepGraph graph )
         {
             this.graph = graph;
         }
@@ -335,12 +335,12 @@ public class SlimDependencyEdge
 
     }
 
-    public void setPremanagedScope( String premanagedScope )
+    void setPremanagedScope( String premanagedScope )
     {
         preManagedScope = premanagedScope;
     }
 
-    public void setPremanagedVersion( String premanagedVersion )
+    void setPremanagedVersion( String premanagedVersion )
     {
         preManagedVersion = premanagedVersion;
     }

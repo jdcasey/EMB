@@ -15,27 +15,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.graph;
+package org.commonjava.emb.project;
 
-import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.project.MavenProject;
-import org.sonatype.aether.graph.DependencyNode;
+import org.commonjava.emb.project.depgraph.collect.DepGraphCache;
+import org.sonatype.aether.RepositorySystemSession;
 
-public class DepGraphRootNode
-    extends DepGraphNode
+public final class RepositorySessionUtils
 {
-
-    private final MavenProject project;
-
-    public DepGraphRootNode( final DependencyNode node, final MavenProject project )
+    
+    private RepositorySessionUtils(){}
+    
+    public static void clearDependencyGraphCaches( RepositorySystemSession session )
     {
-        super( node, ArtifactUtils.key( project.getGroupId(), project.getArtifactId(), project.getVersion() ), true );
-        this.project = project;
-    }
-
-    public MavenProject getProject()
-    {
-        return project;
+        DepGraphCache.clear( session );
     }
 
 }
