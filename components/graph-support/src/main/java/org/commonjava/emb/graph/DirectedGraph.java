@@ -17,48 +17,59 @@
 
 package org.commonjava.emb.graph;
 
+import org.commonjava.emb.graph.DirectionalEdge.DirectionalEdgeFactory;
 import org.commonjava.emb.graph.output.EdgePrinter;
 import org.commonjava.emb.graph.output.GraphPrinter;
 import org.commonjava.emb.graph.output.VertexPrinter;
 import org.commonjava.emb.graph.traverse.GraphVisitor;
-import org.jgrapht.graph.DefaultDirectedGraph;
+
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Graphs;
 
 import java.io.PrintWriter;
 
 public class DirectedGraph<V, E extends DirectionalEdge<V>>
-    extends DefaultDirectedGraph<V, E>
+    implements GraphManager<V, E>
 {
 
     private static final long serialVersionUID = 1L;
 
-    public DirectedGraph( DirectionalEdge.DirectionalEdgeFactory<V, E> factory )
+    private DirectedSparseGraph<V, E> graph = new DirectedSparseGraph<V, E>();
+
+    private final DirectionalEdgeFactory<V, E> edgeFactory;
+
+    public DirectedGraph( DirectionalEdgeFactory<V, E> edgeFactory )
     {
-        super( factory );
+        this.edgeFactory = edgeFactory;
     }
 
     public DirectedGraph<V, E> connect( final V from, final V to )
     {
-        if ( !containsVertex( from ) )
+        E edge = edgeFactory.createEdge( from, to );
+
+        if ( graph.containsEdge( edge ) )
         {
-            addVertex( from );
+            return this;
         }
 
-        if ( !containsVertex( to ) )
+        if ( !graph.containsVertex( from ) )
         {
-            addVertex( to );
+            graph.addVertex( from );
         }
 
-        final E edge = getEdgeFactory().createEdge( from, to );
-        if ( !containsEdge( edge ) )
+        if ( !graph.containsVertex( to ) )
         {
-            addEdge( from, to, edge );
+            graph.addVertex( to );
         }
+
+        graph.addEdge( edge, from, to );
 
         return this;
     }
 
     public abstract static class Visitor<T>
-        extends GraphVisitor<T, DirectionalEdge<T>>
+        implements GraphVisitor<T, DirectionalEdge<T>>
     {
 
     }
@@ -94,4 +105,16 @@ public class DirectedGraph<V, E extends DirectionalEdge<V>>
         }
 
     }
+
+    @Override
+    public Graph<V, E> getManagedGraph()
+    {
+        return Graphs.unmodifiableDirectedGraph( graph );
+    }
+    
+    protected Graph<V, E> getNakedGraph()
+    {
+        return graph;
+    }
+    
 }

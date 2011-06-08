@@ -12,10 +12,20 @@
   <name>EMB Graph Support</name>
 
   <dependencies>
-    <dependency>
+<!--     <dependency>
       <groupId>org.jgrapht</groupId>
       <artifactId>jgrapht-jdk1.5</artifactId>
       <version>0.7.3</version>
+    </dependency> -->
+    <dependency>
+    	<groupId>net.sf.jung</groupId>
+    	<artifactId>jung-api</artifactId>
+    	<version>2.0.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>net.sf.jung</groupId>
+    	<artifactId>jung-graph-impl</artifactId>
+    	<version>2.0.1</version>
     </dependency>
   </dependencies>
 </project>

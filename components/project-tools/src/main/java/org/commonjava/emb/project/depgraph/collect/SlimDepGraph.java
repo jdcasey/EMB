@@ -38,9 +38,8 @@ class SlimDepGraph
 {
 
     private static final List<Artifact> NO_ARTIFACTS = Collections.emptyList();
-
-    private DirectedGraph<SlimDependencyNode, SlimDependencyEdge> graph =
-        new DirectedGraph<SlimDependencyNode, SlimDependencyEdge>( new SlimDependencyEdge.Factory( this ) );
+    
+    private final DepGraph graph;
 
     private Map<String, Set<Artifact>> relocations = new HashMap<String, Set<Artifact>>();
 
@@ -52,12 +51,13 @@ class SlimDepGraph
 
     SlimDepGraph( RepositorySystemSession session )
     {
+        graph = new DepGraph( this );
         cache = new DepGraphCache( session );
     }
     
     synchronized List<DependencyNode> childrenOf( SlimDependencyNode node )
     {
-        Set<SlimDependencyEdge> allEdges = graph.edgesOf( node );
+        Collection<SlimDependencyEdge> allEdges = graph.edgesFrom( node );
         List<DependencyNode> children = new ArrayList<DependencyNode>();
         for ( SlimDependencyEdge edge : allEdges )
         {
@@ -108,23 +108,7 @@ class SlimDepGraph
 
     synchronized void addEdge( SlimDependencyEdge edge )
     {
-        SlimDependencyNode from = edge.getFrom();
-        SlimDependencyNode to = edge.getTo();
-        
-        if ( !graph.containsVertex( from ) )
-        {
-            graph.addVertex( from );
-        }
-
-        if ( from != to && !graph.containsVertex( to ) )
-        {
-            graph.addVertex( to );
-        }
-
-        if ( !graph.containsEdge( edge ) )
-        {
-            graph.addEdge( from, to, edge );
-        }
+        graph.addEdge( edge );
     }
 
     SlimDependencyNode getNode( String id )
@@ -233,5 +217,30 @@ class SlimDepGraph
         }
 
         repositoryMap.put( id, repos );
+    }
+    
+
+    private static final class DepGraph
+        extends DirectedGraph<SlimDependencyNode, SlimDependencyEdge>
+    {
+        public DepGraph( SlimDepGraph owner )
+        {
+            super( new SlimDependencyEdge.Factory( owner ) );
+        }
+        
+        public Collection<SlimDependencyEdge> edgesFrom( SlimDependencyNode from )
+        {
+            return getNakedGraph().getOutEdges( from );
+        }
+
+        public void addEdge( SlimDependencyEdge edge )
+        {
+            getNakedGraph().addEdge( edge, edge.getFrom(), edge.getTo() );
+        }
+
+        public boolean containsVertex( SlimDependencyNode vertex )
+        {
+            return getNakedGraph().containsVertex( vertex );
+        }
     }
 }

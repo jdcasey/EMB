@@ -18,15 +18,15 @@
 package org.commonjava.emb.graph.output;
 
 import org.commonjava.emb.graph.traverse.GraphVisitor;
-import org.jgrapht.event.EdgeTraversalEvent;
-import org.jgrapht.event.VertexTraversalEvent;
+
+import edu.uci.ics.jung.graph.Graph;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GraphPrinter<V, E>
-    extends GraphVisitor<V, E>
+    implements GraphVisitor<V, E>
 {
     private PrintWriter printWriter;
 
@@ -87,58 +87,6 @@ public class GraphPrinter<V, E>
         }
     }
 
-    @Override
-    public void vertexTraversed( final VertexTraversalEvent<V> e )
-    {
-        if ( vPrinter != null )
-        {
-            final V vertex = e.getVertex();
-
-            newLine();
-            indentLine();
-
-            printWriter.append( vPrinter.vertexStarted( vertex ) );
-            lines.add( vertex );
-        }
-
-        indentCounter++;
-    }
-
-    @Override
-    public void vertexFinished( final VertexTraversalEvent<V> e )
-    {
-        if ( vPrinter != null )
-        {
-            final V vertex = e.getVertex();
-            final String ending = vPrinter.vertexFinished( vertex );
-            if ( ending != null )
-            {
-                newLine();
-                indentLine();
-
-                printWriter.append( ending );
-                lines.add( "end" );
-            }
-        }
-
-        indentCounter--;
-    }
-
-    @Override
-    public void edgeTraversed( final EdgeTraversalEvent<V, E> e )
-    {
-        if ( ePrinter != null )
-        {
-            newLine();
-            indentLine();
-
-            final E edge = e.getEdge();
-
-            printWriter.append( '(' ).append( ePrinter.printEdge( edge ) ).append( ')' );
-            lines.add( edge );
-        }
-    }
-
     private void newLine()
     {
         printWriter.append( '\n' );
@@ -156,8 +104,77 @@ public class GraphPrinter<V, E>
         printWriter.append( ">" ).append( Integer.toString( indentCounter ) ).append( ' ' );
     }
 
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#traversedEdge(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
     @Override
-    public void skippedVertexTraversal( final V vertex )
+    public boolean traversedEdge( Graph<V, E> graph, E edge )
+    {
+        if ( ePrinter != null )
+        {
+            newLine();
+            indentLine();
+
+            printWriter.append( '(' ).append( ePrinter.printEdge( edge ) ).append( ')' );
+            lines.add( edge );
+        }
+        
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#startedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public boolean startedVertexVisit( Graph<V, E> graph, V vertex )
+    {
+        if ( vPrinter != null )
+        {
+            newLine();
+            indentLine();
+
+            printWriter.append( vPrinter.vertexStarted( vertex ) );
+            lines.add( vertex );
+        }
+
+        indentCounter++;
+        
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#finishedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public boolean finishedVertexVisit( Graph<V, E> graph, V vertex )
+    {
+        if ( vPrinter != null )
+        {
+            final String ending = vPrinter.vertexFinished( vertex );
+            if ( ending != null )
+            {
+                newLine();
+                indentLine();
+
+                printWriter.append( ending );
+                lines.add( "end" );
+            }
+        }
+
+        indentCounter--;
+        
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public void skippedVertexVisit( Graph<V, E> graph, V vertex )
     {
         newLine();
         indentLine();
@@ -177,6 +194,15 @@ public class GraphPrinter<V, E>
 
         // we need some placeholder here, without screwing up indexOf() operations for the vertex...
         lines.add( idx );
+    }
 
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedEdgeTraversal(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public void skippedEdgeTraversal( Graph<V, E> graph, E edge )
+    {
+        // NOP.
     }
 }

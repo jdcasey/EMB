@@ -17,7 +17,6 @@
 
 package org.commonjava.emb.graph;
 
-import org.jgrapht.EdgeFactory;
 
 public class DirectionalEdge<V>
 {
@@ -43,8 +42,8 @@ public class DirectionalEdge<V>
     }
     
     public interface DirectionalEdgeFactory<V, E extends DirectionalEdge<V>>
-        extends EdgeFactory<V, E>
     {
+        E createEdge( V from, V to );
     }
 
     public static final class SimpleDirectionalEdgeFactory<V>

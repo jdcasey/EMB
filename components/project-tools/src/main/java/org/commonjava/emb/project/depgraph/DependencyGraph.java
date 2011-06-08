@@ -24,6 +24,7 @@ import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResult;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,7 +38,7 @@ public class DependencyGraph
 
     private final Set<DepGraphRootNode> roots = new LinkedHashSet<DepGraphRootNode>();
 
-    private final SimpleDirectedGraph<DepGraphNode> graph = new SimpleDirectedGraph<DepGraphNode>();
+    private final DepGraph graph = new DepGraph();
 
     public DepGraphRootNode addRoot( final DependencyNode root )
     {
@@ -82,7 +83,7 @@ public class DependencyGraph
 
     private DepGraphNode find( final DepGraphNode node )
     {
-        final List<DepGraphNode> nodes = new ArrayList<DepGraphNode>( graph.vertexSet() );
+        final List<DepGraphNode> nodes = new ArrayList<DepGraphNode>( graph.vertices() );
         final int idx = nodes.indexOf( node );
         if ( idx > -1 )
         {
@@ -160,12 +161,12 @@ public class DependencyGraph
     @Override
     public Iterator<DepGraphNode> iterator()
     {
-        return new LinkedHashSet<DepGraphNode>( graph.vertexSet() ).iterator();
+        return new LinkedHashSet<DepGraphNode>( graph.vertices() ).iterator();
     }
 
     public int size()
     {
-        return graph.vertexSet().size();
+        return graph.vertices().size();
     }
 
     public SimpleDirectedGraph<DepGraphNode> getGraph()
@@ -176,6 +177,22 @@ public class DependencyGraph
     public boolean contains( final DependencyNode dep )
     {
         return find( new DepGraphNode( dep ) ) != null;
+    }
+    
+    private static final class DepGraph
+        extends SimpleDirectedGraph<DepGraphNode>
+    {
+
+        public void addVertex( DepGraphNode node )
+        {
+            getNakedGraph().addVertex( node );
+        }
+
+        public Collection<? extends DepGraphNode> vertices()
+        {
+            return getNakedGraph().getVertices();
+        }
+        
     }
 
 }

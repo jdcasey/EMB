@@ -17,7 +17,7 @@
 
 package org.commonjava.emb.graph;
 
-import org.commonjava.emb.graph.SimpleDirectedGraph.Printer;
+import org.commonjava.emb.graph.DirectedGraph.Printer;
 import org.commonjava.emb.graph.output.EdgePrinter;
 import org.commonjava.emb.graph.traverse.GraphWalker;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class SimpleDirectedGraphTest
         final Printer<String> printer =
             new Printer<String>( new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>(), new PrintWriter( sw ) );
 
-        GraphWalker.walkPath( graph, "from", printer );
+        GraphWalker.walkDepthFirst( graph, "from", printer );
 
         System.out.println( sw );
     }

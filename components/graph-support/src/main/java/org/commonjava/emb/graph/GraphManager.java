@@ -15,20 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.graph.traverse;
+package org.commonjava.emb.graph;
 
 import edu.uci.ics.jung.graph.Graph;
 
-public interface GraphVisitor<V, E>
+public interface GraphManager<V, E>
 {
     
-    boolean traversedEdge( Graph<V, E> graph, E edge );
-    
-    boolean startedVertexVisit( Graph<V, E> graph, V vertex );
-    
-    boolean finishedVertexVisit( Graph<V, E> graph, V vertex );
-    
-    void skippedVertexVisit( Graph<V, E> graph, V vertex );
+    Graph<V, E> getManagedGraph();
 
-    void skippedEdgeTraversal( Graph<V, E> graph, E edge );
 }

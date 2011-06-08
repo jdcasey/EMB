@@ -17,12 +17,10 @@
 
 package org.commonjava.emb.graph.traverse;
 
-import org.jgrapht.event.ConnectedComponentTraversalEvent;
-import org.jgrapht.event.EdgeTraversalEvent;
-import org.jgrapht.event.VertexTraversalEvent;
+import edu.uci.ics.jung.graph.Graph;
 
 public final class CompoundGraphVisitor<V, E>
-    extends GraphVisitor<V, E>
+    implements GraphVisitor<V, E>
 {
     private final GraphVisitor<V, E>[] visitors;
 
@@ -31,67 +29,92 @@ public final class CompoundGraphVisitor<V, E>
         this.visitors = visitors;
     }
 
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#traversedEdge(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
     @Override
-    public boolean isStopped()
+    public boolean traversedEdge( Graph<V, E> graph, E edge )
     {
-        if ( super.isStopped() )
-        {
-            return true;
-        }
-
+        boolean doContinue = true;
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
-            if ( visitor.isStopped() )
+            doContinue = doContinue && visitor.traversedEdge( graph, edge );
+            
+            if ( !doContinue )
             {
-                return true;
+                break;
             }
         }
-
+        
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#startedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
     @Override
-    public void connectedComponentFinished( final ConnectedComponentTraversalEvent e )
+    public boolean startedVertexVisit( Graph<V, E> graph, V vertex )
+    {
+        boolean doContinue = true;
+        for ( final GraphVisitor<V, E> visitor : visitors )
+        {
+            doContinue = doContinue && visitor.startedVertexVisit( graph, vertex );
+            
+            if ( !doContinue )
+            {
+                break;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#finishedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public boolean finishedVertexVisit( Graph<V, E> graph, V vertex )
+    {
+        boolean doContinue = true;
+        for ( final GraphVisitor<V, E> visitor : visitors )
+        {
+            doContinue = doContinue && visitor.finishedVertexVisit( graph, vertex );
+            
+            if ( !doContinue )
+            {
+                break;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
+    @Override
+    public void skippedVertexVisit( Graph<V, E> graph, V vertex )
     {
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
-            visitor.connectedComponentFinished( e );
+            visitor.skippedVertexVisit( graph, vertex );
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedEdgeTraversal(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     */
     @Override
-    public void connectedComponentStarted( final ConnectedComponentTraversalEvent e )
+    public void skippedEdgeTraversal( Graph<V, E> graph, E edge )
     {
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
-            visitor.connectedComponentStarted( e );
-        }
-    }
-
-    @Override
-    public void edgeTraversed( final EdgeTraversalEvent<V, E> e )
-    {
-        for ( final GraphVisitor<V, E> visitor : visitors )
-        {
-            visitor.edgeTraversed( e );
-        }
-    }
-
-    @Override
-    public void vertexTraversed( final VertexTraversalEvent<V> e )
-    {
-        for ( final GraphVisitor<V, E> visitor : visitors )
-        {
-            visitor.vertexTraversed( e );
-        }
-    }
-
-    @Override
-    public void vertexFinished( final VertexTraversalEvent<V> e )
-    {
-        for ( final GraphVisitor<V, E> visitor : visitors )
-        {
-            visitor.vertexFinished( e );
+            visitor.skippedEdgeTraversal( graph, edge );
         }
     }
 
