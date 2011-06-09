@@ -28,6 +28,8 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.DependencySelector;
+import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.repository.RemoteRepository;
 
 import java.io.File;
@@ -321,6 +323,66 @@ public class UnconfiguredProjectToolsSession
      */
     @Override
     public ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins )
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencySelector()
+     */
+    @Override
+    public DependencySelector getDependencySelector()
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencySelector(org.sonatype.aether.collection.DependencySelector)
+     */
+    @Override
+    public ProjectToolsSession setDependencySelector( DependencySelector selector )
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[])
+     */
+    @Override
+    public ProjectToolsSession setDependencyScopeSelections( String... excluded )
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[], java.lang.String[])
+     */
+    @Override
+    public ProjectToolsSession setDependencyScopeSelections( String[] included, String[] excluded )
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencyFilter()
+     */
+    @Override
+    public DependencyFilter getDependencyFilter()
+    {
+        throw new IllegalStateException( message );
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyFilter(org.sonatype.aether.graph.DependencyFilter)
+     */
+    @Override
+    public ProjectToolsSession setDependencyFilter( DependencyFilter filter )
     {
         throw new IllegalStateException( message );
     }

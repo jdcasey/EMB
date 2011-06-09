@@ -24,6 +24,8 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.DependencySelector;
+import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.repository.RemoteRepository;
 
 import java.io.File;
@@ -89,4 +91,15 @@ public interface ProjectToolsSession
     
     ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins );
 
+    DependencySelector getDependencySelector();
+
+    ProjectToolsSession setDependencySelector( DependencySelector selector );
+    
+    ProjectToolsSession setDependencyScopeSelections( String...excluded );
+    
+    ProjectToolsSession setDependencyScopeSelections( String[] included, String[] excluded );
+
+    DependencyFilter getDependencyFilter();
+    
+    ProjectToolsSession setDependencyFilter( DependencyFilter filter );
 }

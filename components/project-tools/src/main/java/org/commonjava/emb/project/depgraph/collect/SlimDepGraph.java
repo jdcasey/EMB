@@ -223,24 +223,42 @@ class SlimDepGraph
     private static final class DepGraph
         extends DirectedGraph<SlimDependencyNode, SlimDependencyEdge>
     {
-        public DepGraph( SlimDepGraph owner )
+        DepGraph( SlimDepGraph owner )
         {
             super( new SlimDependencyEdge.Factory( owner ) );
         }
         
-        public Collection<SlimDependencyEdge> edgesFrom( SlimDependencyNode from )
+        Collection<SlimDependencyEdge> edgesFrom( SlimDependencyNode from )
         {
             return getNakedGraph().getOutEdges( from );
         }
 
-        public void addEdge( SlimDependencyEdge edge )
+        void addEdge( SlimDependencyEdge edge )
         {
             getNakedGraph().addEdge( edge, edge.getFrom(), edge.getTo() );
         }
 
-        public boolean containsVertex( SlimDependencyNode vertex )
+        boolean containsVertex( SlimDependencyNode vertex )
         {
             return getNakedGraph().containsVertex( vertex );
         }
+        
+        void removeEdge( SlimDependencyEdge edge )
+        {
+            getNakedGraph().removeEdge( edge );
+            SlimDependencyNode to = edge.getTo();
+            
+            Collection<SlimDependencyEdge> in = getNakedGraph().getInEdges( to );
+            if ( in == null || in.isEmpty() )
+            {
+                getNakedGraph().removeVertex( to );
+            }
+        }
+    }
+
+
+    public void removeEdge( SlimDependencyEdge edge )
+    {
+        graph.removeEdge( edge );
     }
 }

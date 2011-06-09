@@ -16,6 +16,7 @@ import static org.sonatype.aether.util.artifact.ArtifacIdUtils.toId;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.commonjava.emb.project.ProjectToolsSession;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.RequestTrace;
@@ -33,6 +34,8 @@ import org.sonatype.aether.collection.DependencyManager;
 import org.sonatype.aether.collection.DependencySelector;
 import org.sonatype.aether.collection.DependencyTraverser;
 import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyFilter;
+import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.impl.ArtifactDescriptorReader;
 import org.sonatype.aether.impl.DependencyCollector;
 import org.sonatype.aether.impl.RemoteRepositoryManager;
@@ -91,6 +94,9 @@ public class BareBonesDependencyCollector
 
     @Requirement
     private VersionRangeResolver versionRangeResolver;
+    
+    @Requirement( optional=true )
+    private ProjectToolsSession projectToolsSession;
     
     public BareBonesDependencyCollector()
     {
@@ -330,6 +336,8 @@ public class BareBonesDependencyCollector
         throws DependencyCollectionException
     {
         boolean cycle = false;
+        
+        DependencyFilter filter = projectToolsSession == null ? null : projectToolsSession.getDependencyFilter();
 
         nextDependency: for ( Dependency dependency : dependencies )
         {
@@ -518,9 +526,9 @@ public class BareBonesDependencyCollector
                             child.setRepositories( repos );
                         }
                     }
-
+                    
                     SlimDependencyNode node = edges.getFirst().getTo();
-
+                    
                     SlimDependencyEdge edge = new SlimDependencyEdge( node, child, graph );
                     edge.setDependency( d );
                     edge.setScope( d.getScope() );
@@ -530,6 +538,15 @@ public class BareBonesDependencyCollector
                     edge.setVersionConstraint( rangeResult.getVersionConstraint() );
                     edge.setVersion( version );
                     edge.setRequestContext( result.getRequest().getRequestContext() );
+                    
+                    List<DependencyNode> parents = new ArrayList<DependencyNode>();
+                    parents.add( edges.getFirst() );
+                    
+                    if ( filter != null && !filter.accept( edge, parents ) )
+                    {
+                        graph.removeEdge( edge );
+                        continue nextDependency;
+                    }
 
                     if ( recurse )
                     {

@@ -31,6 +31,7 @@ import org.sonatype.aether.artifact.ArtifactTypeRegistry;
 import org.sonatype.aether.collection.CollectRequest;
 import org.sonatype.aether.collection.CollectResult;
 import org.sonatype.aether.collection.DependencyCollectionException;
+import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 import org.sonatype.aether.graph.Exclusion;
@@ -40,7 +41,6 @@ import org.sonatype.aether.resolution.ArtifactResolutionException;
 import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import org.sonatype.aether.util.graph.selector.ScopeDependencySelector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,7 +71,7 @@ public class DependencyGraphResolver
         {
             LOGGER.info( "Preparing for dependency-graph accumulation..." );
         }
-        rss = prepareForGraphResolution( rss );
+        rss = prepareForGraphResolution( rss, session );
 
         // if ( LOGGER.isDebugEnabled() )
         {
@@ -100,12 +100,12 @@ public class DependencyGraphResolver
     }
 
     // TODO: Allow fine-tuning of scopes resolved...
-    private RepositorySystemSession prepareForGraphResolution( final RepositorySystemSession s )
+    private RepositorySystemSession prepareForGraphResolution( final RepositorySystemSession s, ProjectToolsSession session )
     {
-        final DefaultRepositorySystemSession session = new DefaultRepositorySystemSession( s );
-        session.setDependencySelector( new ScopeDependencySelector() );
+        final DefaultRepositorySystemSession result = new DefaultRepositorySystemSession( s );
+        result.setDependencySelector( session.getDependencySelector() );
 
-        return session;
+        return result;
     }
 
     private void resolve( final RepositorySystemSession session, final Collection<MavenProject> rootProjects,
@@ -198,7 +198,7 @@ public class DependencyGraphResolver
         final ArtifactTypeRegistry stereotypes = rss.getArtifactTypeRegistry();
 
         final DependencyGraph depGraph = session.getDependencyGraph();
-        final GraphAccumulator accumulator = new GraphAccumulator( depGraph );
+        final GraphAccumulator accumulator = new GraphAccumulator( depGraph, session.getDependencyFilter() );
 
         for ( final MavenProject project : projects )
         {
@@ -322,9 +322,12 @@ public class DependencyGraphResolver
 
         private DepGraphRootNode rootNode;
 
-        GraphAccumulator( final DependencyGraph depGraph )
+        private final DependencyFilter filter;
+
+        GraphAccumulator( final DependencyGraph depGraph, DependencyFilter filter )
         {
             this.depGraph = depGraph;
+            this.filter = filter;
         }
 
         void resetForNextRun( final DependencyNode root, final DepGraphRootNode rootNode )
@@ -339,6 +342,11 @@ public class DependencyGraphResolver
         @Override
         public boolean visitEnter( final DependencyNode node )
         {
+            if ( filter != null && !filter.accept( node, parents ) )
+            {
+                return false;
+            }
+            
             if ( node == root )
             {
                 parents.addFirst( root );

@@ -24,18 +24,24 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.codehaus.plexus.component.annotations.Component;
 import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
+import org.sonatype.aether.collection.DependencySelector;
+import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
+import org.sonatype.aether.util.graph.selector.ScopeDependencySelector;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+@Component( role=ProjectToolsSession.class, hint="simple" )
 public class SimpleProjectToolsSession
     implements ProjectToolsSession
 {
@@ -63,6 +69,10 @@ public class SimpleProjectToolsSession
     private int resolveThreads = 4;
 
     private boolean resolvePlugins;
+
+    private DependencySelector dependencySelector;
+
+    private DependencyFilter filter;
     
     public SimpleProjectToolsSession( final File workdir, final Repository... resolveRepositories )
     {
@@ -415,6 +425,65 @@ public class SimpleProjectToolsSession
     public ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins )
     {
         this.resolvePlugins = resolvePlugins;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencySelector()
+     */
+    @Override
+    public DependencySelector getDependencySelector()
+    {
+        return dependencySelector;
+    }
+    
+    public ProjectToolsSession setDependencySelector( DependencySelector dependencySelector )
+    {
+        this.dependencySelector = dependencySelector;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[])
+     */
+    @Override
+    public ProjectToolsSession setDependencyScopeSelections( String... excluded )
+    {
+        this.dependencySelector = new ScopeDependencySelector( excluded );
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[], java.lang.String[])
+     */
+    @Override
+    public ProjectToolsSession setDependencyScopeSelections( String[] included, String[] excluded )
+    {
+        this.dependencySelector = new ScopeDependencySelector( Arrays.asList( included ), Arrays.asList( excluded ) );
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencyFilter()
+     */
+    @Override
+    public DependencyFilter getDependencyFilter()
+    {
+        return filter;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyFilter(org.sonatype.aether.graph.DependencyFilter)
+     */
+    @Override
+    public ProjectToolsSession setDependencyFilter( DependencyFilter filter )
+    {
+        this.filter = filter;
         return this;
     }
 

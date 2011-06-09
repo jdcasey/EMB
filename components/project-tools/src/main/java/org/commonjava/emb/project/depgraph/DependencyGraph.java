@@ -18,6 +18,8 @@
 package org.commonjava.emb.project.depgraph;
 
 import org.apache.maven.project.MavenProject;
+import org.commonjava.emb.graph.DirectedGraph;
+import org.commonjava.emb.graph.DirectionalEdge;
 import org.commonjava.emb.graph.SimpleDirectedGraph;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.DependencyNode;
@@ -37,7 +39,7 @@ public class DependencyGraph
     private static final long serialVersionUID = 1L;
 
     private final Set<DepGraphRootNode> roots = new LinkedHashSet<DepGraphRootNode>();
-
+    
     private final DepGraph graph = new DepGraph();
 
     public DepGraphRootNode addRoot( final DependencyNode root )
@@ -80,7 +82,7 @@ public class DependencyGraph
 
         return result;
     }
-
+    
     private DepGraphNode find( final DepGraphNode node )
     {
         final List<DepGraphNode> nodes = new ArrayList<DepGraphNode>( graph.vertices() );
@@ -169,7 +171,7 @@ public class DependencyGraph
         return graph.vertices().size();
     }
 
-    public SimpleDirectedGraph<DepGraphNode> getGraph()
+    public DirectedGraph<DepGraphNode, DirectionalEdge<DepGraphNode>> getGraph()
     {
         return graph;
     }
@@ -193,6 +195,24 @@ public class DependencyGraph
             return getNakedGraph().getVertices();
         }
         
+    }
+
+    public static DependencyGraph constructFromRoot( DependencyNode rootNode, MavenProject rootProject )
+    {
+        DependencyGraph graph = new DependencyGraph();
+        graph.addRoot( rootNode, rootProject );
+        constructChildren( graph, rootNode );
+        
+        return graph;
+    }
+
+    private static void constructChildren( DependencyGraph graph, DependencyNode node )
+    {
+        for ( DependencyNode child : node.getChildren() )
+        {
+            graph.addDependency( node, child );
+            constructChildren( graph, child );
+        }
     }
 
 }
