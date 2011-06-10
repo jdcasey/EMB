@@ -41,9 +41,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Based on DataPool in aether-impl, this cache provides the ability to clear the cache in the 
- * {@link RepositorySystemSession}, along with tracking for {@link RemoteRepository} instances, and NOT
- * including tracking for nodes.
+ * Based on DataPool in aether-impl, this cache provides the ability to clear the cache in the
+ * {@link RepositorySystemSession}, along with tracking for {@link RemoteRepository} instances, and NOT including
+ * tracking for nodes.
  * 
  * @author Benjamin Bentmann
  * @author John Casey
@@ -54,25 +54,25 @@ public final class DepGraphCache
     private static final String ARTIFACT_POOL = DepGraphCache.class.getName() + "$Artifact";
 
     private static final String DEPENDENCY_POOL = DepGraphCache.class.getName() + "$Dependency";
-    
+
     private static final String REPOSITORY_POOL = DepGraphCache.class.getName() + "$Repository";
 
     private static final String DESCRIPTORS = DepGraphCache.class.getName() + "$Descriptors";
 
     private ObjectPool<String, Artifact> artifacts;
-    
+
     private ObjectPool<Dependency, Dependency> dependencies;
 
     private ObjectPool<RemoteRepository, RemoteRepository> repositories;
 
     private Map<Object, Descriptor> descriptors;
 
-    private Map<Object, Constraint> constraints = new WeakHashMap<Object, Constraint>();
+    private final Map<Object, Constraint> constraints = new WeakHashMap<Object, Constraint>();
 
     @SuppressWarnings( "unchecked" )
-    DepGraphCache( RepositorySystemSession session )
+    DepGraphCache( final RepositorySystemSession session )
     {
-        RepositoryCache cache = session.getCache();
+        final RepositoryCache cache = session.getCache();
 
         if ( cache != null )
         {
@@ -118,12 +118,12 @@ public final class DepGraphCache
             }
         }
     }
-    
-    public static void clear( RepositorySystemSession session )
+
+    public static void clear( final RepositorySystemSession session )
     {
-        synchronized( session )
+        synchronized ( session )
         {
-            RepositoryCache cache = session.getCache();
+            final RepositoryCache cache = session.getCache();
 
             if ( cache != null )
             {
@@ -134,41 +134,41 @@ public final class DepGraphCache
             }
         }
     }
-    
-    synchronized void setArtifact( Artifact artifact )
+
+    synchronized void setArtifact( final Artifact artifact )
     {
-        String id = toId( artifact );
+        final String id = toId( artifact );
         artifacts.set( id, artifact );
     }
-    
-    Artifact getArtifact( String key )
+
+    Artifact getArtifact( final String key )
     {
         return artifacts.get( key );
     }
-    
-    Artifact intern( Artifact artifact )
+
+    Artifact intern( final Artifact artifact )
     {
         return artifacts.intern( toId( artifact ), artifact );
     }
 
-    Dependency intern( Dependency dependency )
+    Dependency intern( final Dependency dependency )
     {
         return dependencies.intern( dependency, dependency );
     }
 
-    RemoteRepository intern( RemoteRepository repo )
+    RemoteRepository intern( final RemoteRepository repo )
     {
         return repositories.intern( repo, repo );
     }
 
-    Object toKey( ArtifactDescriptorRequest request )
+    Object toKey( final ArtifactDescriptorRequest request )
     {
         return request.getArtifact();
     }
 
-    ArtifactDescriptorResult getDescriptor( Object key, ArtifactDescriptorRequest request )
+    ArtifactDescriptorResult getDescriptor( final Object key, final ArtifactDescriptorRequest request )
     {
-        Descriptor descriptor = descriptors.get( key );
+        final Descriptor descriptor = descriptors.get( key );
         if ( descriptor != null )
         {
             return descriptor.toResult( request );
@@ -176,19 +176,19 @@ public final class DepGraphCache
         return null;
     }
 
-    void putDescriptor( Object key, ArtifactDescriptorResult result )
+    void putDescriptor( final Object key, final ArtifactDescriptorResult result )
     {
         descriptors.put( key, new Descriptor( result ) );
     }
 
-    Object toKey( VersionRangeRequest request )
+    Object toKey( final VersionRangeRequest request )
     {
         return new ConstraintKey( request );
     }
 
-    VersionRangeResult getConstraint( Object key, VersionRangeRequest request )
+    VersionRangeResult getConstraint( final Object key, final VersionRangeRequest request )
     {
-        Constraint constraint = constraints.get( key );
+        final Constraint constraint = constraints.get( key );
         if ( constraint != null )
         {
             return constraint.toResult( request );
@@ -196,18 +196,19 @@ public final class DepGraphCache
         return null;
     }
 
-    void putConstraint( Object key, VersionRangeResult result )
+    void putConstraint( final Object key, final VersionRangeResult result )
     {
         constraints.put( key, new Constraint( result ) );
     }
 
-    Object toKey( Artifact artifact, List<RemoteRepository> repositories )
+    Object toKey( final Artifact artifact, final List<RemoteRepository> repositories )
     {
         return new NodeKey( artifact, repositories );
     }
 
-    Object toKey( Artifact artifact, List<RemoteRepository> repositories, DependencySelector selector,
-                         DependencyManager manager, DependencyTraverser traverser )
+    Object toKey( final Artifact artifact, final List<RemoteRepository> repositories,
+                  final DependencySelector selector, final DependencyManager manager,
+                  final DependencyTraverser traverser )
     {
         return new GraphKey( artifact, repositories, selector, manager, traverser );
     }
@@ -227,7 +228,7 @@ public final class DepGraphCache
 
         final List<Dependency> managedDependencies;
 
-        public Descriptor( ArtifactDescriptorResult result )
+        public Descriptor( final ArtifactDescriptorResult result )
         {
             artifact = result.getArtifact();
             properties = result.getProperties();
@@ -237,9 +238,9 @@ public final class DepGraphCache
             repositories = clone( result.getRepositories() );
         }
 
-        public ArtifactDescriptorResult toResult( ArtifactDescriptorRequest request )
+        public ArtifactDescriptorResult toResult( final ArtifactDescriptorRequest request )
         {
-            ArtifactDescriptorResult result = new ArtifactDescriptorResult( request );
+            final ArtifactDescriptorResult result = new ArtifactDescriptorResult( request );
             result.setArtifact( artifact );
             result.setProperties( properties );
             result.setRelocations( relocations );
@@ -249,12 +250,12 @@ public final class DepGraphCache
             return result;
         }
 
-        private static List<RemoteRepository> clone( List<RemoteRepository> repositories )
+        private static List<RemoteRepository> clone( final List<RemoteRepository> repositories )
         {
-            List<RemoteRepository> clones = new ArrayList<RemoteRepository>( repositories.size() );
-            for ( RemoteRepository repository : repositories )
+            final List<RemoteRepository> clones = new ArrayList<RemoteRepository>( repositories.size() );
+            for ( final RemoteRepository repository : repositories )
             {
-                RemoteRepository clone = new RemoteRepository( repository );
+                final RemoteRepository clone = new RemoteRepository( repository );
                 clone.setMirroredRepositories( new ArrayList<RemoteRepository>( repository.getMirroredRepositories() ) );
                 clones.add( clone );
             }
@@ -270,20 +271,20 @@ public final class DepGraphCache
 
         final VersionConstraint versionConstraint;
 
-        public Constraint( VersionRangeResult result )
+        public Constraint( final VersionRangeResult result )
         {
             versionConstraint = result.getVersionConstraint();
             repositories = new LinkedHashMap<Version, ArtifactRepository>();
-            for ( Version version : result.getVersions() )
+            for ( final Version version : result.getVersions() )
             {
                 repositories.put( version, result.getRepository( version ) );
             }
         }
 
-        public VersionRangeResult toResult( VersionRangeRequest request )
+        public VersionRangeResult toResult( final VersionRangeRequest request )
         {
-            VersionRangeResult result = new VersionRangeResult( request );
-            for ( Map.Entry<Version, ArtifactRepository> entry : repositories.entrySet() )
+            final VersionRangeResult result = new VersionRangeResult( request );
+            for ( final Map.Entry<Version, ArtifactRepository> entry : repositories.entrySet() )
             {
                 result.addVersion( entry.getKey() );
                 result.setRepository( entry.getKey(), entry.getValue() );
@@ -303,7 +304,7 @@ public final class DepGraphCache
 
         private final int hashCode;
 
-        public ConstraintKey( VersionRangeRequest request )
+        public ConstraintKey( final VersionRangeRequest request )
         {
             artifact = request.getArtifact();
             repositories = request.getRepositories();
@@ -311,7 +312,7 @@ public final class DepGraphCache
         }
 
         @Override
-        public boolean equals( Object obj )
+        public boolean equals( final Object obj )
         {
             if ( obj == this )
             {
@@ -321,11 +322,12 @@ public final class DepGraphCache
             {
                 return false;
             }
-            ConstraintKey that = (ConstraintKey) obj;
+            final ConstraintKey that = (ConstraintKey) obj;
             return artifact.equals( that.artifact ) && equals( repositories, that.repositories );
         }
 
-        private static boolean equals( Collection<RemoteRepository> repos1, Collection<RemoteRepository> repos2 )
+        private static boolean equals( final Collection<RemoteRepository> repos1,
+                                       final Collection<RemoteRepository> repos2 )
         {
             if ( repos1.size() != repos2.size() )
             {
@@ -333,8 +335,8 @@ public final class DepGraphCache
             }
             for ( Iterator<RemoteRepository> it1 = repos1.iterator(), it2 = repos2.iterator(); it1.hasNext(); )
             {
-                RemoteRepository repo1 = it1.next();
-                RemoteRepository repo2 = it2.next();
+                final RemoteRepository repo1 = it1.next();
+                final RemoteRepository repo2 = it2.next();
                 if ( repo1.isRepositoryManager() != repo2.isRepositoryManager() )
                 {
                     return false;
@@ -379,7 +381,7 @@ public final class DepGraphCache
 
         private final int hashCode;
 
-        public NodeKey( Artifact artifact, List<RemoteRepository> repositories )
+        public NodeKey( final Artifact artifact, final List<RemoteRepository> repositories )
         {
             this.artifact = artifact;
             this.repositories = repositories;
@@ -391,7 +393,7 @@ public final class DepGraphCache
         }
 
         @Override
-        public boolean equals( Object obj )
+        public boolean equals( final Object obj )
         {
             if ( obj == this )
             {
@@ -401,7 +403,7 @@ public final class DepGraphCache
             {
                 return false;
             }
-            NodeKey that = (NodeKey) obj;
+            final NodeKey that = (NodeKey) obj;
             return artifact.equals( that.artifact ) && repositories.equals( that.repositories );
         }
 
@@ -428,8 +430,9 @@ public final class DepGraphCache
 
         private final int hashCode;
 
-        public GraphKey( Artifact artifact, List<RemoteRepository> repositories, DependencySelector selector,
-                         DependencyManager manager, DependencyTraverser traverser )
+        public GraphKey( final Artifact artifact, final List<RemoteRepository> repositories,
+                         final DependencySelector selector, final DependencyManager manager,
+                         final DependencyTraverser traverser )
         {
             this.artifact = artifact;
             this.repositories = repositories;
@@ -447,7 +450,7 @@ public final class DepGraphCache
         }
 
         @Override
-        public boolean equals( Object obj )
+        public boolean equals( final Object obj )
         {
             if ( obj == this )
             {
@@ -457,7 +460,7 @@ public final class DepGraphCache
             {
                 return false;
             }
-            GraphKey that = (GraphKey) obj;
+            final GraphKey that = (GraphKey) obj;
             return artifact.equals( that.artifact ) && repositories.equals( that.repositories )
                 && selector.equals( that.selector ) && manager.equals( that.manager )
                 && traverser.equals( that.traverser );
@@ -476,12 +479,12 @@ public final class DepGraphCache
 
         private final Map<K, WeakReference<V>> objects = new WeakHashMap<K, WeakReference<V>>( 256 );
 
-        synchronized V intern( K id, V object )
+        synchronized V intern( final K id, final V object )
         {
-            WeakReference<V> pooledRef = objects.get( id );
+            final WeakReference<V> pooledRef = objects.get( id );
             if ( pooledRef != null )
             {
-                V pooled = pooledRef.get();
+                final V pooled = pooledRef.get();
                 if ( pooled != null )
                 {
                     return pooled;
@@ -491,15 +494,15 @@ public final class DepGraphCache
             objects.put( id, new WeakReference<V>( object ) );
             return object;
         }
-        
-        void set( K id, V object )
+
+        void set( final K id, final V object )
         {
             objects.put( id, new WeakReference<V>( object ) );
         }
-        
-        V get( K id )
+
+        V get( final K id )
         {
-            WeakReference<V> ref = objects.get( id );
+            final WeakReference<V> ref = objects.get( id );
             return ref == null ? null : ref.get();
         }
 

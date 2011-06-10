@@ -21,13 +21,13 @@ import edu.uci.ics.jung.graph.Graph;
 
 public interface GraphVisitor<V, E>
 {
-    
+
     boolean traversedEdge( Graph<V, E> graph, E edge );
-    
+
     boolean startedVertexVisit( Graph<V, E> graph, V vertex );
-    
+
     boolean finishedVertexVisit( Graph<V, E> graph, V vertex );
-    
+
     void skippedVertexVisit( Graph<V, E> graph, V vertex );
 
     void skippedEdgeTraversal( Graph<V, E> graph, E edge );

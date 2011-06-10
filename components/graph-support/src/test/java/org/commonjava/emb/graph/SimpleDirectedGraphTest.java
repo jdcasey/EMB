@@ -33,8 +33,8 @@ public class SimpleDirectedGraphTest
     {
         final SimpleDirectedGraph<String> graph = new SimpleDirectedGraph<String>();
         graph.connect( "from", "to" ).connect( "to", "onward" );
-        
-        StringWriter sw = new StringWriter();
+
+        final StringWriter sw = new StringWriter();
 
         final Printer<String> printer =
             new Printer<String>( new EdgePrinter.ToStringPrinter<DirectionalEdge<String>>(), new PrintWriter( sw ) );

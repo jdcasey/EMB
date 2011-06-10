@@ -22,10 +22,12 @@ import org.sonatype.aether.RepositorySystemSession;
 
 public final class RepositorySessionUtils
 {
-    
-    private RepositorySessionUtils(){}
-    
-    public static void clearDependencyGraphCaches( RepositorySystemSession session )
+
+    private RepositorySessionUtils()
+    {
+    }
+
+    public static void clearDependencyGraphCaches( final RepositorySystemSession session )
     {
         DepGraphCache.clear( session );
     }

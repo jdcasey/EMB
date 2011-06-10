@@ -17,7 +17,6 @@
 
 package org.commonjava.emb.graph;
 
-
 public class DirectionalEdge<V>
 {
 
@@ -40,7 +39,7 @@ public class DirectionalEdge<V>
     {
         return to;
     }
-    
+
     public interface DirectionalEdgeFactory<V, E extends DirectionalEdge<V>>
     {
         E createEdge( V from, V to );

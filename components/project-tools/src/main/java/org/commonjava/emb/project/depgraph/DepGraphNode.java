@@ -35,23 +35,23 @@ public class DepGraphNode
     implements Iterable<Throwable>
 {
 
-//    private static final Logger LOGGER = Logger.getLogger( DepGraphNode.class );
+    // private static final Logger LOGGER = Logger.getLogger( DepGraphNode.class );
 
-//    private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
+    // private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
 
     private Artifact latestArtifact;
 
     private ArtifactResult latestResult;
 
     private final LinkedHashSet<RemoteRepository> remoteRepositories = new LinkedHashSet<RemoteRepository>();
-    
-//    private final Map<String, ArtifactResult> results = new HashMap<String, ArtifactResult>();
+
+    // private final Map<String, ArtifactResult> results = new HashMap<String, ArtifactResult>();
 
     private String key;
 
     private final boolean preResolved;
-    
-    private Set<Throwable> errors = new HashSet<Throwable>();
+
+    private final Set<Throwable> errors = new HashSet<Throwable>();
 
     private DependencyNode latestDependencyNode;
 
@@ -104,8 +104,8 @@ public class DepGraphNode
     public synchronized void merge( final DependencyNode node )
     {
         latestDependencyNode = node;
-        
-//        nodes.add( new DisconnectedDepNode( node ) );
+
+        // nodes.add( new DisconnectedDepNode( node ) );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );
@@ -126,7 +126,7 @@ public class DepGraphNode
 
         latestResult = result;
     }
-    
+
     public DependencyNode getLatestDependencyNode()
     {
         return latestDependencyNode;
@@ -162,11 +162,9 @@ public class DepGraphNode
         final StringBuilder sb = new StringBuilder();
 
         sb.append( "Failed to resolve: " ).append( getKey() );
-        sb.append( "\n\n" )
-          .append( errors.size() )
-          .append( " Resolution errors:\n" );
-        
-        for ( Throwable error : errors )
+        sb.append( "\n\n" ).append( errors.size() ).append( " Resolution errors:\n" );
+
+        for ( final Throwable error : errors )
         {
             final StringWriter sWriter = new StringWriter();
             error.printStackTrace( new PrintWriter( sWriter ) );

@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.maven.project.MavenProject;
-import org.commonjava.emb.project.ProjectLoader;
 import org.commonjava.emb.project.testutil.TestFixture;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

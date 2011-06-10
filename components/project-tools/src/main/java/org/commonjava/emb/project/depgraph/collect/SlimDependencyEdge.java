@@ -57,14 +57,14 @@ class SlimDependencyEdge
 
     private Map<Object, Object> data;
 
-    SlimDependencyEdge( SlimDependencyNode from, SlimDependencyNode to, SlimDepGraph graph )
+    SlimDependencyEdge( final SlimDependencyNode from, final SlimDependencyNode to, final SlimDepGraph graph )
     {
         super( from, to );
         graph.addEdge( this );
         this.graph = graph;
     }
 
-    SlimDependencyEdge( SlimDependencyNode root, SlimDepGraph graph )
+    SlimDependencyEdge( final SlimDependencyNode root, final SlimDepGraph graph )
     {
         super( root, root );
         graph.addEdge( this );
@@ -99,7 +99,7 @@ class SlimDependencyEdge
      * @see org.sonatype.aether.graph.DependencyNode#setArtifact(org.sonatype.aether.artifact.Artifact)
      */
     @Override
-    public void setArtifact( Artifact artifact )
+    public void setArtifact( final Artifact artifact )
     {
         graph.setArtifact( artifact );
         if ( dependency != null )
@@ -152,7 +152,7 @@ class SlimDependencyEdge
      * @see org.sonatype.aether.graph.DependencyNode#setScope(java.lang.String)
      */
     @Override
-    public void setScope( String scope )
+    public void setScope( final String scope )
     {
         this.scope = scope.intern();
     }
@@ -212,7 +212,7 @@ class SlimDependencyEdge
      * @see org.sonatype.aether.graph.DependencyNode#setRequestContext(java.lang.String)
      */
     @Override
-    public void setRequestContext( String requestContext )
+    public void setRequestContext( final String requestContext )
     {
         this.requestContext = requestContext.intern();
     }
@@ -234,7 +234,7 @@ class SlimDependencyEdge
      * @see org.sonatype.aether.graph.DependencyNode#setData(java.lang.Object, java.lang.Object)
      */
     @Override
-    public synchronized void setData( Object key, Object value )
+    public synchronized void setData( final Object key, final Object value )
     {
         if ( data == null )
         {
@@ -253,11 +253,11 @@ class SlimDependencyEdge
      * @see org.sonatype.aether.graph.DependencyNode#accept(org.sonatype.aether.graph.DependencyVisitor)
      */
     @Override
-    public boolean accept( DependencyVisitor visitor )
+    public boolean accept( final DependencyVisitor visitor )
     {
         if ( visitor.visitEnter( this ) )
         {
-            for ( DependencyNode child : getChildren() )
+            for ( final DependencyNode child : getChildren() )
             {
                 if ( !child.accept( visitor ) )
                 {
@@ -269,37 +269,37 @@ class SlimDependencyEdge
         return visitor.visitLeave( this );
     }
 
-    void setDependency( Dependency dependency )
+    void setDependency( final Dependency dependency )
     {
         this.dependency = dependency == null ? null : dependency.setArtifact( graph.intern( dependency.getArtifact() ) );
     }
 
-    void setRelocations( List<Artifact> relocations )
+    void setRelocations( final List<Artifact> relocations )
     {
         graph.setRelocations( key, relocations );
     }
 
-    void addRelocation( Artifact relocation )
+    void addRelocation( final Artifact relocation )
     {
         graph.addRelocation( key, relocation );
     }
 
-    void setVersionConstraint( VersionConstraint versionConstraint )
+    void setVersionConstraint( final VersionConstraint versionConstraint )
     {
         this.versionConstraint = versionConstraint;
     }
 
-    void setVersion( Version version )
+    void setVersion( final Version version )
     {
         this.version = version;
     }
 
-    void setPreManagedVersion( String preManagedVersion )
+    void setPreManagedVersion( final String preManagedVersion )
     {
         this.preManagedVersion = preManagedVersion;
     }
 
-    void setPreManagedScope( String preManagedScope )
+    void setPreManagedScope( final String preManagedScope )
     {
         this.preManagedScope = preManagedScope;
     }
@@ -318,29 +318,28 @@ class SlimDependencyEdge
     static final class Factory
         implements DirectionalEdgeFactory<SlimDependencyNode, SlimDependencyEdge>
     {
-        
+
         private final SlimDepGraph graph;
 
-        Factory( SlimDepGraph graph )
+        Factory( final SlimDepGraph graph )
         {
             this.graph = graph;
         }
 
         @Override
-        public SlimDependencyEdge createEdge( SlimDependencyNode from,
-                                                               SlimDependencyNode to )
+        public SlimDependencyEdge createEdge( final SlimDependencyNode from, final SlimDependencyNode to )
         {
             return new SlimDependencyEdge( from, to, graph );
         }
 
     }
 
-    void setPremanagedScope( String premanagedScope )
+    void setPremanagedScope( final String premanagedScope )
     {
         preManagedScope = premanagedScope;
     }
 
-    void setPremanagedVersion( String premanagedVersion )
+    void setPremanagedVersion( final String premanagedVersion )
     {
         preManagedVersion = premanagedVersion;
     }

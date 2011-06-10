@@ -95,7 +95,9 @@ public class ProjectLoader
             projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
         }
 
-        DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, sessionInjector.getRepositorySystemSession( session ), session );
+        final DependencyGraph depGraph =
+            dependencyGraphResolver.accumulateGraph( projects, sessionInjector.getRepositorySystemSession( session ),
+                                                     session );
         session.setDependencyGraph( depGraph );
 
         return depGraph;
@@ -115,10 +117,10 @@ public class ProjectLoader
             projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
         }
 
-        RepositorySystemSession rss = sessionInjector.getRepositorySystemSession( session );
-        DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, rss, session );
+        final RepositorySystemSession rss = sessionInjector.getRepositorySystemSession( session );
+        final DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, rss, session );
         dependencyGraphResolver.resolveGraph( depGraph, projects, rss, session );
-        
+
         session.setDependencyGraph( depGraph );
 
         return depGraph;
@@ -148,7 +150,7 @@ public class ProjectLoader
             if ( LOGGER.isDebugEnabled() )
             {
                 LOGGER.debug( "Adding projects to dependency graph:\n\t"
-                                + StringUtils.join( projects.iterator(), "\n\t" ) );
+                    + StringUtils.join( projects.iterator(), "\n\t" ) );
             }
             addProjects( session, projects );
 
@@ -183,13 +185,8 @@ public class ProjectLoader
                         sb.append( "\n" ).append( result.getProjectId() );
                         for ( final ModelProblem problem : problems )
                         {
-                            sb.append( "\n\t" )
-                              .append( problem.getMessage() )
-                              .append( "\n\t\t" )
-                              .append( problem.getSource() )
-                              .append( "@" )
-                              .append( problem.getLineNumber() )
-                              .append( ":" + problem.getColumnNumber() );
+                            sb.append( "\n\t" ).append( problem.getMessage() ).append( "\n\t\t" ).append( problem.getSource() ).append( "@" ).append( problem.getLineNumber() ).append( ":"
+                                                                                                                                                                                            + problem.getColumnNumber() );
 
                             if ( problem.getException() != null )
                             {
@@ -303,12 +300,8 @@ public class ProjectLoader
                     final List<ModelProblem> problems = result.getProblems();
                     for ( final ModelProblem problem : problems )
                     {
-                        sb.append( problem.getMessage() )
-                          .append( "\n\t" )
-                          .append( problem.getSource() )
-                          .append( "@" )
-                          .append( problem.getLineNumber() )
-                          .append( ":" + problem.getColumnNumber() );
+                        sb.append( problem.getMessage() ).append( "\n\t" ).append( problem.getSource() ).append( "@" ).append( problem.getLineNumber() ).append( ":"
+                                                                                                                                                                     + problem.getColumnNumber() );
 
                         if ( problem.getException() != null )
                         {
@@ -370,12 +363,7 @@ public class ProjectLoader
             int i = 0;
             if ( results == null )
             {
-                sb.append( "Cannot build project instance for: " )
-                  .append( groupId )
-                  .append( ':' )
-                  .append( artifactId )
-                  .append( ':' )
-                  .append( version );
+                sb.append( "Cannot build project instance for: " ).append( groupId ).append( ':' ).append( artifactId ).append( ':' ).append( version );
 
                 final StringWriter sWriter = new StringWriter();
                 final PrintWriter pWriter = new PrintWriter( sWriter );
@@ -390,12 +378,8 @@ public class ProjectLoader
                     final List<ModelProblem> problems = result.getProblems();
                     for ( final ModelProblem problem : problems )
                     {
-                        sb.append( problem.getMessage() )
-                          .append( "\n\t" )
-                          .append( problem.getSource() )
-                          .append( "@" )
-                          .append( problem.getLineNumber() )
-                          .append( ":" + problem.getColumnNumber() );
+                        sb.append( problem.getMessage() ).append( "\n\t" ).append( problem.getSource() ).append( "@" ).append( problem.getLineNumber() ).append( ":"
+                                                                                                                                                                     + problem.getColumnNumber() );
 
                         if ( problem.getException() != null )
                         {

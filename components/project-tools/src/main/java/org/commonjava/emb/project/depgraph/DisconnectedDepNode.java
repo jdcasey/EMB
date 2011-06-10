@@ -53,71 +53,85 @@ final class DisconnectedDepNode
         return false;
     }
 
+    @Override
     public Dependency getDependency()
     {
         return delegate.getDependency();
     }
 
+    @Override
     public void setArtifact( final Artifact artifact )
     {
         delegate.setArtifact( artifact );
     }
 
+    @Override
     public List<Artifact> getRelocations()
     {
         return delegate.getRelocations();
     }
 
+    @Override
     public Collection<Artifact> getAliases()
     {
         return delegate.getAliases();
     }
 
+    @Override
     public VersionConstraint getVersionConstraint()
     {
         return delegate.getVersionConstraint();
     }
 
+    @Override
     public Version getVersion()
     {
         return delegate.getVersion();
     }
 
+    @Override
     public void setScope( final String scope )
     {
         delegate.setScope( scope );
     }
 
+    @Override
     public String getPremanagedVersion()
     {
         return delegate.getPremanagedVersion();
     }
 
+    @Override
     public String getPremanagedScope()
     {
         return delegate.getPremanagedScope();
     }
 
+    @Override
     public List<RemoteRepository> getRepositories()
     {
         return delegate.getRepositories();
     }
 
+    @Override
     public String getRequestContext()
     {
         return delegate.getRequestContext();
     }
 
+    @Override
     public void setRequestContext( final String context )
     {
         delegate.setRequestContext( context );
     }
 
+    @Override
     public Map<Object, Object> getData()
     {
         return delegate.getData();
     }
 
+    @Override
     public void setData( final Object key, final Object value )
     {
         delegate.setData( key, value );

@@ -82,24 +82,24 @@ public interface ProjectToolsSession
     ProjectToolsSession setExecutionRequest( MavenExecutionRequest request );
 
     MavenExecutionRequest getExecutionRequest();
-    
+
     ProjectToolsSession setResolveThreads( int threads );
 
     int getResolveThreads();
-    
+
     boolean isProcessPomPlugins();
-    
+
     ProjectToolsSession setProcessPomPlugins( boolean resolvePlugins );
 
     DependencySelector getDependencySelector();
 
     ProjectToolsSession setDependencySelector( DependencySelector selector );
-    
-    ProjectToolsSession setDependencyScopeSelections( String...excluded );
-    
+
+    ProjectToolsSession setDependencyScopeSelections( String... excluded );
+
     ProjectToolsSession setDependencyScopeSelections( String[] included, String[] excluded );
 
     DependencyFilter getDependencyFilter();
-    
+
     ProjectToolsSession setDependencyFilter( DependencyFilter filter );
 }

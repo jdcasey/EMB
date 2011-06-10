@@ -94,18 +94,15 @@ public class BareBonesDependencyCollector
 
     @Requirement
     private VersionRangeResolver versionRangeResolver;
-    
-    @Requirement( optional=true )
-    private ProjectToolsSession projectToolsSession;
-    
+
     public BareBonesDependencyCollector()
     {
         // enables default constructor
     }
 
-    public BareBonesDependencyCollector( Logger logger, RemoteRepositoryManager remoteRepositoryManager,
-                                         ArtifactDescriptorReader artifactDescriptorReader,
-                                         VersionRangeResolver versionRangeResolver )
+    public BareBonesDependencyCollector( final Logger logger, final RemoteRepositoryManager remoteRepositoryManager,
+                                         final ArtifactDescriptorReader artifactDescriptorReader,
+                                         final VersionRangeResolver versionRangeResolver )
     {
         setLogger( logger );
         setRemoteRepositoryManager( remoteRepositoryManager );
@@ -113,7 +110,8 @@ public class BareBonesDependencyCollector
         setVersionRangeResolver( versionRangeResolver );
     }
 
-    public void initService( ServiceLocator locator )
+    @Override
+    public void initService( final ServiceLocator locator )
     {
         setLogger( locator.getService( Logger.class ) );
         setRemoteRepositoryManager( locator.getService( RemoteRepositoryManager.class ) );
@@ -121,13 +119,13 @@ public class BareBonesDependencyCollector
         setVersionRangeResolver( locator.getService( VersionRangeResolver.class ) );
     }
 
-    public BareBonesDependencyCollector setLogger( Logger logger )
+    public BareBonesDependencyCollector setLogger( final Logger logger )
     {
         this.logger = ( logger != null ) ? logger : NullLogger.INSTANCE;
         return this;
     }
 
-    public BareBonesDependencyCollector setRemoteRepositoryManager( RemoteRepositoryManager remoteRepositoryManager )
+    public BareBonesDependencyCollector setRemoteRepositoryManager( final RemoteRepositoryManager remoteRepositoryManager )
     {
         if ( remoteRepositoryManager == null )
         {
@@ -137,17 +135,17 @@ public class BareBonesDependencyCollector
         return this;
     }
 
-    public BareBonesDependencyCollector setArtifactDescriptorReader( ArtifactDescriptorReader artifactDescriptorReader )
+    public BareBonesDependencyCollector setArtifactDescriptorReader( final ArtifactDescriptorReader artifactDescriptorReader )
     {
         if ( artifactDescriptorReader == null )
         {
             throw new IllegalArgumentException( "artifact descriptor reader has not been specified" );
         }
-        this.descriptorReader = artifactDescriptorReader;
+        descriptorReader = artifactDescriptorReader;
         return this;
     }
 
-    public BareBonesDependencyCollector setVersionRangeResolver( VersionRangeResolver versionRangeResolver )
+    public BareBonesDependencyCollector setVersionRangeResolver( final VersionRangeResolver versionRangeResolver )
     {
         if ( versionRangeResolver == null )
         {
@@ -156,33 +154,34 @@ public class BareBonesDependencyCollector
         this.versionRangeResolver = versionRangeResolver;
         return this;
     }
-    
-    public CollectResult collectDependencies( RepositorySystemSession session, CollectRequest request )
+
+    @Override
+    public CollectResult collectDependencies( RepositorySystemSession session, final CollectRequest request )
         throws DependencyCollectionException
     {
         session = optimizeSession( session );
 
-        RequestTrace trace = DefaultRequestTrace.newChild( request.getTrace(), request );
+        final RequestTrace trace = DefaultRequestTrace.newChild( request.getTrace(), request );
 
-        CollectResult result = new CollectResult( request );
+        final CollectResult result = new CollectResult( request );
 
-        DependencySelector depSelector = session.getDependencySelector();
-        DependencyManager depManager = session.getDependencyManager();
-        DependencyTraverser depTraverser = session.getDependencyTraverser();
+        final DependencySelector depSelector = session.getDependencySelector();
+        final DependencyManager depManager = session.getDependencyManager();
+        final DependencyTraverser depTraverser = session.getDependencyTraverser();
 
         Dependency root = request.getRoot();
         List<RemoteRepository> repositories = request.getRepositories();
         List<Dependency> dependencies = request.getDependencies();
         List<Dependency> managedDependencies = request.getManagedDependencies();
 
-        SlimDepGraph graph = new SlimDepGraph( session );
+        final SlimDepGraph graph = new SlimDepGraph( session );
         SlimDependencyEdge edge = null;
         if ( root != null )
         {
             VersionRangeResult rangeResult;
             try
             {
-                VersionRangeRequest rangeRequest =
+                final VersionRangeRequest rangeRequest =
                     new VersionRangeRequest( root.getArtifact(), request.getRepositories(), request.getRequestContext() );
                 rangeRequest.setTrace( trace );
                 rangeResult = versionRangeResolver.resolveVersionRange( session, rangeRequest );
@@ -193,19 +192,19 @@ public class BareBonesDependencyCollector
                         + root.getArtifact() + " within specified range" );
                 }
             }
-            catch ( VersionRangeResolutionException e )
+            catch ( final VersionRangeResolutionException e )
             {
                 result.addException( e );
                 throw new DependencyCollectionException( result );
             }
 
-            Version version = rangeResult.getVersions().get( rangeResult.getVersions().size() - 1 );
+            final Version version = rangeResult.getVersions().get( rangeResult.getVersions().size() - 1 );
             root = root.setArtifact( root.getArtifact().setVersion( version.toString() ) );
 
             ArtifactDescriptorResult descriptorResult;
             try
             {
-                ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
+                final ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
                 descriptorRequest.setArtifact( root.getArtifact() );
                 descriptorRequest.setRepositories( request.getRepositories() );
                 descriptorRequest.setRequestContext( request.getRequestContext() );
@@ -219,7 +218,7 @@ public class BareBonesDependencyCollector
                     descriptorResult = descriptorReader.readArtifactDescriptor( session, descriptorRequest );
                 }
             }
-            catch ( ArtifactDescriptorException e )
+            catch ( final ArtifactDescriptorException e )
             {
                 result.addException( e );
                 throw new DependencyCollectionException( result );
@@ -233,7 +232,7 @@ public class BareBonesDependencyCollector
             dependencies = mergeDeps( dependencies, descriptorResult.getDependencies() );
             managedDependencies = mergeDeps( managedDependencies, descriptorResult.getManagedDependencies() );
 
-            SlimDependencyNode node = new SlimDependencyNode( toId( descriptorResult.getArtifact() ), graph );
+            final SlimDependencyNode node = new SlimDependencyNode( toId( descriptorResult.getArtifact() ), graph );
             node.setAliases( descriptorResult.getAliases() );
             node.setRepositories( request.getRepositories() );
 
@@ -251,28 +250,28 @@ public class BareBonesDependencyCollector
 
         result.setRoot( edge );
 
-        boolean traverse = ( root == null ) || depTraverser.traverseDependency( root );
+        final boolean traverse = ( root == null ) || depTraverser.traverseDependency( root );
 
         if ( traverse && !dependencies.isEmpty() )
         {
-            LinkedList<SlimDependencyEdge> edges = new LinkedList<SlimDependencyEdge>();
+            final LinkedList<SlimDependencyEdge> edges = new LinkedList<SlimDependencyEdge>();
             edges.addFirst( edge );
 
-            DependencyCollectionContext context = new CollectionContext( session, root, managedDependencies );
+            final DependencyCollectionContext context = new CollectionContext( session, root, managedDependencies );
 
-            DepGraphCache pool = new DepGraphCache( session );
+            final DepGraphCache pool = new DepGraphCache( session );
             process( session, trace, result, edges, dependencies, repositories,
                      depSelector.deriveChildSelector( context ), depManager.deriveChildManager( context ),
                      depTraverser.deriveChildTraverser( context ), pool, graph );
         }
 
-        DependencyGraphTransformer transformer = session.getDependencyGraphTransformer();
+        final DependencyGraphTransformer transformer = session.getDependencyGraphTransformer();
         try
         {
-            DependencyGraphTransformationContext context = new GraphTransformationContext( session );
+            final DependencyGraphTransformationContext context = new GraphTransformationContext( session );
             result.setRoot( transformer.transformGraph( edge, context ) );
         }
-        catch ( RepositoryException e )
+        catch ( final RepositoryException e )
         {
             result.addException( e );
         }
@@ -285,14 +284,14 @@ public class BareBonesDependencyCollector
         return result;
     }
 
-    private RepositorySystemSession optimizeSession( RepositorySystemSession session )
+    private RepositorySystemSession optimizeSession( final RepositorySystemSession session )
     {
-        DefaultRepositorySystemSession optimized = new DefaultRepositorySystemSession( session );
+        final DefaultRepositorySystemSession optimized = new DefaultRepositorySystemSession( session );
         optimized.setArtifactTypeRegistry( new TypeRegistry( session ) );
         return optimized;
     }
 
-    private List<Dependency> mergeDeps( List<Dependency> dominant, List<Dependency> recessive )
+    private List<Dependency> mergeDeps( final List<Dependency> dominant, final List<Dependency> recessive )
     {
         List<Dependency> result;
         if ( dominant == null || dominant.isEmpty() )
@@ -306,13 +305,13 @@ public class BareBonesDependencyCollector
         else
         {
             result = new ArrayList<Dependency>( dominant.size() + recessive.size() );
-            Collection<String> ids = new HashSet<String>();
-            for ( Dependency dependency : dominant )
+            final Collection<String> ids = new HashSet<String>();
+            for ( final Dependency dependency : dominant )
             {
                 ids.add( getId( dependency.getArtifact() ) );
                 result.add( dependency );
             }
-            for ( Dependency dependency : recessive )
+            for ( final Dependency dependency : recessive )
             {
                 if ( !ids.contains( getId( dependency.getArtifact() ) ) )
                 {
@@ -323,21 +322,23 @@ public class BareBonesDependencyCollector
         return result;
     }
 
-    private String getId( Artifact a )
+    private String getId( final Artifact a )
     {
         return a.getGroupId() + ':' + a.getArtifactId() + ':' + a.getClassifier() + ':' + a.getExtension();
     }
 
-    private boolean process( RepositorySystemSession session, RequestTrace trace, CollectResult result,
-                             LinkedList<SlimDependencyEdge> edges, List<Dependency> dependencies,
-                             List<RemoteRepository> repositories, DependencySelector depSelector,
-                             DependencyManager depManager, DependencyTraverser depTraverser, DepGraphCache pool,
-                             SlimDepGraph graph )
+    private boolean process( final RepositorySystemSession session, final RequestTrace trace,
+                             final CollectResult result, final LinkedList<SlimDependencyEdge> edges,
+                             final List<Dependency> dependencies, final List<RemoteRepository> repositories,
+                             final DependencySelector depSelector, final DependencyManager depManager,
+                             final DependencyTraverser depTraverser, final DepGraphCache pool, final SlimDepGraph graph )
         throws DependencyCollectionException
     {
         boolean cycle = false;
-        
-        DependencyFilter filter = projectToolsSession == null ? null : projectToolsSession.getDependencyFilter();
+
+        final ProjectToolsSession projectToolsSession =
+            (ProjectToolsSession) session.getData().get( ProjectToolsSession.SESSION_KEY );
+        final DependencyFilter filter = projectToolsSession == null ? null : projectToolsSession.getDependencyFilter();
 
         nextDependency: for ( Dependency dependency : dependencies )
         {
@@ -352,7 +353,7 @@ public class BareBonesDependencyCollector
                     continue nextDependency;
                 }
 
-                DependencyManagement depMngt = depManager.manageDependency( dependency );
+                final DependencyManagement depMngt = depManager.manageDependency( dependency );
                 String premanagedVersion = null;
                 String premanagedScope = null;
 
@@ -360,13 +361,13 @@ public class BareBonesDependencyCollector
                 {
                     if ( depMngt.getVersion() != null && !disableVersionManagement )
                     {
-                        Artifact artifact = dependency.getArtifact();
+                        final Artifact artifact = dependency.getArtifact();
                         premanagedVersion = artifact.getVersion();
                         dependency = dependency.setArtifact( artifact.setVersion( depMngt.getVersion() ) );
                     }
                     if ( depMngt.getProperties() != null )
                     {
-                        Artifact artifact = dependency.getArtifact();
+                        final Artifact artifact = dependency.getArtifact();
                         dependency = dependency.setArtifact( artifact.setProperties( depMngt.getProperties() ) );
                     }
                     if ( depMngt.getScope() != null )
@@ -381,20 +382,20 @@ public class BareBonesDependencyCollector
                 }
                 disableVersionManagement = false;
 
-                boolean noDescriptor = isLackingDescriptor( dependency.getArtifact() );
+                final boolean noDescriptor = isLackingDescriptor( dependency.getArtifact() );
 
-                boolean traverse = !noDescriptor && depTraverser.traverseDependency( dependency );
+                final boolean traverse = !noDescriptor && depTraverser.traverseDependency( dependency );
 
                 VersionRangeResult rangeResult;
                 try
                 {
-                    VersionRangeRequest rangeRequest = new VersionRangeRequest();
+                    final VersionRangeRequest rangeRequest = new VersionRangeRequest();
                     rangeRequest.setArtifact( dependency.getArtifact() );
                     rangeRequest.setRepositories( repositories );
                     rangeRequest.setRequestContext( result.getRequest().getRequestContext() );
                     rangeRequest.setTrace( trace );
 
-                    Object key = pool.toKey( rangeRequest );
+                    final Object key = pool.toKey( rangeRequest );
                     rangeResult = pool.getConstraint( key, rangeRequest );
                     if ( rangeResult == null )
                     {
@@ -408,24 +409,24 @@ public class BareBonesDependencyCollector
                             + dependency.getArtifact() + " within specified range" );
                     }
                 }
-                catch ( VersionRangeResolutionException e )
+                catch ( final VersionRangeResolutionException e )
                 {
                     result.addException( e );
                     continue nextDependency;
                 }
 
-                List<Version> versions = new ArrayList<Version>( rangeResult.getVersions() );
+                final List<Version> versions = new ArrayList<Version>( rangeResult.getVersions() );
                 Collections.reverse( versions );
 
-                for ( Version version : versions )
+                for ( final Version version : versions )
                 {
-                    Artifact originalArtifact = dependency.getArtifact().setVersion( version.toString() );
+                    final Artifact originalArtifact = dependency.getArtifact().setVersion( version.toString() );
                     Dependency d = dependency.setArtifact( originalArtifact );
 
                     ArtifactDescriptorResult descriptorResult;
                     try
                     {
-                        ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
+                        final ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
                         descriptorRequest.setArtifact( d.getArtifact() );
                         descriptorRequest.setRepositories( repositories );
                         descriptorRequest.setRequestContext( result.getRequest().getRequestContext() );
@@ -437,7 +438,7 @@ public class BareBonesDependencyCollector
                         }
                         else
                         {
-                            Object key = pool.toKey( descriptorRequest );
+                            final Object key = pool.toKey( descriptorRequest );
                             descriptorResult = pool.getDescriptor( key, descriptorRequest );
                             if ( descriptorResult == null )
                             {
@@ -446,7 +447,7 @@ public class BareBonesDependencyCollector
                             }
                         }
                     }
-                    catch ( ArtifactDescriptorException e )
+                    catch ( final ArtifactDescriptorException e )
                     {
                         result.addException( e );
                         continue;
@@ -478,12 +479,12 @@ public class BareBonesDependencyCollector
                     DependencyManager childManager = null;
                     DependencyTraverser childTraverser = null;
                     List<RemoteRepository> childRepos = null;
-                    String key = toId( d.getArtifact() );
+                    final String key = toId( d.getArtifact() );
 
                     boolean recurse = traverse && !descriptorResult.getDependencies().isEmpty();
                     if ( recurse )
                     {
-                        DependencyCollectionContext context =
+                        final DependencyCollectionContext context =
                             new CollectionContext( session, d, descriptorResult.getManagedDependencies() );
 
                         childSelector = depSelector.deriveChildSelector( context );
@@ -496,7 +497,7 @@ public class BareBonesDependencyCollector
                     }
 
                     List<RemoteRepository> repos;
-                    ArtifactRepository repo = rangeResult.getRepository( version );
+                    final ArtifactRepository repo = rangeResult.getRepository( version );
                     if ( repo instanceof RemoteRepository )
                     {
                         repos = Collections.singletonList( (RemoteRepository) repo );
@@ -526,10 +527,10 @@ public class BareBonesDependencyCollector
                             child.setRepositories( repos );
                         }
                     }
-                    
-                    SlimDependencyNode node = edges.getFirst().getTo();
-                    
-                    SlimDependencyEdge edge = new SlimDependencyEdge( node, child, graph );
+
+                    final SlimDependencyNode node = edges.getFirst().getTo();
+
+                    final SlimDependencyEdge edge = new SlimDependencyEdge( node, child, graph );
                     edge.setDependency( d );
                     edge.setScope( d.getScope() );
                     edge.setPremanagedScope( premanagedScope );
@@ -538,10 +539,10 @@ public class BareBonesDependencyCollector
                     edge.setVersionConstraint( rangeResult.getVersionConstraint() );
                     edge.setVersion( version );
                     edge.setRequestContext( result.getRequest().getRequestContext() );
-                    
-                    List<DependencyNode> parents = new ArrayList<DependencyNode>();
+
+                    final List<DependencyNode> parents = new ArrayList<DependencyNode>();
                     parents.add( edges.getFirst() );
-                    
+
                     if ( filter != null && !filter.accept( edge, parents ) )
                     {
                         graph.removeEdge( edge );
@@ -570,17 +571,17 @@ public class BareBonesDependencyCollector
         return cycle;
     }
 
-    private SlimDependencyEdge findDuplicate( List<SlimDependencyEdge> edges, Artifact artifact )
+    private SlimDependencyEdge findDuplicate( final List<SlimDependencyEdge> edges, final Artifact artifact )
     {
-        for ( SlimDependencyEdge edge : edges )
+        for ( final SlimDependencyEdge edge : edges )
         {
-            Dependency dependency = edge.getDependency();
+            final Dependency dependency = edge.getDependency();
             if ( dependency == null )
             {
                 break;
             }
 
-            Artifact a = dependency.getArtifact();
+            final Artifact a = dependency.getArtifact();
             if ( !a.getArtifactId().equals( artifact.getArtifactId() ) )
             {
                 continue;
@@ -608,7 +609,7 @@ public class BareBonesDependencyCollector
         return null;
     }
 
-    private boolean isLackingDescriptor( Artifact artifact )
+    private boolean isLackingDescriptor( final Artifact artifact )
     {
         return artifact.getProperty( ArtifactProperties.LOCAL_PATH, null ) != null;
     }
@@ -624,7 +625,7 @@ public class BareBonesDependencyCollector
         private final List<Dependency> managedDependencies;
 
         CollectionContext( final RepositorySystemSession session, final Dependency dependency,
-                                  final List<Dependency> managedDependencies )
+                           final List<Dependency> managedDependencies )
         {
             this.session = session;
             this.dependency = dependency;
@@ -656,10 +657,10 @@ public class BareBonesDependencyCollector
     {
 
         private final RepositorySystemSession session;
-        
+
         private final Map<Object, Object> ctx = new HashMap<Object, Object>();
-        
-        GraphTransformationContext( RepositorySystemSession session )
+
+        GraphTransformationContext( final RepositorySystemSession session )
         {
             this.session = session;
         }
@@ -671,19 +672,19 @@ public class BareBonesDependencyCollector
         }
 
         @Override
-        public Object get( Object key )
+        public Object get( final Object key )
         {
             return ctx.get( key );
         }
 
         @Override
-        public Object put( Object key, Object value )
+        public Object put( final Object key, final Object value )
         {
             return ctx.put( key, value );
         }
 
     }
-    
+
     private static final class TypeRegistry
         implements ArtifactTypeRegistry
     {
@@ -691,12 +692,13 @@ public class BareBonesDependencyCollector
 
         private final Map<String, ArtifactType> types = new HashMap<String, ArtifactType>();
 
-        TypeRegistry( RepositorySystemSession session )
+        TypeRegistry( final RepositorySystemSession session )
         {
             delegate = session.getArtifactTypeRegistry();
         }
 
-        public ArtifactType get( String typeId )
+        @Override
+        public ArtifactType get( final String typeId )
         {
             ArtifactType type = types.get( typeId );
 

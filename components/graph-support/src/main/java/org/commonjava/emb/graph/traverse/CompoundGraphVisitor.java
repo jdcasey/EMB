@@ -31,73 +31,80 @@ public final class CompoundGraphVisitor<V, E>
 
     /**
      * {@inheritDoc}
+     * 
      * @see org.commonjava.emb.graph.traverse.GraphVisitor#traversedEdge(edu.uci.ics.jung.graph.Graph, java.lang.Object)
      */
     @Override
-    public boolean traversedEdge( Graph<V, E> graph, E edge )
+    public boolean traversedEdge( final Graph<V, E> graph, final E edge )
     {
         boolean doContinue = true;
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
             doContinue = doContinue && visitor.traversedEdge( graph, edge );
-            
+
             if ( !doContinue )
             {
                 break;
             }
         }
-        
+
         return false;
     }
 
     /**
      * {@inheritDoc}
-     * @see org.commonjava.emb.graph.traverse.GraphVisitor#startedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     * 
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#startedVertexVisit(edu.uci.ics.jung.graph.Graph,
+     *      java.lang.Object)
      */
     @Override
-    public boolean startedVertexVisit( Graph<V, E> graph, V vertex )
+    public boolean startedVertexVisit( final Graph<V, E> graph, final V vertex )
     {
         boolean doContinue = true;
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
             doContinue = doContinue && visitor.startedVertexVisit( graph, vertex );
-            
+
             if ( !doContinue )
             {
                 break;
             }
         }
-        
+
         return false;
     }
 
     /**
      * {@inheritDoc}
-     * @see org.commonjava.emb.graph.traverse.GraphVisitor#finishedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     * 
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#finishedVertexVisit(edu.uci.ics.jung.graph.Graph,
+     *      java.lang.Object)
      */
     @Override
-    public boolean finishedVertexVisit( Graph<V, E> graph, V vertex )
+    public boolean finishedVertexVisit( final Graph<V, E> graph, final V vertex )
     {
         boolean doContinue = true;
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
             doContinue = doContinue && visitor.finishedVertexVisit( graph, vertex );
-            
+
             if ( !doContinue )
             {
                 break;
             }
         }
-        
+
         return false;
     }
 
     /**
      * {@inheritDoc}
-     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedVertexVisit(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     * 
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedVertexVisit(edu.uci.ics.jung.graph.Graph,
+     *      java.lang.Object)
      */
     @Override
-    public void skippedVertexVisit( Graph<V, E> graph, V vertex )
+    public void skippedVertexVisit( final Graph<V, E> graph, final V vertex )
     {
         for ( final GraphVisitor<V, E> visitor : visitors )
         {
@@ -107,10 +114,12 @@ public final class CompoundGraphVisitor<V, E>
 
     /**
      * {@inheritDoc}
-     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedEdgeTraversal(edu.uci.ics.jung.graph.Graph, java.lang.Object)
+     * 
+     * @see org.commonjava.emb.graph.traverse.GraphVisitor#skippedEdgeTraversal(edu.uci.ics.jung.graph.Graph,
+     *      java.lang.Object)
      */
     @Override
-    public void skippedEdgeTraversal( Graph<V, E> graph, E edge )
+    public void skippedEdgeTraversal( final Graph<V, E> graph, final E edge )
     {
         for ( final GraphVisitor<V, E> visitor : visitors )
         {

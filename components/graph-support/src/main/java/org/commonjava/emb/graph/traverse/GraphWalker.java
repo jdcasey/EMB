@@ -30,13 +30,13 @@ public final class GraphWalker
 {
 
     public static <V, E> List<V> walkDepthFirst( final GraphManager<V, E> graphManager, final V start,
-                                                     final GraphVisitor<V, E> visitor )
+                                                 final GraphVisitor<V, E> visitor )
     {
         return walkDepthFirst( graphManager.getManagedGraph(), start, visitor );
     }
 
     public static <V, E> List<V> walkDepthFirst( final Graph<V, E> graph, final V start,
-                                                     final GraphVisitor<V, E> visitor )
+                                                 final GraphVisitor<V, E> visitor )
     {
         final LinkedHashSet<V> encounters = new LinkedHashSet<V>();
         encounters.add( start );

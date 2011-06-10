@@ -39,6 +39,7 @@ public interface VertexPrinter<V>
             return null;
         }
 
+        @Override
         public String vertexSkipped( final T vertex )
         {
             return null;

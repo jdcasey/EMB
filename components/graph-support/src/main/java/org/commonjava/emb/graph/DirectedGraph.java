@@ -35,18 +35,18 @@ public class DirectedGraph<V, E extends DirectionalEdge<V>>
 
     private static final long serialVersionUID = 1L;
 
-    private DirectedSparseGraph<V, E> graph = new DirectedSparseGraph<V, E>();
+    private final DirectedSparseGraph<V, E> graph = new DirectedSparseGraph<V, E>();
 
     private final DirectionalEdgeFactory<V, E> edgeFactory;
 
-    public DirectedGraph( DirectionalEdgeFactory<V, E> edgeFactory )
+    public DirectedGraph( final DirectionalEdgeFactory<V, E> edgeFactory )
     {
         this.edgeFactory = edgeFactory;
     }
 
     public DirectedGraph<V, E> connect( final V from, final V to )
     {
-        E edge = edgeFactory.createEdge( from, to );
+        final E edge = edgeFactory.createEdge( from, to );
 
         if ( graph.containsEdge( edge ) )
         {
@@ -111,10 +111,10 @@ public class DirectedGraph<V, E extends DirectionalEdge<V>>
     {
         return Graphs.unmodifiableDirectedGraph( graph );
     }
-    
+
     protected Graph<V, E> getNakedGraph()
     {
         return graph;
     }
-    
+
 }

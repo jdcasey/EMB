@@ -21,7 +21,7 @@ import edu.uci.ics.jung.graph.Graph;
 
 public interface GraphManager<V, E>
 {
-    
+
     Graph<V, E> getManagedGraph();
 
 }

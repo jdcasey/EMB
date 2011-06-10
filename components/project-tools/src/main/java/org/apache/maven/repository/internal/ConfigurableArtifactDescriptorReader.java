@@ -19,15 +19,6 @@ package org.apache.maven.repository.internal;
  * under the License.
  */
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.model.DistributionManagement;
 import org.apache.maven.model.License;
@@ -43,7 +34,6 @@ import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.resolution.UnresolvableModelException;
-import org.apache.maven.repository.internal.ArtifactDescriptorUtils;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.project.ProjectToolsSession;
@@ -61,12 +51,6 @@ import org.sonatype.aether.impl.ArtifactDescriptorReader;
 import org.sonatype.aether.impl.ArtifactResolver;
 import org.sonatype.aether.impl.RemoteRepositoryManager;
 import org.sonatype.aether.impl.VersionResolver;
-import org.sonatype.aether.transfer.ArtifactNotFoundException;
-import org.sonatype.aether.util.DefaultRequestTrace;
-import org.sonatype.aether.util.artifact.ArtifactProperties;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.DefaultArtifactType;
-import org.sonatype.aether.util.listener.DefaultRepositoryEvent;
 import org.sonatype.aether.repository.WorkspaceRepository;
 import org.sonatype.aether.resolution.ArtifactDescriptorException;
 import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
@@ -81,6 +65,21 @@ import org.sonatype.aether.spi.locator.Service;
 import org.sonatype.aether.spi.locator.ServiceLocator;
 import org.sonatype.aether.spi.log.Logger;
 import org.sonatype.aether.spi.log.NullLogger;
+import org.sonatype.aether.transfer.ArtifactNotFoundException;
+import org.sonatype.aether.util.DefaultRequestTrace;
+import org.sonatype.aether.util.artifact.ArtifactProperties;
+import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.artifact.DefaultArtifactType;
+import org.sonatype.aether.util.listener.DefaultRepositoryEvent;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Benjamin Bentmann
@@ -106,10 +105,11 @@ public class ConfigurableArtifactDescriptorReader
     @Requirement
     private ModelBuilder modelBuilder;
 
-    @Requirement( optional=true )
+    @Requirement( optional = true )
     private ProjectToolsSession projectToolsSession;
 
-    public void initService( ServiceLocator locator )
+    @Override
+    public void initService( final ServiceLocator locator )
     {
         setLogger( locator.getService( Logger.class ) );
         setRemoteRepositoryManager( locator.getService( RemoteRepositoryManager.class ) );
@@ -122,13 +122,13 @@ public class ConfigurableArtifactDescriptorReader
         }
     }
 
-    public ConfigurableArtifactDescriptorReader setLogger( Logger logger )
+    public ConfigurableArtifactDescriptorReader setLogger( final Logger logger )
     {
         this.logger = ( logger != null ) ? logger : NullLogger.INSTANCE;
         return this;
     }
 
-    public ConfigurableArtifactDescriptorReader setRemoteRepositoryManager( RemoteRepositoryManager remoteRepositoryManager )
+    public ConfigurableArtifactDescriptorReader setRemoteRepositoryManager( final RemoteRepositoryManager remoteRepositoryManager )
     {
         if ( remoteRepositoryManager == null )
         {
@@ -138,7 +138,7 @@ public class ConfigurableArtifactDescriptorReader
         return this;
     }
 
-    public ConfigurableArtifactDescriptorReader setVersionResolver( VersionResolver versionResolver )
+    public ConfigurableArtifactDescriptorReader setVersionResolver( final VersionResolver versionResolver )
     {
         if ( versionResolver == null )
         {
@@ -148,7 +148,7 @@ public class ConfigurableArtifactDescriptorReader
         return this;
     }
 
-    public ConfigurableArtifactDescriptorReader setArtifactResolver( ArtifactResolver artifactResolver )
+    public ConfigurableArtifactDescriptorReader setArtifactResolver( final ArtifactResolver artifactResolver )
     {
         if ( artifactResolver == null )
         {
@@ -158,7 +158,7 @@ public class ConfigurableArtifactDescriptorReader
         return this;
     }
 
-    public ConfigurableArtifactDescriptorReader setModelBuilder( ModelBuilder modelBuilder )
+    public ConfigurableArtifactDescriptorReader setModelBuilder( final ModelBuilder modelBuilder )
     {
         if ( modelBuilder == null )
         {
@@ -168,50 +168,51 @@ public class ConfigurableArtifactDescriptorReader
         return this;
     }
 
-    public ArtifactDescriptorResult readArtifactDescriptor( RepositorySystemSession session,
-                                                            ArtifactDescriptorRequest request )
+    @Override
+    public ArtifactDescriptorResult readArtifactDescriptor( final RepositorySystemSession session,
+                                                            final ArtifactDescriptorRequest request )
         throws ArtifactDescriptorException
     {
-        ArtifactDescriptorResult result = new ArtifactDescriptorResult( request );
+        final ArtifactDescriptorResult result = new ArtifactDescriptorResult( request );
 
-        Model model = loadPom( session, request, result );
+        final Model model = loadPom( session, request, result );
 
         if ( model != null )
         {
-            ArtifactTypeRegistry stereotypes = session.getArtifactTypeRegistry();
+            final ArtifactTypeRegistry stereotypes = session.getArtifactTypeRegistry();
 
-            for ( Repository r : model.getRepositories() )
+            for ( final Repository r : model.getRepositories() )
             {
                 result.addRepository( ArtifactDescriptorUtils.toRemoteRepository( r ) );
             }
 
-            for ( org.apache.maven.model.Dependency dependency : model.getDependencies() )
+            for ( final org.apache.maven.model.Dependency dependency : model.getDependencies() )
             {
                 result.addDependency( convert( dependency, stereotypes ) );
             }
 
-            DependencyManagement mngt = model.getDependencyManagement();
+            final DependencyManagement mngt = model.getDependencyManagement();
             if ( mngt != null )
             {
-                for ( org.apache.maven.model.Dependency dependency : mngt.getDependencies() )
+                for ( final org.apache.maven.model.Dependency dependency : mngt.getDependencies() )
                 {
                     result.addManagedDependency( convert( dependency, stereotypes ) );
                 }
             }
 
-            Map<String, Object> properties = new LinkedHashMap<String, Object>();
+            final Map<String, Object> properties = new LinkedHashMap<String, Object>();
 
-            Prerequisites prerequisites = model.getPrerequisites();
+            final Prerequisites prerequisites = model.getPrerequisites();
             if ( prerequisites != null )
             {
                 properties.put( "prerequisites.maven", prerequisites.getMaven() );
             }
 
-            List<License> licenses = model.getLicenses();
+            final List<License> licenses = model.getLicenses();
             properties.put( "license.count", Integer.valueOf( licenses.size() ) );
             for ( int i = 0; i < licenses.size(); i++ )
             {
-                License license = licenses.get( i );
+                final License license = licenses.get( i );
                 properties.put( "license." + i + ".name", license.getName() );
                 properties.put( "license." + i + ".url", license.getUrl() );
                 properties.put( "license." + i + ".comments", license.getComments() );
@@ -224,25 +225,25 @@ public class ConfigurableArtifactDescriptorReader
         return result;
     }
 
-    private Model loadPom( RepositorySystemSession session, ArtifactDescriptorRequest request,
-                           ArtifactDescriptorResult result )
+    private Model loadPom( final RepositorySystemSession session, final ArtifactDescriptorRequest request,
+                           final ArtifactDescriptorResult result )
         throws ArtifactDescriptorException
     {
-        RequestTrace trace = DefaultRequestTrace.newChild( request.getTrace(), request );
+        final RequestTrace trace = DefaultRequestTrace.newChild( request.getTrace(), request );
 
-        Set<String> visited = new LinkedHashSet<String>();
+        final Set<String> visited = new LinkedHashSet<String>();
         for ( Artifact artifact = request.getArtifact();; )
         {
             try
             {
-                VersionRequest versionRequest =
+                final VersionRequest versionRequest =
                     new VersionRequest( artifact, request.getRepositories(), request.getRequestContext() );
                 versionRequest.setTrace( trace );
-                VersionResult versionResult = versionResolver.resolveVersion( session, versionRequest );
+                final VersionResult versionResult = versionResolver.resolveVersion( session, versionRequest );
 
                 artifact = artifact.setVersion( versionResult.getVersion() );
             }
-            catch ( VersionResolutionException e )
+            catch ( final VersionResolutionException e )
             {
                 result.addException( e );
                 throw new ArtifactDescriptorException( result );
@@ -250,7 +251,7 @@ public class ConfigurableArtifactDescriptorReader
 
             if ( !visited.add( artifact.getGroupId() + ':' + artifact.getArtifactId() + ':' + artifact.getBaseVersion() ) )
             {
-                RepositoryException exception =
+                final RepositoryException exception =
                     new RepositoryException( "Artifact relocations form a cycle: " + visited );
                 invalidDescriptor( session, trace, artifact, exception );
                 if ( session.isIgnoreInvalidArtifactDescriptor() )
@@ -266,14 +267,14 @@ public class ConfigurableArtifactDescriptorReader
             ArtifactResult resolveResult;
             try
             {
-                ArtifactRequest resolveRequest =
+                final ArtifactRequest resolveRequest =
                     new ArtifactRequest( pomArtifact, request.getRepositories(), request.getRequestContext() );
                 resolveRequest.setTrace( trace );
                 resolveResult = artifactResolver.resolveArtifact( session, resolveRequest );
                 pomArtifact = resolveResult.getArtifact();
                 result.setRepository( resolveResult.getRepository() );
             }
-            catch ( ArtifactResolutionException e )
+            catch ( final ArtifactResolutionException e )
             {
                 if ( e.getCause() instanceof ArtifactNotFoundException )
                 {
@@ -290,9 +291,10 @@ public class ConfigurableArtifactDescriptorReader
             Model model;
             try
             {
-                ModelBuildingRequest modelRequest = new DefaultModelBuildingRequest();
+                final ModelBuildingRequest modelRequest = new DefaultModelBuildingRequest();
                 modelRequest.setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL );
-                modelRequest.setProcessPlugins( projectToolsSession == null ? false : projectToolsSession.isProcessPomPlugins() );
+                modelRequest.setProcessPlugins( projectToolsSession == null ? false
+                                : projectToolsSession.isProcessPomPlugins() );
                 modelRequest.setTwoPhaseBuilding( false );
                 modelRequest.setSystemProperties( toProperties( session.getUserProperties(),
                                                                 session.getSystemProperties() ) );
@@ -312,9 +314,9 @@ public class ConfigurableArtifactDescriptorReader
 
                 model = modelBuilder.build( modelRequest ).getEffectiveModel();
             }
-            catch ( ModelBuildingException e )
+            catch ( final ModelBuildingException e )
             {
-                for ( ModelProblem problem : e.getProblems() )
+                for ( final ModelProblem problem : e.getProblems() )
                 {
                     if ( problem.getException() instanceof UnresolvableModelException )
                     {
@@ -331,7 +333,7 @@ public class ConfigurableArtifactDescriptorReader
                 throw new ArtifactDescriptorException( result );
             }
 
-            Relocation relocation = getRelocation( model );
+            final Relocation relocation = getRelocation( model );
 
             if ( relocation != null )
             {
@@ -348,9 +350,9 @@ public class ConfigurableArtifactDescriptorReader
         }
     }
 
-    private Properties toProperties( Map<String, String> dominant, Map<String, String> recessive )
+    private Properties toProperties( final Map<String, String> dominant, final Map<String, String> recessive )
     {
-        Properties props = new Properties();
+        final Properties props = new Properties();
         if ( recessive != null )
         {
             props.putAll( recessive );
@@ -362,10 +364,10 @@ public class ConfigurableArtifactDescriptorReader
         return props;
     }
 
-    private Relocation getRelocation( Model model )
+    private Relocation getRelocation( final Model model )
     {
         Relocation relocation = null;
-        DistributionManagement distMngt = model.getDistributionManagement();
+        final DistributionManagement distMngt = model.getDistributionManagement();
         if ( distMngt != null )
         {
             relocation = distMngt.getRelocation();
@@ -373,7 +375,8 @@ public class ConfigurableArtifactDescriptorReader
         return relocation;
     }
 
-    private Dependency convert( org.apache.maven.model.Dependency dependency, ArtifactTypeRegistry stereotypes )
+    private Dependency convert( final org.apache.maven.model.Dependency dependency,
+                                final ArtifactTypeRegistry stereotypes )
     {
         ArtifactType stereotype = stereotypes.get( dependency.getType() );
         if ( stereotype == null )
@@ -381,7 +384,7 @@ public class ConfigurableArtifactDescriptorReader
             stereotype = new DefaultArtifactType( dependency.getType() );
         }
 
-        boolean system = dependency.getSystemPath() != null && dependency.getSystemPath().length() > 0;
+        final boolean system = dependency.getSystemPath() != null && dependency.getSystemPath().length() > 0;
 
         Map<String, String> props = null;
         if ( system )
@@ -389,33 +392,33 @@ public class ConfigurableArtifactDescriptorReader
             props = Collections.singletonMap( ArtifactProperties.LOCAL_PATH, dependency.getSystemPath() );
         }
 
-        Artifact artifact =
+        final Artifact artifact =
             new DefaultArtifact( dependency.getGroupId(), dependency.getArtifactId(), dependency.getClassifier(), null,
                                  dependency.getVersion(), props, stereotype );
 
-        List<Exclusion> exclusions = new ArrayList<Exclusion>( dependency.getExclusions().size() );
-        for ( org.apache.maven.model.Exclusion exclusion : dependency.getExclusions() )
+        final List<Exclusion> exclusions = new ArrayList<Exclusion>( dependency.getExclusions().size() );
+        for ( final org.apache.maven.model.Exclusion exclusion : dependency.getExclusions() )
         {
             exclusions.add( convert( exclusion ) );
         }
 
-        Dependency result = new Dependency( artifact, dependency.getScope(), dependency.isOptional(), exclusions );
+        final Dependency result = new Dependency( artifact, dependency.getScope(), dependency.isOptional(), exclusions );
 
         return result;
     }
 
-    private Exclusion convert( org.apache.maven.model.Exclusion exclusion )
+    private Exclusion convert( final org.apache.maven.model.Exclusion exclusion )
     {
         return new Exclusion( exclusion.getGroupId(), exclusion.getArtifactId(), "*", "*" );
     }
 
-    private void missingDescriptor( RepositorySystemSession session, RequestTrace trace, Artifact artifact,
-                                    Exception exception )
+    private void missingDescriptor( final RepositorySystemSession session, final RequestTrace trace,
+                                    final Artifact artifact, final Exception exception )
     {
-        RepositoryListener listener = session.getRepositoryListener();
+        final RepositoryListener listener = session.getRepositoryListener();
         if ( listener != null )
         {
-            DefaultRepositoryEvent event =
+            final DefaultRepositoryEvent event =
                 new DefaultRepositoryEvent( EventType.ARTIFACT_DESCRIPTOR_MISSING, session, trace );
             event.setArtifact( artifact );
             event.setException( exception );
@@ -423,13 +426,13 @@ public class ConfigurableArtifactDescriptorReader
         }
     }
 
-    private void invalidDescriptor( RepositorySystemSession session, RequestTrace trace, Artifact artifact,
-                                    Exception exception )
+    private void invalidDescriptor( final RepositorySystemSession session, final RequestTrace trace,
+                                    final Artifact artifact, final Exception exception )
     {
-        RepositoryListener listener = session.getRepositoryListener();
+        final RepositoryListener listener = session.getRepositoryListener();
         if ( listener != null )
         {
-            DefaultRepositoryEvent event =
+            final DefaultRepositoryEvent event =
                 new DefaultRepositoryEvent( EventType.ARTIFACT_DESCRIPTOR_INVALID, session, trace );
             event.setArtifact( artifact );
             event.setException( exception );

@@ -39,7 +39,7 @@ public class DependencyGraph
     private static final long serialVersionUID = 1L;
 
     private final Set<DepGraphRootNode> roots = new LinkedHashSet<DepGraphRootNode>();
-    
+
     private final DepGraph graph = new DepGraph();
 
     public DepGraphRootNode addRoot( final DependencyNode root )
@@ -82,7 +82,7 @@ public class DependencyGraph
 
         return result;
     }
-    
+
     private DepGraphNode find( final DepGraphNode node )
     {
         final List<DepGraphNode> nodes = new ArrayList<DepGraphNode>( graph.vertices() );
@@ -117,11 +117,8 @@ public class DependencyGraph
     /**
      * Add a dependency edge between the nodes representing the two given {@link DependencyNode} instances.
      * 
-     * @param parent
-     *            The parent, which has the dependency on the child.
-     * @param child
-     *            The child, which is depended upon by the parent.
-     * 
+     * @param parent The parent, which has the dependency on the child.
+     * @param child The child, which is depended upon by the parent.
      * @return An array of graph nodes, with the parent node in index 0, and the child node in index 1. <br/>
      *         <b>NOTE:</b> If the parent parameter is null, the node at index 0 will be null as well.
      */
@@ -180,12 +177,12 @@ public class DependencyGraph
     {
         return find( new DepGraphNode( dep ) ) != null;
     }
-    
+
     private static final class DepGraph
         extends SimpleDirectedGraph<DepGraphNode>
     {
 
-        public void addVertex( DepGraphNode node )
+        public void addVertex( final DepGraphNode node )
         {
             getNakedGraph().addVertex( node );
         }
@@ -194,21 +191,21 @@ public class DependencyGraph
         {
             return getNakedGraph().getVertices();
         }
-        
+
     }
 
-    public static DependencyGraph constructFromRoot( DependencyNode rootNode, MavenProject rootProject )
+    public static DependencyGraph constructFromRoot( final DependencyNode rootNode, final MavenProject rootProject )
     {
-        DependencyGraph graph = new DependencyGraph();
+        final DependencyGraph graph = new DependencyGraph();
         graph.addRoot( rootNode, rootProject );
         constructChildren( graph, rootNode );
-        
+
         return graph;
     }
 
-    private static void constructChildren( DependencyGraph graph, DependencyNode node )
+    private static void constructChildren( final DependencyGraph graph, final DependencyNode node )
     {
-        for ( DependencyNode child : node.getChildren() )
+        for ( final DependencyNode child : node.getChildren() )
         {
             graph.addDependency( node, child );
             constructChildren( graph, child );

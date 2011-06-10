@@ -96,14 +96,15 @@ public final class TestFixture
         setupDebugLogging();
 
         initFiles();
-//        withVirtualComponent( ProjectToolsSession.class );
-//        setVirtualInstance( ProjectToolsSession.class,  )
+        // withVirtualComponent( ProjectToolsSession.class );
+        // setVirtualInstance( ProjectToolsSession.class, )
     }
 
     public static void setupDebugLogging()
     {
         final Configurator log4jConfigurator = new Configurator()
         {
+            @Override
             @SuppressWarnings( "unchecked" )
             public void doConfigure( final URL notUsed, final LoggerRepository repo )
             {
@@ -262,7 +263,7 @@ public final class TestFixture
     }
 
     @Override
-    protected void afterLoading( MAEEmbedder embedder )
+    protected void afterLoading( final MAEEmbedder embedder )
         throws MAEException
     {
         super.afterLoading( embedder );
@@ -325,7 +326,8 @@ public final class TestFixture
     {
         try
         {
-            remoteRepository = embedder.serviceManager().mavenRepositorySystem().buildArtifactRepository( rawRemoteRepo );
+            remoteRepository =
+                embedder.serviceManager().mavenRepositorySystem().buildArtifactRepository( rawRemoteRepo );
             localRepository = embedder.serviceManager().mavenRepositorySystem().createLocalRepository( localRepoDir );
         }
         catch ( final InvalidRepositoryException e )

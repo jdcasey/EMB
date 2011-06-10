@@ -28,11 +28,11 @@ class SlimDependencyNode
 
     public static final String UNKNOWN_ROOT_ID = "anonymous-root".intern();
 
-    private SlimDepGraph graph;
+    private final SlimDepGraph graph;
 
     private final String key;
 
-    SlimDependencyNode( String key, SlimDepGraph graph )
+    SlimDependencyNode( final String key, final SlimDepGraph graph )
     {
         this.key = key;
         this.graph = graph;
@@ -43,12 +43,12 @@ class SlimDependencyNode
         return graph.getAliases( key );
     }
 
-    void setAliases( Collection<Artifact> aliases )
+    void setAliases( final Collection<Artifact> aliases )
     {
         graph.setAliases( key, aliases );
     }
 
-    void addAlias( Artifact artifact )
+    void addAlias( final Artifact artifact )
     {
         graph.addAlias( key, artifact );
     }
@@ -58,7 +58,7 @@ class SlimDependencyNode
         return graph.getRepositories( key );
     }
 
-    void setRepositories( List<RemoteRepository> repositories )
+    void setRepositories( final List<RemoteRepository> repositories )
     {
         graph.setRepositories( key, repositories );
     }
@@ -73,22 +73,32 @@ class SlimDependencyNode
     }
 
     @Override
-    public boolean equals( Object obj )
+    public boolean equals( final Object obj )
     {
         if ( this == obj )
+        {
             return true;
+        }
         if ( obj == null )
+        {
             return false;
+        }
         if ( getClass() != obj.getClass() )
+        {
             return false;
-        SlimDependencyNode other = (SlimDependencyNode) obj;
+        }
+        final SlimDependencyNode other = (SlimDependencyNode) obj;
         if ( key == null )
         {
             if ( other.key != null )
+            {
                 return false;
+            }
         }
         else if ( !key.equals( other.key ) )
+        {
             return false;
+        }
         return true;
     }
 

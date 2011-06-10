@@ -116,6 +116,8 @@ public class ProjectToolsSessionInjector
             session.setRepositorySystemSession( sess );
         }
 
+        sess.getData().set( ProjectToolsSession.SESSION_KEY, session );
+
         return sess;
     }
 
@@ -139,8 +141,8 @@ public class ProjectToolsSessionInjector
             }
             else
             {
-                LOGGER.warn( "Cannot set proxy or authentication information on new RemoteRepositories; " +
-                		"RepositorySystemSession is not available in ProjectToolsSession instance." );
+                LOGGER.warn( "Cannot set proxy or authentication information on new RemoteRepositories; "
+                    + "RepositorySystemSession is not available in ProjectToolsSession instance." );
             }
 
             for ( final ArtifactRepository repo : getArtifactRepositories( session ) )
