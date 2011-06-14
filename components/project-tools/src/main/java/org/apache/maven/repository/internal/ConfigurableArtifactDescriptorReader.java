@@ -105,9 +105,6 @@ public class ConfigurableArtifactDescriptorReader
     @Requirement
     private ModelBuilder modelBuilder;
 
-    @Requirement( optional = true )
-    private ProjectToolsSession projectToolsSession;
-
     @Override
     public void initService( final ServiceLocator locator )
     {
@@ -229,6 +226,7 @@ public class ConfigurableArtifactDescriptorReader
                            final ArtifactDescriptorResult result )
         throws ArtifactDescriptorException
     {
+        ProjectToolsSession pts = (ProjectToolsSession) session.getData().get( ProjectToolsSession.SESSION_KEY );
         final RequestTrace trace = DefaultRequestTrace.newChild( request.getTrace(), request );
 
         final Set<String> visited = new LinkedHashSet<String>();
@@ -293,8 +291,7 @@ public class ConfigurableArtifactDescriptorReader
             {
                 final ModelBuildingRequest modelRequest = new DefaultModelBuildingRequest();
                 modelRequest.setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL );
-                modelRequest.setProcessPlugins( projectToolsSession == null ? false
-                                : projectToolsSession.isProcessPomPlugins() );
+                modelRequest.setProcessPlugins( pts == null ? false : pts.isProcessPomPlugins() );
                 modelRequest.setTwoPhaseBuilding( false );
                 modelRequest.setSystemProperties( toProperties( session.getUserProperties(),
                                                                 session.getSystemProperties() ) );

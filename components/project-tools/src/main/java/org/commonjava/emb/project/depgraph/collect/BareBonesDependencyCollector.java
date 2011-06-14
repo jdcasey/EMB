@@ -14,6 +14,7 @@ package org.commonjava.emb.project.depgraph.collect;
 
 import static org.sonatype.aether.util.artifact.ArtifacIdUtils.toId;
 
+import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.project.ProjectToolsSession;
@@ -51,8 +52,6 @@ import org.sonatype.aether.resolution.VersionRangeResolutionException;
 import org.sonatype.aether.resolution.VersionRangeResult;
 import org.sonatype.aether.spi.locator.Service;
 import org.sonatype.aether.spi.locator.ServiceLocator;
-import org.sonatype.aether.spi.log.Logger;
-import org.sonatype.aether.spi.log.NullLogger;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.DefaultRequestTrace;
 import org.sonatype.aether.util.artifact.ArtifactProperties;
@@ -82,9 +81,7 @@ public class BareBonesDependencyCollector
 
     public static final String HINT = "bare-bones";
 
-    @SuppressWarnings( "unused" )
-    @Requirement
-    private Logger logger = NullLogger.INSTANCE;
+    private static final Logger logger = Logger.getLogger( BareBonesDependencyCollector.class );
 
     @Requirement
     private RemoteRepositoryManager remoteRepositoryManager;
@@ -104,7 +101,6 @@ public class BareBonesDependencyCollector
                                          final ArtifactDescriptorReader artifactDescriptorReader,
                                          final VersionRangeResolver versionRangeResolver )
     {
-        setLogger( logger );
         setRemoteRepositoryManager( remoteRepositoryManager );
         setArtifactDescriptorReader( artifactDescriptorReader );
         setVersionRangeResolver( versionRangeResolver );
@@ -113,16 +109,9 @@ public class BareBonesDependencyCollector
     @Override
     public void initService( final ServiceLocator locator )
     {
-        setLogger( locator.getService( Logger.class ) );
         setRemoteRepositoryManager( locator.getService( RemoteRepositoryManager.class ) );
         setArtifactDescriptorReader( locator.getService( ArtifactDescriptorReader.class ) );
         setVersionRangeResolver( locator.getService( VersionRangeResolver.class ) );
-    }
-
-    public BareBonesDependencyCollector setLogger( final Logger logger )
-    {
-        this.logger = ( logger != null ) ? logger : NullLogger.INSTANCE;
-        return this;
     }
 
     public BareBonesDependencyCollector setRemoteRepositoryManager( final RemoteRepositoryManager remoteRepositoryManager )
@@ -165,7 +154,15 @@ public class BareBonesDependencyCollector
 
         final CollectResult result = new CollectResult( request );
 
-        final DependencySelector depSelector = session.getDependencySelector();
+        final ProjectToolsSession toolsSession =
+            (ProjectToolsSession) session.getData().get( ProjectToolsSession.SESSION_KEY );
+        
+        DependencySelector depSelector = toolsSession == null ? null : toolsSession.getDependencySelector();
+        if ( depSelector == null )
+        {
+            depSelector = session.getDependencySelector();
+        }
+        
         final DependencyManager depManager = session.getDependencyManager();
         final DependencyTraverser depTraverser = session.getDependencyTraverser();
 
@@ -260,7 +257,7 @@ public class BareBonesDependencyCollector
             final DependencyCollectionContext context = new CollectionContext( session, root, managedDependencies );
 
             final DepGraphCache pool = new DepGraphCache( session );
-            process( session, trace, result, edges, dependencies, repositories,
+            process( session, toolsSession, trace, result, edges, dependencies, repositories,
                      depSelector.deriveChildSelector( context ), depManager.deriveChildManager( context ),
                      depTraverser.deriveChildTraverser( context ), pool, graph );
         }
@@ -327,18 +324,17 @@ public class BareBonesDependencyCollector
         return a.getGroupId() + ':' + a.getArtifactId() + ':' + a.getClassifier() + ':' + a.getExtension();
     }
 
-    private boolean process( final RepositorySystemSession session, final RequestTrace trace,
-                             final CollectResult result, final LinkedList<SlimDependencyEdge> edges,
-                             final List<Dependency> dependencies, final List<RemoteRepository> repositories,
-                             final DependencySelector depSelector, final DependencyManager depManager,
-                             final DependencyTraverser depTraverser, final DepGraphCache pool, final SlimDepGraph graph )
+    private boolean process( final RepositorySystemSession session, final ProjectToolsSession toolsSession,
+                             final RequestTrace trace, final CollectResult result,
+                             final LinkedList<SlimDependencyEdge> edges, final List<Dependency> dependencies,
+                             final List<RemoteRepository> repositories, final DependencySelector depSelector,
+                             final DependencyManager depManager, final DependencyTraverser depTraverser,
+                             final DepGraphCache pool, final SlimDepGraph graph )
         throws DependencyCollectionException
     {
         boolean cycle = false;
 
-        final ProjectToolsSession projectToolsSession =
-            (ProjectToolsSession) session.getData().get( ProjectToolsSession.SESSION_KEY );
-        final DependencyFilter filter = projectToolsSession == null ? null : projectToolsSession.getDependencyFilter();
+        final DependencyFilter filter = toolsSession == null ? null : toolsSession.getDependencyFilter();
 
         nextDependency: for ( Dependency dependency : dependencies )
         {
@@ -350,6 +346,7 @@ public class BareBonesDependencyCollector
             {
                 if ( !depSelector.selectDependency( dependency ) )
                 {
+                    logger.warn( "SELECT - Excluding from dependency graph: " + dependency.getArtifact() );
                     continue nextDependency;
                 }
 
@@ -545,6 +542,7 @@ public class BareBonesDependencyCollector
 
                     if ( filter != null && !filter.accept( edge, parents ) )
                     {
+                        logger.warn( "FILTER - Excluding from dependency graph: " + edge.getDependency().getArtifact() );
                         graph.removeEdge( edge );
                         continue nextDependency;
                     }
@@ -553,7 +551,7 @@ public class BareBonesDependencyCollector
                     {
                         edges.addFirst( edge );
 
-                        if ( process( session, trace, result, edges, descriptorResult.getDependencies(), childRepos,
+                        if ( process( session, toolsSession, trace, result, edges, descriptorResult.getDependencies(), childRepos,
                                       childSelector, childManager, childTraverser, pool, graph ) )
                         {
                             cycle = true;

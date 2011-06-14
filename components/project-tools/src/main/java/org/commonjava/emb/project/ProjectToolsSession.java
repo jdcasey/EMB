@@ -95,10 +95,6 @@ public interface ProjectToolsSession
 
     ProjectToolsSession setDependencySelector( DependencySelector selector );
 
-    ProjectToolsSession setDependencyScopeSelections( String... excluded );
-
-    ProjectToolsSession setDependencyScopeSelections( String[] included, String[] excluded );
-
     DependencyFilter getDependencyFilter();
 
     ProjectToolsSession setDependencyFilter( DependencyFilter filter );

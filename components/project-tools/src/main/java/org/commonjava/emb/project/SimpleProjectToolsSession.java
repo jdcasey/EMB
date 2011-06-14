@@ -31,11 +31,9 @@ import org.sonatype.aether.collection.DependencySelector;
 import org.sonatype.aether.graph.DependencyFilter;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
-import org.sonatype.aether.util.graph.selector.ScopeDependencySelector;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -448,31 +446,6 @@ public class SimpleProjectToolsSession
     public ProjectToolsSession setDependencySelector( final DependencySelector dependencySelector )
     {
         this.dependencySelector = dependencySelector;
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[])
-     */
-    @Override
-    public ProjectToolsSession setDependencyScopeSelections( final String... excluded )
-    {
-        dependencySelector = new ScopeDependencySelector( excluded );
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyScopeSelections(java.lang.String[],
-     *      java.lang.String[])
-     */
-    @Override
-    public ProjectToolsSession setDependencyScopeSelections( final String[] included, final String[] excluded )
-    {
-        dependencySelector = new ScopeDependencySelector( Arrays.asList( included ), Arrays.asList( excluded ) );
         return this;
     }
 
