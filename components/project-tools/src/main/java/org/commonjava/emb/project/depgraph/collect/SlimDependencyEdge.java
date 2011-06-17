@@ -343,5 +343,10 @@ class SlimDependencyEdge
     {
         preManagedVersion = premanagedVersion;
     }
+    
+    public String toString()
+    {
+        return "Edge:\n\tFrom: " + getFrom() + "\n\tTo: " + getTo();
+    }
 
 }

@@ -58,12 +58,12 @@ class SlimDepGraph
     synchronized List<DependencyNode> childrenOf( final SlimDependencyNode node )
     {
         final Collection<SlimDependencyEdge> allEdges = graph.edgesFrom( node );
-        final List<DependencyNode> children = new ArrayList<DependencyNode>();
+        final List<DependencyNode> children = new ArrayList<DependencyNode>( allEdges );
         for ( final SlimDependencyEdge edge : allEdges )
         {
-            if ( edge.getFrom() == node && edge.getTo() != node )
+            if ( edge.getFrom() == node && edge.getTo() == node )
             {
-                children.add( edge );
+                children.remove( edge );
             }
         }
 
@@ -234,6 +234,16 @@ class SlimDepGraph
 
         void addEdge( final SlimDependencyEdge edge )
         {
+            if ( !getNakedGraph().containsVertex( edge.getFrom() ) )
+            {
+                getNakedGraph().addVertex( edge.getFrom() );
+            }
+            
+            if ( !getNakedGraph().containsVertex( edge.getTo() ) )
+            {
+                getNakedGraph().addVertex( edge.getTo() );
+            }
+            
             getNakedGraph().addEdge( edge, edge.getFrom(), edge.getTo() );
         }
 

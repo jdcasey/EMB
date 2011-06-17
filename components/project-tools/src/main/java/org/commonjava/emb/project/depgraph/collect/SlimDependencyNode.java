@@ -105,6 +105,6 @@ class SlimDependencyNode
     @Override
     public String toString()
     {
-        return "SlimDependencyNode [artifactId=" + key + "]";
+        return key;
     }
 }
