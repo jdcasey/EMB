@@ -18,7 +18,7 @@
 package org.commonjava.emb.depgraph;
 
 import org.apache.maven.mae.MAEException;
-import org.commonjava.emb.project.session.ProjectToolsSession;
+import org.apache.maven.mae.project.session.ProjectToolsSession;
 
 import java.io.File;
 

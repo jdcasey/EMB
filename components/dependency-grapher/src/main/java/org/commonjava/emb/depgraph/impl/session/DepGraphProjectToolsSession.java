@@ -16,9 +16,9 @@
 
 package org.commonjava.emb.depgraph.impl.session;
 
+import org.apache.maven.mae.project.session.SimpleProjectToolsSession;
 import org.apache.maven.model.Repository;
 import org.commonjava.emb.depgraph.DependencyGraph;
-import org.commonjava.emb.project.session.SimpleProjectToolsSession;
 import org.sonatype.aether.artifact.Artifact;
 
 import java.io.File;
@@ -27,14 +27,9 @@ public class DepGraphProjectToolsSession
     extends SimpleProjectToolsSession
 {
 
-    public DepGraphProjectToolsSession( File workdir, File localRepositoryDirectory, Repository... resolveRepositories )
+    public DepGraphProjectToolsSession( File localRepositoryDirectory, Repository... resolveRepositories )
     {
-        super( workdir, localRepositoryDirectory, resolveRepositories );
-    }
-
-    public DepGraphProjectToolsSession( File workdir, Repository... resolveRepositories )
-    {
-        super( workdir, resolveRepositories );
+        super( localRepositoryDirectory, resolveRepositories );
     }
 
     @Override

@@ -18,14 +18,14 @@ package org.commonjava.emb.depgraph.impl;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.mae.MAEException;
+import org.apache.maven.mae.project.ProjectLoader;
+import org.apache.maven.mae.project.session.ProjectToolsSession;
+import org.apache.maven.mae.project.session.SessionInjector;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.depgraph.DepGraphLoader;
 import org.commonjava.emb.depgraph.DependencyGraph;
-import org.commonjava.emb.project.ProjectLoader;
-import org.commonjava.emb.project.session.ProjectToolsSession;
-import org.commonjava.emb.project.session.SessionInjector;
 import org.sonatype.aether.RepositorySystemSession;
 
 import java.io.File;

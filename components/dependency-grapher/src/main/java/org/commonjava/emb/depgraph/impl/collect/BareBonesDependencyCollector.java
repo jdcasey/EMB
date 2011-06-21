@@ -15,9 +15,9 @@ package org.commonjava.emb.depgraph.impl.collect;
 import static org.sonatype.aether.util.artifact.ArtifacIdUtils.toId;
 
 import org.apache.log4j.Logger;
+import org.apache.maven.mae.project.session.ProjectToolsSession;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.project.session.ProjectToolsSession;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.RequestTrace;

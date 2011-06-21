@@ -18,6 +18,7 @@ package org.commonjava.emb.depgraph.impl;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;
+import org.apache.maven.mae.project.session.ProjectToolsSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
@@ -26,7 +27,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.depgraph.DepGraphNode;
 import org.commonjava.emb.depgraph.DepGraphRootNode;
 import org.commonjava.emb.depgraph.DependencyGraph;
-import org.commonjava.emb.project.session.ProjectToolsSession;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
