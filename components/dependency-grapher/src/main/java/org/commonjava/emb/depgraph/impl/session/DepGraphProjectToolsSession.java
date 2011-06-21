@@ -17,20 +17,12 @@
 package org.commonjava.emb.depgraph.impl.session;
 
 import org.apache.maven.mae.project.session.SimpleProjectToolsSession;
-import org.apache.maven.model.Repository;
 import org.commonjava.emb.depgraph.DependencyGraph;
 import org.sonatype.aether.artifact.Artifact;
-
-import java.io.File;
 
 public class DepGraphProjectToolsSession
     extends SimpleProjectToolsSession
 {
-
-    public DepGraphProjectToolsSession( File localRepositoryDirectory, Repository... resolveRepositories )
-    {
-        super( localRepositoryDirectory, resolveRepositories );
-    }
 
     @Override
     public synchronized void connectProjectHierarchy( Artifact parent, boolean parentPreResolved, Artifact child,
