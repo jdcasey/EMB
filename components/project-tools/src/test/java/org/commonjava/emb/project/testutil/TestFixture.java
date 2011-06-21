@@ -43,8 +43,8 @@ import org.apache.maven.project.ProjectBuildingResult;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.commonjava.emb.project.ProjectLoader;
-import org.commonjava.emb.project.ProjectToolsSession;
-import org.commonjava.emb.project.SimpleProjectToolsSession;
+import org.commonjava.emb.project.session.ProjectToolsSession;
+import org.commonjava.emb.project.session.SimpleProjectToolsSession;
 import org.junit.Assert;
 
 import java.io.File;

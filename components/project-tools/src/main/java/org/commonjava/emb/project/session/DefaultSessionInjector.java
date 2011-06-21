@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project;
+package org.commonjava.emb.project.session;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.InvalidRepositoryException;
@@ -28,6 +28,7 @@ import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.repository.RepositorySystem;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.commonjava.emb.project.ProjectToolsException;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.impl.internal.EnhancedLocalRepositoryManager;
 import org.sonatype.aether.repository.AuthenticationSelector;
@@ -39,11 +40,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component( role = ProjectToolsSessionInjector.class )
-public class ProjectToolsSessionInjector
+@Component( role = SessionInjector.class )
+public class DefaultSessionInjector
+    implements SessionInjector
 {
 
-    private static final Logger LOGGER = Logger.getLogger( ProjectToolsSessionInjector.class );
+    private static final Logger LOGGER = Logger.getLogger( DefaultSessionInjector.class );
 
     @Requirement
     private MAEEmbedder embedder;
@@ -51,6 +53,7 @@ public class ProjectToolsSessionInjector
     @Requirement
     private RepositorySystem mavenRepositorySystem;
 
+    @Override
     public synchronized ProjectBuildingRequest getProjectBuildingRequest( final ProjectToolsSession session )
         throws ProjectToolsException
     {
@@ -69,7 +72,8 @@ public class ProjectToolsSessionInjector
 
                 final RepositorySystemSession rss = getRepositorySystemSession( session );
                 pbr.setRepositorySession( rss );
-                pbr.setLocalRepository( mavenRepositorySystem.createLocalRepository( rss.getLocalRepository().getBasedir() ) );
+                pbr.setLocalRepository( mavenRepositorySystem.createLocalRepository( rss.getLocalRepository()
+                                                                                        .getBasedir() ) );
                 pbr.setRemoteRepositories( getArtifactRepositories( session ) );
 
                 session.setProjectBuildingRequest( pbr );
@@ -86,13 +90,15 @@ public class ProjectToolsSessionInjector
         }
         catch ( final InvalidRepositoryException e )
         {
-            throw new ProjectToolsException( "Failed to create local-repository instance. Reason: %s", e,
+            throw new ProjectToolsException( "Failed to create local-repository instance. Reason: %s",
+                                             e,
                                              e.getMessage() );
         }
 
         return pbr;
     }
 
+    @Override
     public RepositorySystemSession getRepositorySystemSession( final ProjectToolsSession session )
         throws MAEException
     {
@@ -103,8 +109,8 @@ public class ProjectToolsSessionInjector
         if ( sess == null )
         {
             final DefaultRepositorySystemSession rss =
-                new DefaultRepositorySystemSession(
-                                                    embedder.serviceManager().createAetherRepositorySystemSession( session.getExecutionRequest() ) );
+                new DefaultRepositorySystemSession( embedder.serviceManager()
+                                                            .createAetherRepositorySystemSession( session.getExecutionRequest() ) );
 
             // session.setWorkspaceReader( new ImportWorkspaceReader( workspace ) );
             rss.setConfigProperty( ProjectToolsSession.SESSION_KEY, session );
@@ -121,6 +127,7 @@ public class ProjectToolsSessionInjector
         return sess;
     }
 
+    @Override
     public synchronized List<RemoteRepository> getRemoteRepositories( final ProjectToolsSession session )
         throws ProjectToolsException
     {
@@ -175,6 +182,7 @@ public class ProjectToolsSessionInjector
         return result;
     }
 
+    @Override
     public synchronized List<ArtifactRepository> getArtifactRepositories( final ProjectToolsSession session )
         throws ProjectToolsException
     {
@@ -195,9 +203,10 @@ public class ProjectToolsSessionInjector
                     }
                     catch ( final InvalidRepositoryException e )
                     {
-                        throw new ProjectToolsException(
-                                                         "Failed to create remote artifact repository instance from: %s\nReason: %s",
-                                                         e, repo, e.getMessage() );
+                        throw new ProjectToolsException( "Failed to create remote artifact repository instance from: %s\nReason: %s",
+                                                         e,
+                                                         repo,
+                                                         e.getMessage() );
                     }
                 }
             }
@@ -208,7 +217,8 @@ public class ProjectToolsSessionInjector
             }
             catch ( final InvalidRepositoryException e )
             {
-                throw new ProjectToolsException( "Failed to create default (central) repository instance: %s", e,
+                throw new ProjectToolsException( "Failed to create default (central) repository instance: %s",
+                                                 e,
                                                  e.getMessage() );
             }
 

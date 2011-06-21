@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project;
+package org.commonjava.emb.project.session;
 
 import org.apache.maven.project.MavenProject;
 import org.sonatype.aether.artifact.Artifact;

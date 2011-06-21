@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project;
+package org.commonjava.emb.project.session;
 
 import static org.apache.maven.artifact.ArtifactUtils.key;
 
@@ -86,7 +86,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getRemoteArtifactRepositories()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getRemoteArtifactRepositories()
      */
     @Override
     public List<ArtifactRepository> getRemoteArtifactRepositories()
@@ -97,7 +97,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setRemoteArtifactRepositories(java.util.List)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setRemoteArtifactRepositories(java.util.List)
      */
     @Override
     public ProjectToolsSession setRemoteArtifactRepositories( final List<ArtifactRepository> remoteArtifactRepositories )
@@ -109,7 +109,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getResolveRepositories()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getResolveRepositories()
      */
     @Override
     public Repository[] getResolveRepositories()
@@ -120,7 +120,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getRemoteRepositories()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getRemoteRepositories()
      */
     @Override
     public List<RemoteRepository> getRemoteRepositories()
@@ -131,7 +131,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getRemoteRepositoriesArray()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getRemoteRepositoriesArray()
      */
     @Override
     public RemoteRepository[] getRemoteRepositoriesArray()
@@ -143,7 +143,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setRemoteRepositories(java.util.List)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setRemoteRepositories(java.util.List)
      */
     @Override
     public ProjectToolsSession setRemoteRepositories( final List<RemoteRepository> remoteRepositories )
@@ -155,7 +155,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getProjectBuildingRequest()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getProjectBuildingRequest()
      */
     @Override
     public ProjectBuildingRequest getProjectBuildingRequest()
@@ -166,7 +166,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setProjectBuildingRequest(org.apache.maven.project.ProjectBuildingRequest)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setProjectBuildingRequest(org.apache.maven.project.ProjectBuildingRequest)
      */
     @Override
     public ProjectToolsSession setProjectBuildingRequest( final ProjectBuildingRequest projectBuildingRequest )
@@ -178,7 +178,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getWorkdir()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getWorkdir()
      */
     @Override
     public File getWorkdir()
@@ -189,7 +189,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getRepositorySystemSession()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getRepositorySystemSession()
      */
     @Override
     public RepositorySystemSession getRepositorySystemSession()
@@ -200,7 +200,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setRepositorySystemSession(org.sonatype.aether.RepositorySystemSession)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setRepositorySystemSession(org.sonatype.aether.RepositorySystemSession)
      */
     @Override
     public ProjectToolsSession setRepositorySystemSession( final RepositorySystemSession repositorySystemSession )
@@ -212,7 +212,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#addReactorProject(org.apache.maven.project.MavenProject)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#addReactorProject(org.apache.maven.project.MavenProject)
      */
     @Override
     public synchronized ProjectToolsSession addReactorProject( final MavenProject project )
@@ -229,7 +229,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setReactorProjects(org.apache.maven.project.MavenProject)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setReactorProjects(org.apache.maven.project.MavenProject)
      */
     @Override
     public synchronized ProjectToolsSession setReactorProjects( final MavenProject... projects )
@@ -246,7 +246,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setReactorProjects(java.lang.Iterable)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setReactorProjects(java.lang.Iterable)
      */
     @Override
     public synchronized ProjectToolsSession setReactorProjects( final Iterable<MavenProject> projects )
@@ -263,7 +263,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getReactorProjects()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getReactorProjects()
      */
     @Override
     public Collection<MavenProject> getReactorProjects()
@@ -274,7 +274,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getReactorPom(org.sonatype.aether.artifact.Artifact)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getReactorPom(org.sonatype.aether.artifact.Artifact)
      */
     @Override
     public File getReactorPom( final Artifact artifact )
@@ -286,7 +286,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getReactorProject(org.sonatype.aether.artifact.Artifact)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getReactorProject(org.sonatype.aether.artifact.Artifact)
      */
     @Override
     public MavenProject getReactorProject( final Artifact artifact )
@@ -298,7 +298,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencyGraph()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getDependencyGraph()
      */
     @Override
     public synchronized DependencyGraph getDependencyGraph()
@@ -314,7 +314,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.graph.DependencyGraphTracker)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.graph.DependencyGraphTracker)
      */
     @Override
     public ProjectToolsSession setDependencyGraph( final DependencyGraph dependencyGraph )
@@ -326,7 +326,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#copyOf(org.commonjava.emb.project.ProjectToolsSession)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#copyOf(org.commonjava.emb.project.session.ProjectToolsSession)
      */
     @Override
     public ProjectToolsSession copy()
@@ -354,7 +354,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getLocalRepositoryDirectory()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getLocalRepositoryDirectory()
      */
     @Override
     public File getLocalRepositoryDirectory()
@@ -365,7 +365,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setExecutionRequest(org.apache.maven.execution.MavenExecutionRequest)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setExecutionRequest(org.apache.maven.execution.MavenExecutionRequest)
      */
     @Override
     public ProjectToolsSession setExecutionRequest( final MavenExecutionRequest request )
@@ -377,7 +377,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getExecutionRequest()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getExecutionRequest()
      */
     @Override
     public MavenExecutionRequest getExecutionRequest()
@@ -388,7 +388,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setResolveThreads(int)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setResolveThreads(int)
      */
     @Override
     public ProjectToolsSession setResolveThreads( final int threads )
@@ -400,7 +400,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getResolveThreads()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getResolveThreads()
      */
     @Override
     public int getResolveThreads()
@@ -411,7 +411,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#isProcessPomPlugins()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#isProcessPomPlugins()
      */
     @Override
     public boolean isProcessPomPlugins()
@@ -422,7 +422,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setProcessPomPlugins(boolean)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setProcessPomPlugins(boolean)
      */
     @Override
     public ProjectToolsSession setProcessPomPlugins( final boolean resolvePlugins )
@@ -434,7 +434,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencySelector()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getDependencySelector()
      */
     @Override
     public DependencySelector getDependencySelector()
@@ -452,7 +452,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#getDependencyFilter()
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#getDependencyFilter()
      */
     @Override
     public DependencyFilter getDependencyFilter()
@@ -463,7 +463,7 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.ProjectToolsSession#setDependencyFilter(org.sonatype.aether.graph.DependencyFilter)
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#setDependencyFilter(org.sonatype.aether.graph.DependencyFilter)
      */
     @Override
     public ProjectToolsSession setDependencyFilter( final DependencyFilter filter )

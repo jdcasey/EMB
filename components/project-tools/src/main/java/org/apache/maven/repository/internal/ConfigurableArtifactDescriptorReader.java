@@ -36,7 +36,7 @@ import org.apache.maven.model.building.ModelProblem;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.commonjava.emb.project.ProjectToolsSession;
+import org.commonjava.emb.project.session.ProjectToolsSession;
 import org.sonatype.aether.RepositoryEvent.EventType;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.RepositoryListener;

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project;
+package org.commonjava.emb.project.session;
 
 import org.commonjava.emb.project.depgraph.collect.DepGraphCache;
 import org.sonatype.aether.RepositorySystemSession;
