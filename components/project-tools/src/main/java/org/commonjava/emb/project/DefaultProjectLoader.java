@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Red Hat, Inc.
+ * Copyright 2011 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.mae.MAEException;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.building.ModelProblem;
@@ -36,12 +35,9 @@ import org.codehaus.plexus.util.Os;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.commonjava.emb.project.depgraph.DependencyGraph;
-import org.commonjava.emb.project.depgraph.DependencyGraphResolver;
 import org.commonjava.emb.project.session.ProjectToolsSession;
 import org.commonjava.emb.project.session.SessionInjector;
 import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
@@ -54,7 +50,6 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -79,58 +74,7 @@ public class DefaultProjectLoader
     private ProjectBuilder projectBuilder;
 
     @Requirement
-    private DependencyGraphResolver dependencyGraphResolver;
-
-    @Requirement
     private SessionInjector sessionInjector;
-
-    @Override
-    public DependencyGraph loadProjectDependencyGraph( final File rootPom, final ProjectToolsSession session,
-                                                       final boolean includeModuleProjects )
-        throws MAEException
-    {
-        List<MavenProject> projects;
-        if ( includeModuleProjects )
-        {
-            projects = buildReactorProjectInstances( session, rootPom );
-        }
-        else
-        {
-            projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
-        }
-
-        final DependencyGraph depGraph =
-            dependencyGraphResolver.accumulateGraph( projects,
-                                                     sessionInjector.getRepositorySystemSession( session ),
-                                                     session );
-        session.setDependencyGraph( depGraph );
-
-        return depGraph;
-    }
-
-    @Override
-    public DependencyGraph resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
-                                                       final boolean includeModuleProjects )
-        throws MAEException
-    {
-        List<MavenProject> projects;
-        if ( includeModuleProjects )
-        {
-            projects = buildReactorProjectInstances( session, rootPom );
-        }
-        else
-        {
-            projects = Collections.singletonList( buildProjectInstance( rootPom, session ) );
-        }
-
-        final RepositorySystemSession rss = sessionInjector.getRepositorySystemSession( session );
-        final DependencyGraph depGraph = dependencyGraphResolver.accumulateGraph( projects, rss, session );
-        dependencyGraphResolver.resolveGraph( depGraph, projects, rss, session );
-
-        session.setDependencyGraph( depGraph );
-
-        return depGraph;
-    }
 
     @Override
     public List<MavenProject> buildReactorProjectInstances( final ProjectToolsSession session, final File... rootPoms )
@@ -231,7 +175,6 @@ public class DefaultProjectLoader
 
     private void addProjects( final ProjectToolsSession session, final List<MavenProject> projects )
     {
-        final DependencyGraph depGraph = session.getDependencyGraph();
         for ( final MavenProject project : projects )
         {
             final LinkedList<Artifact> parentage = new LinkedList<Artifact>();
@@ -262,7 +205,8 @@ public class DefaultProjectLoader
                 {
                     LOGGER.debug( "Marking parent POM: " + current + " as dependency of POM: " + next );
                 }
-                depGraph.addDependency( next, current, true, true );
+                
+                session.connectProjectHierarchy( next, true, current, true );
 
                 if ( !parentage.isEmpty() )
                 {

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.depgraph.collect;
+package org.commonjava.emb.depgraph.impl.collect;
 
 import org.commonjava.emb.graph.DirectionalEdge;
 import org.sonatype.aether.artifact.Artifact;

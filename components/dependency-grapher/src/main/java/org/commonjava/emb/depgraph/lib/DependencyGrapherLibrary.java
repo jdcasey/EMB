@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Red Hat, Inc.
+ * Copyright 2010 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project.lib;
+package org.commonjava.emb.depgraph.lib;
 
 import org.apache.maven.mae.conf.AbstractMAELibrary;
 import org.apache.maven.mae.conf.MAELibrary;
@@ -22,14 +22,14 @@ import org.apache.maven.mae.conf.MavenPomVersionProvider;
 import org.commonjava.atservice.annotation.Service;
 
 @Service( MAELibrary.class )
-public class ProjectToolsLibrary
+public class DependencyGrapherLibrary
     extends AbstractMAELibrary
 {
 
-    public ProjectToolsLibrary()
+    public DependencyGrapherLibrary()
     {
-        super( "project", "Project-Tools", new MavenPomVersionProvider( "org.commonjava.emb.components",
-                                                                        "emb-project-tools" ) );
+        super( "depgraph", "Dependency-Grapher", new MavenPomVersionProvider( "org.commonjava.emb.components",
+                                                                        "emb-dependency-grapher" ) );
     }
 
 }

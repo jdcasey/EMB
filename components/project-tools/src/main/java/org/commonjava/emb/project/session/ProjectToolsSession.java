@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Red Hat, Inc.
+ * Copyright 2011 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Repository;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.DependencySelector;
@@ -71,10 +70,6 @@ public interface ProjectToolsSession
 
     MavenProject getReactorProject( final Artifact artifact );
 
-    DependencyGraph getDependencyGraph();
-
-    ProjectToolsSession setDependencyGraph( final DependencyGraph dependencyGraph );
-
     ProjectToolsSession copy();
 
     RemoteRepository[] getRemoteRepositoriesArray();
@@ -98,4 +93,15 @@ public interface ProjectToolsSession
     DependencyFilter getDependencyFilter();
 
     ProjectToolsSession setDependencyFilter( DependencyFilter filter );
+
+    void connectProjectHierarchy( Artifact parent, boolean parentPreResolved, Artifact child, boolean childPreResolved );
+    
+    <T> T setState( T state );
+    
+    <T> T getState( Class<T> stateType );
+    
+    <T> T clearState( Class<T> stateType );
+    
+    void clearStates();
+    
 }

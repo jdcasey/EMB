@@ -1,4 +1,4 @@
-package org.commonjava.emb.project.depgraph.collect;
+package org.commonjava.emb.depgraph.impl.collect;
 
 /*******************************************************************************
  * Copyright (c) 2010-2011 Sonatype, Inc.

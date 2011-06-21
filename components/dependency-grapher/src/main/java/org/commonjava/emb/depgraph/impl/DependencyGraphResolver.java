@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project.depgraph;
+package org.commonjava.emb.depgraph.impl;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.RepositoryUtils;
@@ -23,6 +23,9 @@ import org.apache.maven.model.DependencyManagement;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.commonjava.emb.depgraph.DepGraphNode;
+import org.commonjava.emb.depgraph.DepGraphRootNode;
+import org.commonjava.emb.depgraph.DependencyGraph;
 import org.commonjava.emb.project.session.ProjectToolsSession;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -222,7 +225,16 @@ public class DependencyGraphResolver
     {
         final ArtifactTypeRegistry stereotypes = rss.getArtifactTypeRegistry();
 
-        final DependencyGraph depGraph = session.getDependencyGraph();
+        DependencyGraph depGraph;
+        synchronized( session )
+        {
+            depGraph = session.getState( DependencyGraph.class );
+            if ( depGraph == null )
+            {
+                depGraph = new DependencyGraph();
+            }
+        }
+        
         final GraphAccumulator accumulator = new GraphAccumulator( depGraph, session.getDependencyFilter() );
 
         for ( final MavenProject project : projects )

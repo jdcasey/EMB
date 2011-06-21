@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.commonjava.emb.project.depgraph;
+package org.commonjava.emb.depgraph;
 
 import org.apache.maven.artifact.ArtifactUtils;
+import org.commonjava.emb.depgraph.impl.ArtifactOnlyDependencyNode;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -35,17 +36,11 @@ public class DepGraphNode
     implements Iterable<Throwable>
 {
 
-    // private static final Logger LOGGER = Logger.getLogger( DepGraphNode.class );
-
-    // private final Set<DisconnectedDepNode> nodes = new LinkedHashSet<DisconnectedDepNode>();
-
     private Artifact latestArtifact;
 
     private ArtifactResult latestResult;
 
     private final LinkedHashSet<RemoteRepository> remoteRepositories = new LinkedHashSet<RemoteRepository>();
-
-    // private final Map<String, ArtifactResult> results = new HashMap<String, ArtifactResult>();
 
     private String key;
 
@@ -105,7 +100,6 @@ public class DepGraphNode
     {
         latestDependencyNode = node;
 
-        // nodes.add( new DisconnectedDepNode( node ) );
         if ( node.getRepositories() != null )
         {
             remoteRepositories.addAll( node.getRepositories() );

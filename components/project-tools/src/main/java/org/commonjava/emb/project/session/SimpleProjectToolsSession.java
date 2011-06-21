@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Red Hat, Inc.
+ * Copyright 2011 Red Hat, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.apache.maven.model.Repository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.commonjava.emb.project.depgraph.DependencyGraph;
 import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.collection.DependencySelector;
@@ -35,8 +34,10 @@ import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SimpleProjectToolsSession
     implements ProjectToolsSession
@@ -45,8 +46,6 @@ public class SimpleProjectToolsSession
     private final File workdir;
 
     private final Repository[] resolveRepositories;
-
-    private DependencyGraph dependencyGraph;
 
     private transient List<ArtifactRepository> remoteArtifactRepositories;
 
@@ -69,6 +68,8 @@ public class SimpleProjectToolsSession
     private DependencySelector dependencySelector;
 
     private DependencyFilter filter;
+
+    private transient Map<Class<?>, Object> states = new HashMap<Class<?>, Object>();
 
     public SimpleProjectToolsSession( final File workdir, final Repository... resolveRepositories )
     {
@@ -298,41 +299,12 @@ public class SimpleProjectToolsSession
     /**
      * {@inheritDoc}
      * 
-     * @see org.commonjava.emb.project.session.ProjectToolsSession#getDependencyGraph()
-     */
-    @Override
-    public synchronized DependencyGraph getDependencyGraph()
-    {
-        if ( dependencyGraph == null )
-        {
-            dependencyGraph = new DependencyGraph();
-        }
-
-        return dependencyGraph;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.commonjava.emb.project.session.ProjectToolsSession#setGraphTracker(org.commonjava.emb.project.graph.DependencyGraphTracker)
-     */
-    @Override
-    public ProjectToolsSession setDependencyGraph( final DependencyGraph dependencyGraph )
-    {
-        this.dependencyGraph = dependencyGraph;
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
      * @see org.commonjava.emb.project.session.ProjectToolsSession#copyOf(org.commonjava.emb.project.session.ProjectToolsSession)
      */
     @Override
     public ProjectToolsSession copy()
     {
         final SimpleProjectToolsSession copy = new SimpleProjectToolsSession( workdir, resolveRepositories );
-        copy.dependencyGraph = dependencyGraph;
 
         copy.projectBuildingRequest =
             projectBuildingRequest == null ? null : new DefaultProjectBuildingRequest( projectBuildingRequest );
@@ -470,6 +442,45 @@ public class SimpleProjectToolsSession
     {
         this.filter = filter;
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @see org.commonjava.emb.project.session.ProjectToolsSession#connectProjectHierarchy(org.sonatype.aether.artifact.Artifact, boolean, org.sonatype.aether.artifact.Artifact, boolean)
+     */
+    @Override
+    public void connectProjectHierarchy( Artifact parent, boolean parentPreResolved, Artifact child,
+                                         boolean childPreResolved )
+    {
+        // NOP.
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public <T> T setState( final T state )
+    {
+        if ( state != null )
+        {
+            return (T) states.put( state.getClass(), state );
+        }
+        
+        return null;
+    }
+
+    public void clearStates()
+    {
+        states.clear();
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public <T> T clearState( final Class<T> type )
+    {
+        return (T) states.remove( type );
+    }
+
+    public <T> T getState( final Class<T> type )
+    {
+        final Object state = states.get( type );
+        return state == null ? null : type.cast( state );
     }
 
 }

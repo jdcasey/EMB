@@ -15,27 +15,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.depgraph;
+package org.commonjava.emb.depgraph;
 
-import org.apache.maven.artifact.ArtifactUtils;
-import org.apache.maven.project.MavenProject;
-import org.sonatype.aether.graph.DependencyNode;
+import org.apache.maven.mae.MAEException;
+import org.commonjava.emb.project.session.ProjectToolsSession;
 
-public class DepGraphRootNode
-    extends DepGraphNode
+import java.io.File;
+
+public interface DepGraphLoader
 {
 
-    private final MavenProject project;
+    DependencyGraph loadProjectDependencyGraph( final File rootPom, final ProjectToolsSession session,
+                                                final boolean includeModuleProjects )
+        throws MAEException;
 
-    public DepGraphRootNode( final DependencyNode node, final MavenProject project )
-    {
-        super( node, ArtifactUtils.key( project.getGroupId(), project.getArtifactId(), project.getVersion() ), true );
-        this.project = project;
-    }
-
-    public MavenProject getProject()
-    {
-        return project;
-    }
+    DependencyGraph resolveProjectDependencies( final File rootPom, final ProjectToolsSession session,
+                                                final boolean includeModuleProjects )
+        throws MAEException;
 
 }

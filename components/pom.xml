@@ -87,6 +87,7 @@
     <module>autoboxing-version-range</module>
     <module>project-tools</module>
     <module>graph-support</module>
+    <module>dependency-grapher</module>
   </modules>
 
 </project>

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.commonjava.emb.project.depgraph;
+package org.commonjava.emb.depgraph.impl;
 
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
@@ -27,18 +27,27 @@ import org.sonatype.aether.version.VersionConstraint;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-final class DisconnectedDepNode
+public final class ArtifactOnlyDependencyNode
     implements DependencyNode
 {
 
-    private final DependencyNode delegate;
+    private final Dependency dep;
 
-    DisconnectedDepNode( final DependencyNode delegate )
+    private String preVersion;
+
+    private String preScope;
+
+    private final Map<Object, Object> data = new LinkedHashMap<Object, Object>();
+
+    private String requestContext = "project";
+
+    public ArtifactOnlyDependencyNode( final Artifact artifact )
     {
-        this.delegate = delegate;
+        dep = new Dependency( artifact, null );
     }
 
     @Override
@@ -48,93 +57,112 @@ final class DisconnectedDepNode
     }
 
     @Override
-    public boolean accept( final DependencyVisitor visitor )
-    {
-        return false;
-    }
-
-    @Override
     public Dependency getDependency()
     {
-        return delegate.getDependency();
+        return dep;
     }
 
     @Override
-    public void setArtifact( final Artifact artifact )
+    public synchronized void setArtifact( final Artifact artifact )
     {
-        delegate.setArtifact( artifact );
+        if ( artifact == null )
+        {
+            return;
+        }
+        else if ( preVersion == null )
+        {
+            preVersion = dep.getArtifact().getVersion();
+        }
+
+        dep.setArtifact( artifact );
     }
 
     @Override
     public List<Artifact> getRelocations()
     {
-        return delegate.getRelocations();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<Artifact> getAliases()
     {
-        return delegate.getAliases();
+        return Collections.emptySet();
     }
 
     @Override
     public VersionConstraint getVersionConstraint()
     {
-        return delegate.getVersionConstraint();
+        return null;
     }
 
     @Override
     public Version getVersion()
     {
-        return delegate.getVersion();
+        return null;
     }
 
     @Override
-    public void setScope( final String scope )
+    public synchronized void setScope( final String scope )
     {
-        delegate.setScope( scope );
+        if ( scope == null )
+        {
+            return;
+        }
+
+        if ( preScope == null )
+        {
+            preScope = dep.getScope();
+        }
+
+        dep.setScope( scope );
     }
 
     @Override
-    public String getPremanagedVersion()
+    public synchronized String getPremanagedVersion()
     {
-        return delegate.getPremanagedVersion();
+        return preVersion == null ? dep.getArtifact().getVersion() : preVersion;
     }
 
     @Override
-    public String getPremanagedScope()
+    public synchronized String getPremanagedScope()
     {
-        return delegate.getPremanagedScope();
+        return preScope == null ? dep.getScope() : preScope;
     }
 
     @Override
     public List<RemoteRepository> getRepositories()
     {
-        return delegate.getRepositories();
+        return Collections.emptyList();
     }
 
     @Override
     public String getRequestContext()
     {
-        return delegate.getRequestContext();
+        return requestContext;
     }
 
     @Override
-    public void setRequestContext( final String context )
+    public void setRequestContext( final String requestContext )
     {
-        delegate.setRequestContext( context );
+        this.requestContext = requestContext;
     }
 
     @Override
     public Map<Object, Object> getData()
     {
-        return delegate.getData();
+        return data;
     }
 
     @Override
     public void setData( final Object key, final Object value )
     {
-        delegate.setData( key, value );
+        data.put( key, value );
+    }
+
+    @Override
+    public boolean accept( final DependencyVisitor visitor )
+    {
+        return false;
     }
 
 }
