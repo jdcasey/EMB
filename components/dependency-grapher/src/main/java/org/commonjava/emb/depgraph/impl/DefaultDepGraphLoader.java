@@ -57,7 +57,7 @@ public class DefaultDepGraphLoader
         List<MavenProject> projects;
         if ( includeModuleProjects )
         {
-            projects = projectLoader.buildReactorProjectInstances( session, rootPom );
+            projects = projectLoader.buildReactorProjectInstances( session, includeModuleProjects, rootPom );
         }
         else
         {
@@ -81,7 +81,7 @@ public class DefaultDepGraphLoader
         List<MavenProject> projects;
         if ( includeModuleProjects )
         {
-            projects = projectLoader.buildReactorProjectInstances( session, rootPom );
+            projects = projectLoader.buildReactorProjectInstances( session, includeModuleProjects, rootPom );
         }
         else
         {
