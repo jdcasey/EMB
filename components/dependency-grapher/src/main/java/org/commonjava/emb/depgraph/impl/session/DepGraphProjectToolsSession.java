@@ -16,6 +16,7 @@
 
 package org.commonjava.emb.depgraph.impl.session;
 
+import org.apache.maven.mae.project.session.ProjectToolsSession;
 import org.apache.maven.mae.project.session.SimpleProjectToolsSession;
 import org.commonjava.emb.depgraph.DependencyGraph;
 import org.sonatype.aether.artifact.Artifact;
@@ -25,8 +26,10 @@ public class DepGraphProjectToolsSession
 {
 
     @Override
-    public synchronized void connectProjectHierarchy( Artifact parent, boolean parentPreResolved, Artifact child,
-                                         boolean childPreResolved )
+    public synchronized ProjectToolsSession connectProjectHierarchy( final Artifact parent,
+                                                                     final boolean parentPreResolved,
+                                                                     final Artifact child,
+                                                                     final boolean childPreResolved )
     {
         DependencyGraph graph = getState( DependencyGraph.class );
         if ( graph == null )
@@ -34,8 +37,10 @@ public class DepGraphProjectToolsSession
             graph = new DependencyGraph();
             setState( graph );
         }
-        
+
         graph.addDependency( parent, child, parentPreResolved, childPreResolved );
+
+        return this;
     }
 
 }
