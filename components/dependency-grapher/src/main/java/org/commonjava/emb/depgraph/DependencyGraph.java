@@ -17,6 +17,13 @@
 
 package org.commonjava.emb.depgraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.project.MavenProject;
 import org.commonjava.emb.graph.DirectedGraph;
 import org.commonjava.emb.graph.DirectionalEdge;
@@ -25,18 +32,9 @@ import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResult;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 public class DependencyGraph
     implements Iterable<DepGraphNode>
 {
-
-    private static final long serialVersionUID = 1L;
 
     private final Set<DepGraphRootNode> roots = new LinkedHashSet<DepGraphRootNode>();
 
