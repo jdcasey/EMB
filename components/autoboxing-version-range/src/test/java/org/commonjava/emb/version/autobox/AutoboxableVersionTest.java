@@ -20,12 +20,11 @@ import static org.commonjava.emb.version.autobox.AutoboxingParser.parseVersion;
 import static org.commonjava.emb.version.autobox.qual.RedHatQualifiers.INSTANCE;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.sonatype.aether.version.InvalidVersionSpecificationException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class AutoboxableVersionTest
 {
@@ -37,8 +36,7 @@ public class AutoboxableVersionTest
         final List<AutoboxableVersion> versions = new ArrayList<AutoboxableVersion>();
 
         versions.add( parseVersion( "1.0.2", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
-        versions.add( parseVersion( "1.0.1-redhat-1", INSTANCE.rebuildIndicator(),
-                                    INSTANCE.order() ) );
+        versions.add( parseVersion( "1.0.1-redhat-1", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
         versions.add( parseVersion( "1.0.1", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
         versions.add( parseVersion( "1.0", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
         versions.add( parseVersion( "1.0-rc2", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
@@ -49,9 +47,8 @@ public class AutoboxableVersionTest
         versions.add( parseVersion( "1.0-alpha-1", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
         versions.add( parseVersion( "1.0-m1", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
         versions.add( parseVersion( "1.0-SNAPSHOT", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
-        versions.add( parseVersion( "1.0-20101122.121415-1", INSTANCE.rebuildIndicator(),
-                                    INSTANCE.order() ) );
-        
+        versions.add( parseVersion( "1.0-20101122.121415-1", INSTANCE.rebuildIndicator(), INSTANCE.order() ) );
+
         for ( int i = 1; i < versions.size(); i++ )
         {
             final AutoboxableVersion later = versions.get( i - 1 );

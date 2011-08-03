@@ -21,8 +21,6 @@ public class SimpleDirectedGraph<V>
     extends DirectedGraph<V, DirectionalEdge<V>>
 {
 
-    private static final long serialVersionUID = 1L;
-
     public SimpleDirectedGraph()
     {
         super( new DirectionalEdge.SimpleDirectionalEdgeFactory<V>() );

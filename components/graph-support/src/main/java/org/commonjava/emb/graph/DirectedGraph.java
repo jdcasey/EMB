@@ -17,6 +17,8 @@
 
 package org.commonjava.emb.graph;
 
+import java.io.PrintWriter;
+
 import org.commonjava.emb.graph.DirectionalEdge.DirectionalEdgeFactory;
 import org.commonjava.emb.graph.output.EdgePrinter;
 import org.commonjava.emb.graph.output.GraphPrinter;
@@ -27,13 +29,9 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Graphs;
 
-import java.io.PrintWriter;
-
 public class DirectedGraph<V, E extends DirectionalEdge<V>>
     implements GraphManager<V, E>
 {
-
-    private static final long serialVersionUID = 1L;
 
     private final DirectedSparseGraph<V, E> graph = new DirectedSparseGraph<V, E>();
 

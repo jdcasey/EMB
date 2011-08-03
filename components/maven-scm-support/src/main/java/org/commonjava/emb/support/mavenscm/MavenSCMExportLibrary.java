@@ -19,9 +19,9 @@ package org.commonjava.emb.support.mavenscm;
 import org.apache.maven.mae.conf.AbstractMAELibrary;
 import org.apache.maven.mae.conf.MAELibrary;
 import org.apache.maven.mae.conf.MavenPomVersionProvider;
-import org.apache.maven.mae.internal.container.ComponentKey;
 import org.apache.maven.scm.manager.ScmManager;
 import org.commonjava.atservice.annotation.Service;
+import org.sonatype.guice.bean.locators.ComponentKey;
 
 @Service( MAELibrary.class )
 public class MavenSCMExportLibrary

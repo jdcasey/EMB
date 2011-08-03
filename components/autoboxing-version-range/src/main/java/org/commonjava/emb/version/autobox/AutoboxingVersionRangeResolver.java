@@ -16,6 +16,15 @@
 
 package org.commonjava.emb.version.autobox;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.codehaus.plexus.component.annotations.Component;
@@ -26,6 +35,7 @@ import org.commonjava.emb.version.autobox.lib.AutoboxingConfig;
 import org.sonatype.aether.RepositoryEvent.EventType;
 import org.sonatype.aether.RepositoryListener;
 import org.sonatype.aether.RepositorySystemSession;
+import org.sonatype.aether.RequestTrace;
 import org.sonatype.aether.impl.MetadataResolver;
 import org.sonatype.aether.impl.VersionRangeResolver;
 import org.sonatype.aether.metadata.Metadata;
@@ -42,15 +52,6 @@ import org.sonatype.aether.util.metadata.DefaultMetadata;
 import org.sonatype.aether.version.InvalidVersionSpecificationException;
 import org.sonatype.aether.version.Version;
 import org.sonatype.aether.version.VersionConstraint;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Component( role = VersionRangeResolver.class, hint = AutoboxingVersionRangeResolver.HINT )
 public class AutoboxingVersionRangeResolver
@@ -81,6 +82,7 @@ public class AutoboxingVersionRangeResolver
         return v.isRebuild();
     }
 
+    @Override
     public VersionRangeResult resolveVersionRange( final RepositorySystemSession session,
                                                    final VersionRangeRequest request )
         throws VersionRangeResolutionException
@@ -105,7 +107,7 @@ public class AutoboxingVersionRangeResolver
         {
             result.addException( e );
             throw new VersionRangeResolutionException( result, "Failed to parse version range for: "
-                            + request.getArtifact() );
+                + request.getArtifact() );
         }
 
         result.setVersionConstraint( constraint );
@@ -186,7 +188,8 @@ public class AutoboxingVersionRangeResolver
                 repo = session.getLocalRepository();
             }
 
-            final Versioning versioning = resolveVersions( session, mResult.getMetadata(), repo, result );
+            final Versioning versioning =
+                resolveVersions( session, mResult.getMetadata(), repo, result, req.getTrace() );
 
             for ( final String v : versioning.getVersions() )
             {
@@ -226,7 +229,8 @@ public class AutoboxingVersionRangeResolver
     }
 
     private Versioning resolveVersions( final RepositorySystemSession session, final Metadata metadata,
-                                        final ArtifactRepository repository, final VersionRangeResult result )
+                                        final ArtifactRepository repository, final VersionRangeResult result,
+                                        final RequestTrace trace )
     {
         Versioning versioning = null;
 
@@ -243,13 +247,13 @@ public class AutoboxingVersionRangeResolver
         {
             if ( !( e instanceof FileNotFoundException ) )
             {
-                sendInvalidEvent( session, metadata, repository, e );
+                sendInvalidEvent( session, metadata, repository, e, trace );
                 result.addException( e );
             }
         }
         catch ( final XmlPullParserException e )
         {
-            sendInvalidEvent( session, metadata, repository, e );
+            sendInvalidEvent( session, metadata, repository, e, trace );
             result.addException( e );
         }
         finally
@@ -261,14 +265,13 @@ public class AutoboxingVersionRangeResolver
     }
 
     private void sendInvalidEvent( final RepositorySystemSession session, final Metadata metadata,
-                                   final ArtifactRepository repository, final Exception exception )
+                                   final ArtifactRepository repository, final Exception exception,
+                                   final RequestTrace trace )
     {
         final RepositoryListener listener = session.getRepositoryListener();
         if ( listener != null )
         {
-            listener.metadataInvalid( new DefaultRepositoryEvent( EventType.METADATA_INVALID, session ).setException( exception )
-                                                                                                       .setMetadata( metadata )
-                                                                                                       .setRepository( repository ) );
+            listener.metadataInvalid( new DefaultRepositoryEvent( EventType.METADATA_INVALID, session, trace ).setException( exception ).setMetadata( metadata ).setRepository( repository ) );
         }
     }
 
