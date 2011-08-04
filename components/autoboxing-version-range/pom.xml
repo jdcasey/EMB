@@ -33,11 +33,18 @@
     <dependency>
     	<groupId>commons-io</groupId>
     	<artifactId>commons-io</artifactId>
+    	<scope>compile</scope>
     </dependency>
     <dependency>
-    	<groupId>org.sonatype.sisu</groupId>
-    	<artifactId>sisu-inject-plexus</artifactId>
-    	<scope>provided</scope>
+    	<groupId>org.apache.maven.mae</groupId>
+    	<artifactId>mae-booter</artifactId>
+    	<version>${maeVersion}</version>
+    	<scope>compile</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.maven.wagon</groupId>
+    	<artifactId>wagon-http-lightweight</artifactId>
+    	<scope>compile</scope>
     </dependency>
     <dependency>
     	<groupId>org.sonatype.aether</groupId>
