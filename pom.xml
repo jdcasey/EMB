@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>com.redhat.rcm.maven</groupId>
-    <artifactId>tooling-toolchain</artifactId>
-    <version>1</version>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
   </parent>
   
   <groupId>org.commonjava.emb</groupId>
@@ -25,7 +25,7 @@
   </modules>
   
   <scm>
-    <connection>scm:git:http://jdcasey@github.com/jdcasey/EMB.git</connection>
+    <connection>scm:git:http://github.com/jdcasey/EMB.git</connection>
     <developerConnection>scm:git:git@github.com:jdcasey/EMB.git</developerConnection>
     <url>http://github.com/jdcasey/EMB</url>
   </scm>
