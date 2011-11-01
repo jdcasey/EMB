@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
   
   <properties>
-    <maeVersion>0.9.6-redhat</maeVersion>
+    <maeVersion>1.0-alpha-1</maeVersion>
   	<mavenVersion>3.0.3</mavenVersion>
   </properties>
   
