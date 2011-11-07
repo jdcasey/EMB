@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Copyright 2010 Red Hat, Inc.
+  Copyright 2011 Red Hat, Inc.
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
     <version>0.6-SNAPSHOT</version>
   </parent>
   
-  <artifactId>maven-scm-support</artifactId>
+  <artifactId>emb-maven-scm-support</artifactId>
   
   <name>EMB Service Export for Maven-SCM</name>
   
